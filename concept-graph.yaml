@@ -5,7 +5,7 @@
 # introduced within) its own.
 #
 # `introduced_in_chapter: null` means the concept has not yet been formally
-# taught by any drafted chapter (Chapters 1-10 only, as of this revision).
+# taught by any drafted chapter (Chapters 1-15 only, as of this revision).
 # `also_appears_in` records informal/operational use before formal
 # introduction, which BLUEPRINT.md itself does in a few places (see the
 # "known tensions" note at the bottom and concept-graph.md for discussion).
@@ -115,21 +115,32 @@ levels:
     name: "Profiling"
     concepts:
       - name: counter
-        introduced_in_chapter: null
+        introduced_in_chapter: 11
         also_appears_in: [10]
-        note: "Chapter 10 uses 'counter' operationally throughout (PMU counters, perf stat) without formally defining the term as a Level 3 concept; formal treatment begins Part III (Chapter 11)."
-      - { name: sampling, introduced_in_chapter: null }
-      - { name: tracing, introduced_in_chapter: null }
-      - { name: sample frequency, introduced_in_chapter: null }
-      - { name: call stack, introduced_in_chapter: null }
-      - { name: symbol, introduced_in_chapter: null }
-      - { name: debug information, introduced_in_chapter: null }
-      - { name: unwinding, introduced_in_chapter: null }
-      - { name: frame pointer, introduced_in_chapter: null }
-      - { name: call graph, introduced_in_chapter: null }
-      - { name: flame graph, introduced_in_chapter: null }
-      - { name: differential flame graph, introduced_in_chapter: null }
-      - { name: annotation, introduced_in_chapter: null }
+        note: "Chapter 10 used 'counter' operationally (PMU counters, perf stat) before Chapter 11 formally contrasts counting with sampling and tracing as three observation models."
+      - { name: sampling, introduced_in_chapter: 11 }
+      - { name: tracing, introduced_in_chapter: 11 }
+      - name: sample frequency
+        introduced_in_chapter: 12
+        note: "Introduced via Chapter 12's separate 'sample' and 'frequency' New Concepts entries."
+      - name: call stack
+        introduced_in_chapter: 12
+        also_appears_in: [11, 13]
+        note: "Used from Chapter 11 onward; first substantively built on via 'call graph' (a tree of call stacks) in Chapter 12."
+      - name: symbol
+        introduced_in_chapter: 13
+        note: "Introduced as 'symbol table' in Chapter 13's New Concepts."
+      - { name: debug information, introduced_in_chapter: 13 }
+      - name: unwinding
+        introduced_in_chapter: 13
+        note: "Introduced as 'stack unwinding' in Chapter 13's New Concepts."
+      - name: frame pointer
+        introduced_in_chapter: 13
+        note: "Introduced as 'frame pointers' in Chapter 13's New Concepts."
+      - { name: call graph, introduced_in_chapter: 12 }
+      - { name: flame graph, introduced_in_chapter: 14 }
+      - { name: differential flame graph, introduced_in_chapter: 15 }
+      - { name: annotation, introduced_in_chapter: 12 }
 
   - level: 4
     name: "Memory Behavior"
@@ -258,5 +269,5 @@ narrative_graph:
   - { n: 29, question: "Where does time go when a thread is not on a CPU?", chapter: 29 }
   - { n: 30, question: "How do all the layers combine into one defensible investigation?", chapter: 30 }
 
-chapters_drafted: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-chapters_pending: [11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30]
+chapters_drafted: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
+chapters_pending: [16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30]

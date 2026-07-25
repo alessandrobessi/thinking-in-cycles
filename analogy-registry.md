@@ -3,15 +3,15 @@
 Seed table reproduced verbatim from BLUEPRINT.md Section 17, plus tracking
 columns for actual use. Per Section 17: analogies should be reused
 consistently and retired when they stop helping. Status as of this
-revision: Chapters 1–10 drafted.
+revision: Chapters 1–15 drafted.
 
 | Concept | Canonical analogy | Constraint | First used in | Status |
 |---|---|---|---|---|
 | Latency vs throughput | Travel time for one vehicle vs vehicles per hour | Do not imply roads perfectly model queues. | Chapter 3 | used |
 | Saturation | Checkout line whose queue grows after cashiers reach capacity | Pair with measured latency curves. | Chapter 3 | used |
 | CPU pipeline | Multi-stage assembly line with out-of-order readiness | Clarify that CPU execution is more dynamic than a literal conveyor belt. | Chapter 8 | used |
-| Sampling | Periodically photographing a factory floor | Emphasize statistical representation, not complete history. | — | not yet used |
-| Flame graph | A population map of observed call stacks | Never call it a timeline. | — | not yet used |
+| Sampling | Periodically photographing a factory floor | Emphasize statistical representation, not complete history. | Chapter 11 | used |
+| Flame graph | A population map of observed call stacks | Never call it a timeline. | Chapter 14 | used |
 | Cache hierarchy | Desk, drawer, archive, warehouse | Use only to establish distance and capacity. | — | not yet used |
 | Branch prediction | Choosing a route before reaching a fork | Explain recovery cost after the analogy. | Chapter 9 | used |
 | False sharing | Two people repeatedly erasing separate fields on one shared whiteboard | Emphasize cache-line granularity. | — | not yet used |
@@ -30,7 +30,7 @@ revision: Chapters 1–10 drafted.
   starting in Chapter 2 (defining a workload and metric before measuring),
   reinforced in Chapter 4 (benchmarking hygiene) and Chapter 5 (the
   investigation loop's hypothesis/falsification framing).
-- No new analogies were introduced in Chapters 1–10 beyond the seed list;
+- No new analogies were introduced in Chapters 1–15 beyond the seed list;
   Chapter 1's incident narrative is told directly, without a standing
   analogy, since the blueprint's Section 17 list has no entry for
   "on-CPU/off-CPU time accounting" yet.
@@ -42,3 +42,11 @@ revision: Chapters 1–10 drafted.
   Chapter 9's Core Intuition, with the recovery-cost constraint honored
   via the "prepared to double back if this particular choice turns out
   wrong" clause in the same sentence.
+- **Sampling** (photographing a factory floor) is used in Chapter 11's
+  Core Intuition, with the constraint honored by pairing it directly
+  with the "a photo... says almost nothing about a single rare, brief
+  event between photos" caveat.
+- **Flame graph** (population map of call stacks) is used in Chapter
+  14's Core Intuition, with the "never call it a timeline" constraint
+  honored in the same sentence and reinforced by that chapter's M06
+  misconception entry.

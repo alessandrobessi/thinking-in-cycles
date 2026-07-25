@@ -8,7 +8,7 @@ the machine-readable source of truth. Both derive from BLUEPRINT.md Section
 levels *< N*. No chapter may rely on a concept before its prerequisites have
 been introduced (BLUEPRINT.md Section 11, closing line).
 
-Status as of this revision: **Chapters 1–10 drafted, Chapters 11–30 pending.**
+Status as of this revision: **Chapters 1–15 drafted, Chapters 16–30 pending.**
 
 ## Level 0 — Questions and Measurements
 
@@ -48,15 +48,21 @@ wording used.
 
 ## Level 3 — Profiling
 
-counter\* · sampling · tracing · sample frequency · call stack · symbol ·
-debug information · unwinding · frame pointer · call graph · flame graph ·
-differential flame graph · annotation
+counter¹¹\* · sampling¹¹ · tracing¹¹ · sample frequency¹² · call stack¹²\* ·
+symbol¹³ · debug information¹³ · unwinding¹³ · frame pointer¹³ ·
+call graph¹² · flame graph¹⁴ · differential flame graph¹⁵ · annotation¹²
 
-Not formally introduced yet. First formal treatment: Part III (Chapters
-11–15). \* Chapter 10 already uses **counter** operationally throughout
-(PMU counters, `perf stat`) without formally defining it as a concept —
-the same "informal early, formal later" pattern as the Level 7 terms
-below.
+All thirteen Level 3 terms are now introduced (Chapters 11–15 complete
+Part III). \* **counter** was used operationally in Chapter 10 (PMU
+counters, `perf stat`) before Chapter 11 formally contrasts counting
+with sampling and tracing as three observation models — the "informal
+early, formal later" pattern also used for the Level 7 terms below.
+**call stack** is used from Chapter 11 onward and first substantively
+built on via Chapter 12's "call graph" (a tree of call stacks). A few
+others used a different surface form than the seed name: "symbol" as
+Chapter 13's "symbol table", "unwinding" as "stack unwinding", "frame
+pointer" as "frame pointers", "sample frequency" via Chapter 12's
+separate "sample" and "frequency" entries.
 
 ## Level 4 — Memory Behavior
 
@@ -112,7 +118,7 @@ treat entries with `also_appears_in` as intentional, not violations.
 
 ## Supplementary vocabulary (not in Section 11 at any level)
 
-Chapters 1–10 also introduce plain teaching vocabulary that Section 11 never
+Chapters 1–15 also introduce plain teaching vocabulary that Section 11 never
 lists at all. These are tracked in `glossary.md` but have no `level` in
 `concept-graph.yaml`:
 
@@ -126,18 +132,25 @@ lists at all. These are tracked in `glossary.md` but have no `level` in
 - **Chapter 8:** decode, execution units, out-of-order execution, memory wait, issue width intuition
 - **Chapter 9:** branch, branch predictor, misprediction, speculative execution, dependency chain, branchless trade-off
 - **Chapter 10:** hardware event, software event, event group, scaling, per-thread versus system-wide measurement, privilege restrictions
+- **Chapter 11:** counting, sampling (as an observation model), tracing (as an observation model)
+- **Chapter 12:** sample, period, overhead percentage, inclusive versus self cost, source mapping
+- **Chapter 13:** stripped binary, DWARF, last branch records, JIT symbols, kernel symbols
+- **Chapter 14:** folded stack, stack aggregation, frame width, ancestry, plateau, tower, off-CPU flame graph
+- **Chapter 15:** before/after profile, normalized workload, `perf diff`, regression, total-work normalization
 
 ## Narrative Graph (Section 12)
 
 The book follows one chain of 30 questions, each becoming the next chapter's
 opening question. See `concept-graph.yaml`'s `narrative_graph` list for the
-full machine-readable form (question text + chapter number). Questions 1–10
-are answered by the drafted chapters; 11–30 are pending. The chain is
-verified end-to-end for Chapters 1–10: each chapter's "Next Obvious
+full machine-readable form (question text + chapter number). Questions 1–15
+are answered by the drafted chapters; 16–30 are pending. The chain is
+verified end-to-end for Chapters 1–15: each chapter's "Next Obvious
 Question" is the verbatim opening question of the chapter that follows,
 including the Chapter 5 → Chapter 6 handoff ("What work does the CPU
-actually execute?") and the Chapter 10 → Chapter 11 handoff ("When should
-we count, sample, or trace?"). Two of BLUEPRINT.md's own per-chapter
+actually execute?"), the Chapter 10 → Chapter 11 handoff ("When should
+we count, sample, or trace?"), and the Chapter 15 → Chapter 16 handoff
+("Why can memory access dominate code that performs little
+computation?"). Two of BLUEPRINT.md's own per-chapter
 "Next question:" shorthand lines (Chapter 8's and Chapter 10's) do not
 match the following chapter's actual opening question verbatim; in both
 cases the drafted chapter uses the next chapter's real opening question,

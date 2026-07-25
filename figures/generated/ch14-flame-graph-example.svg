@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="204" viewBox="0 0 1200 204" font-family="monospace" font-size="11">
+<rect width="1200" height="204" fill="#ffffff"/>
+<g><title>root (7806 samples, 100.0%)</title><rect x="0.00" y="187" width="1200.00" height="16" fill="#888888" stroke="#ffffff" stroke-width="0.5"/>
+<text x="2.00" y="199" fill="#000000">root</text>
+</g>
+<g><title>thread (7806 samples, 100.0%)</title><rect x="0.00" y="170" width="1200.00" height="16" fill="#eecb8e" stroke="#ffffff" stroke-width="0.5"/>
+<text x="2.00" y="182" fill="#000000">thread</text>
+</g>
+<g><title>start (2602 samples, 33.3%)</title><rect x="0.00" y="153" width="400.00" height="16" fill="#e3a86a" stroke="#ffffff" stroke-width="0.5"/>
+<text x="2.00" y="165" fill="#000000">start</text>
+</g>
+<g><title>main (2602 samples, 33.3%)</title><rect x="0.00" y="136" width="400.00" height="16" fill="#e6b566" stroke="#ffffff" stroke-width="0.5"/>
+<text x="2.00" y="148" fill="#000000">main</text>
+</g>
+<g><title>compute_run (2602 samples, 33.3%)</title><rect x="0.00" y="119" width="400.00" height="16" fill="#e6b566" stroke="#ffffff" stroke-width="0.5"/>
+<text x="2.00" y="131" fill="#000000">compute_run</text>
+</g>
+<g><title>_pthread_join (2602 samples, 33.3%)</title><rect x="0.00" y="102" width="400.00" height="16" fill="#e6b566" stroke="#ffffff" stroke-width="0.5"/>
+<text x="2.00" y="114" fill="#000000">_pthread_join</text>
+</g>
+<g><title>__ulock_wait (2602 samples, 33.3%)</title><rect x="0.00" y="85" width="400.00" height="16" fill="#efc48a" stroke="#ffffff" stroke-width="0.5"/>
+<text x="2.00" y="97" fill="#000000">__ulock_wait</text>
+</g>
+<g><title>thread_start (5204 samples, 66.7%)</title><rect x="400.00" y="153" width="800.00" height="16" fill="#e8985e" stroke="#ffffff" stroke-width="0.5"/>
+<text x="402.00" y="165" fill="#000000">thread_start</text>
+</g>
+<g><title>_pthread_start (5204 samples, 66.7%)</title><rect x="400.00" y="136" width="800.00" height="16" fill="#eecb8e" stroke="#ffffff" stroke-width="0.5"/>
+<text x="402.00" y="148" fill="#000000">_pthread_start</text>
+</g>
+<g><title>compute_worker (5204 samples, 66.7%)</title><rect x="400.00" y="119" width="800.00" height="16" fill="#e6b566" stroke="#ffffff" stroke-width="0.5"/>
+<text x="402.00" y="131" fill="#000000">compute_worker</text>
+</g>
+<g><title>timing_now_seconds (6 samples, 0.1%)</title><rect x="400.00" y="102" width="0.92" height="16" fill="#efc48a" stroke="#ffffff" stroke-width="0.5"/>
+</g>
+<g><title>DYLD-STUB$$clock_gettime (1 samples, 0.0%)</title><rect x="400.00" y="85" width="0.15" height="16" fill="#e6b566" stroke="#ffffff" stroke-width="0.5"/>
+</g>
+<g><title>clock_gettime (5 samples, 0.1%)</title><rect x="400.15" y="85" width="0.77" height="16" fill="#e8985e" stroke="#ffffff" stroke-width="0.5"/>
+</g>
+<g><title>_mach_boottime_usec (5 samples, 0.1%)</title><rect x="400.15" y="68" width="0.77" height="16" fill="#e3a86a" stroke="#ffffff" stroke-width="0.5"/>
+</g>
+<g><title>gettimeofday (5 samples, 0.1%)</title><rect x="400.15" y="51" width="0.77" height="16" fill="#eecb8e" stroke="#ffffff" stroke-width="0.5"/>
+</g>
+<g><title>__commpage_gettimeofday_internal (5 samples, 0.1%)</title><rect x="400.15" y="34" width="0.77" height="16" fill="#efc48a" stroke="#ffffff" stroke-width="0.5"/>
+</g>
+<g><title>mach_absolute_time (5 samples, 0.1%)</title><rect x="400.15" y="17" width="0.77" height="16" fill="#e3a86a" stroke="#ffffff" stroke-width="0.5"/>
+</g>
+</svg>

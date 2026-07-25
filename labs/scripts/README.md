@@ -28,8 +28,22 @@ invocation documented in the chapter text (Linux-only; not testable on
 this project's macOS reference machine), with Chapter 7's script serving
 as its portable fallback.
 
+| Script | Chapter | What it does |
+|---|---|---|
+| `capture_sample_profile.sh` | 11, 14, 15 | Reusable wrapper: runs a `cyclelab` command, profiles it with macOS `sample`, and folds the result into a `.folded` file. |
+| `foldstacks.py` | 11-15 (tooling) | Converts macOS `sample` output into folded-stack format (`frame1;frame2 count`), the same format Linux's `stackcollapse-perf.pl` produces. |
+| `flamegraph_svg.py` | 14, 15 (tooling) | Renders a folded-stack file to a static SVG flame graph; `--diff-against` enables Chapter 15's differential (red/blue) mode. |
+| `ch12_profile_hot_path.sh` | 12 | Profiles `cyclelab compute --chains=1` and prints `sample`'s self-cost ranking plus a per-source-line breakdown (this book's `perf annotate` equivalent). |
+| `ch13_symbol_availability.sh` | 13 | Builds full-debug, no-debug, and frame-pointer-omitted variants of the same source and compares what `sample` can reconstruct from each. |
+| `ch15_before_after.sh` | 15 | Interleaved before/after throughput benchmark plus a differential flame graph, for `--chains=1` vs `--chains=8`. |
+
+Chapters 11 and 14 use `capture_sample_profile.sh` (plus, for Chapter 14,
+`flamegraph_svg.py`) directly rather than a dedicated per-chapter script.
+
 Every script above is **portable** (BLUEPRINT.md Section 13.2): no root,
-no `perf`, no special hardware. They run on Linux and macOS; a few print
-platform-appropriate follow-up commands (e.g. `vmstat` vs. `vm_stat`, or
-`objdump`'s macOS `--macho` flag vs. plain Linux usage) rather than
-pretending one OS's tool exists everywhere.
+no `perf`, no special hardware — except that the Chapter 11-15 scripts
+specifically require macOS's built-in `sample`(1) utility, since this
+project's reference machine has no `perf`. They run on Linux and macOS;
+a few print platform-appropriate follow-up commands (e.g. `vmstat` vs.
+`vm_stat`, or `objdump`'s macOS `--macho` flag vs. plain Linux usage)
+rather than pretending one OS's tool exists everywhere.

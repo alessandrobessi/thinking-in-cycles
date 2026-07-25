@@ -2,8 +2,8 @@
 
 Terms are grouped by concept level (see `concept-graph.md`), alphabetical
 within each group, then a **Supplementary vocabulary** section for teaching
-terms Chapters 1–10 use that BLUEPRINT.md Section 11 doesn't formally list at
-any level. Status as of this revision: Chapters 1–10 drafted.
+terms Chapters 1–15 use that BLUEPRINT.md Section 11 doesn't formally list at
+any level. Status as of this revision: Chapters 1–15 drafted.
 
 ## Level 0 — Questions and Measurements
 
@@ -236,24 +236,108 @@ because the next instruction it would run is waiting on a dependency or
 a memory access.
 **See also:** dependency, memory wait
 
-## Levels 3–7
+## Level 3 — Profiling
 
-Not yet formally introduced by any drafted chapter. Term lists live in
-`concept-graph.yaml`/`concept-graph.md`; definitions will be added as
-Chapters 11–30 are drafted.
+All thirteen Level 3 terms are introduced by Chapters 11–15 (Part III is
+complete as of this revision).
 
-**Exceptions (informal use before formal treatment):** `on-CPU time` and
-`off-CPU time` (formally Level 7, Chapter 29) are used informally
-starting in Chapter 1; `counter` (formally Level 3, Chapter 11) is used
-informally starting in Chapter 10 — see `concept-graph.md`'s "Known
-tensions" section for all of these.
+### annotation
+**First introduced:** Chapter 12
+Mapping a function's sampled cost back onto its own source lines (or
+disassembly), built on the debug information (source mapping) Chapter 6
+first introduced.
+**See also:** source mapping, self cost
+
+### call graph
+**First introduced:** Chapter 12
+The tree of caller/callee relationships a profiler reconstructs from
+sampled call stacks.
+**See also:** call stack, inclusive cost
+
+### call stack
+**First introduced:** Chapter 12 (used informally from Chapter 11)
+The chain of currently-active function calls at the moment a sample is
+taken, from the outermost caller down to the innermost executing frame.
+**See also:** call graph, stack unwinding
 
 ### counter
-**Used informally in:** Chapter 10 · **Formal definition:** Chapter 11
+**First introduced:** Chapter 11 (used informally from Chapter 10)
 A hardware- or software-tracked count of a specific event, read via a
 tool like `perf stat` — used operationally throughout Chapter 10's `perf
 stat` material before Chapter 11 formally contrasts counting with
 sampling and tracing as three distinct observation models.
+
+### debug information
+**First introduced:** Chapter 13
+Compiler-generated metadata (commonly DWARF format) mapping compiled
+addresses back to source file and line, separate from and in addition
+to the symbol table.
+**See also:** symbol, DWARF, source mapping
+
+### differential flame graph
+**First introduced:** Chapter 15
+A flame graph rendered from two folded-stack captures at once, coloring
+each frame by whether its share of samples grew, shrank, or stayed
+roughly the same relative to a baseline.
+**See also:** flame graph, before/after profile
+
+### flame graph
+**First introduced:** Chapter 14
+A visualization of aggregated, folded call stacks where each frame's
+width is proportional to its share of total samples — not a timeline.
+**See also:** folded stack, frame width
+
+### frame pointer
+**First introduced:** Chapter 13
+A per-call-frame saved reference to the caller's frame, one common
+mechanism a profiler's stack unwinder can follow to reconstruct a call
+chain.
+**See also:** stack unwinding
+
+### sample frequency
+**First introduced:** Chapter 12
+How many samples a profiler takes per second — the inverse of the
+period between samples.
+**See also:** sample, period
+
+### sampling
+**First introduced:** Chapter 11
+An observation model that periodically checks what's currently
+executing, building a statistical picture of where execution tends to
+be from many such snapshots.
+**See also:** counting, tracing
+
+### symbol
+**First introduced:** Chapter 13 (as "symbol table")
+A name (typically a function name) a compiled address can be mapped
+back to, via the binary's symbol table — available independently of
+debug information.
+**See also:** debug information, stripped binary
+
+### tracing
+**First introduced:** Chapter 11
+An observation model that records specific, individually meaningful
+events as they happen, with timestamps and context, capable of catching
+every occurrence of even a rare event.
+**See also:** counting, sampling
+
+### unwinding
+**First introduced:** Chapter 13 (as "stack unwinding")
+The process of reconstructing the chain of callers from a single
+sampled snapshot, commonly via frame pointers or, on supporting
+platforms, DWARF-based or last-branch-record-based alternatives.
+**See also:** frame pointer, call stack
+
+## Levels 4–7
+
+Not yet formally introduced by any drafted chapter. Term lists live in
+`concept-graph.yaml`/`concept-graph.md`; definitions will be added as
+Chapters 16–30 are drafted.
+
+**Exception (informal use before formal treatment):** `on-CPU time` and
+`off-CPU time` (formally Level 7, Chapter 29) are used informally
+starting in Chapter 1 — see `concept-graph.md`'s "Known tensions"
+section.
 
 ### on-CPU time
 **Used informally in:** Chapter 1 · **Formal definition:** Chapter 29
@@ -266,7 +350,7 @@ waiting, blocked, or sleeping.
 
 ## Supplementary vocabulary
 
-Plain teaching terms Chapters 1–10 introduce that Section 11 doesn't list
+Plain teaching terms Chapters 1–15 introduce that Section 11 doesn't list
 at any formal level. Tracked here so they're not silently invented; not
 part of `concept-graph.yaml`'s level structure.
 
@@ -460,3 +544,94 @@ machine's activity (`perf stat -a`) over a fixed duration.
 **privilege restrictions** — The permission model (root,
 `perf_event_paranoid`, `CAP_PERFMON`) governing who can read hardware
 performance counters on a given Linux system.
+
+### Chapter 11
+
+**counting** — An observation model answering "how many/how much,"
+built from a running tally with no information about when or where each
+event happened.
+
+### Chapter 12
+
+**sample** — One snapshot of what's currently executing, taken by a
+profiler.
+
+**period** — How much time (or how many events) elapse between samples.
+
+**overhead percentage** — A sample count expressed as a share of total
+samples taken — a statistical estimate of time share, not a direct time
+measurement.
+
+**inclusive versus self cost** — Inclusive cost is the share of samples
+where a function appears anywhere in the active call stack, including
+everything it called; self cost is the share where it's the innermost,
+currently-executing frame.
+
+**source mapping** — The underlying debug-information mechanism
+connecting compiled addresses back to source file and line, which makes
+annotation possible.
+
+### Chapter 13
+
+**stripped binary** — A binary that has had some or all of its symbol
+table and/or debug information deliberately removed.
+
+**DWARF** — The debug information format most Linux and macOS compilers
+emit, mapping compiled addresses back to source file and line.
+
+**last branch records** — A hardware feature on some CPUs recording
+recent branch history, usable as an alternative stack-unwinding source
+independent of frame pointers.
+
+**JIT symbols** — Symbol information for code generated at runtime by a
+JIT compiler, which a static binary's symbol table cannot describe on
+its own.
+
+**kernel symbols** — Symbol information for addresses inside kernel
+code, subject to its own separate permission and availability rules
+(e.g. `kptr_restrict`).
+
+### Chapter 14
+
+**folded stack** — One line of text representing one unique call path
+and how many samples landed there (`frame1;frame2;frame3 count`), the
+intermediate format between raw captured samples and a rendered flame
+graph.
+
+**stack aggregation** — Merging every sample that shares an identical
+call path into one folded-stack line.
+
+**frame width** — The only flame graph dimension that encodes
+magnitude, proportional to a frame's share of total samples.
+
+**ancestry** — A frame's chain of parents going down to the root.
+
+**plateau** — A wide flame graph frame with little rising above most of
+its width, suggesting real self cost.
+
+**tower** — A full vertical stack of frames from base to top in a flame
+graph, representing one call path's full depth.
+
+**off-CPU flame graph** — A flame graph built from time spent blocked
+or waiting rather than executing, requiring a different capture method
+than a CPU flame graph since on-CPU sampling cannot see off-CPU time.
+
+### Chapter 15
+
+**before/after profile** — A pair of profiles capturing the same
+workload's shape both before and after exactly one change.
+
+**normalized workload** — A workload held constant, in an explicitly
+stated way (same input, same duration, or same completed work), so a
+before/after comparison is actually comparable.
+
+**`perf diff`** — The Linux `perf` subcommand for an aggregate,
+non-visual before/after profile comparison.
+
+**regression** — A change that made some metric worse, caught by the
+same before/after discipline used to catch improvements.
+
+**total-work normalization** — Making explicit whether a before/after
+comparison is normalized by time, by completed operations, or by
+another unit — since equal wall-clock duration does not mean equal
+completed work when one version is faster.

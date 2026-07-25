@@ -67,17 +67,32 @@ the Section 16 seed didn't anticipate them.
 ### M06
 **Misconception:** A flame graph is a timeline.
 **Correct intuition:** It aggregates stack samples; horizontal position is not chronological.
-**Used in chapters:** not yet (Chapter 14)
+**Evidence that distinguishes:** Generate a flame graph from a workload with two independent threads (as in Chapter 14's lab); adjacent towers sit side by side by frame-name sort order, not by which one executed first or more recently.
+**Used in chapters:** 14
 
 ### M07
 **Misconception:** The widest frame is the function to optimize.
 **Correct intuition:** Width may represent necessary work, a wrapper, or accumulated child cost.
-**Used in chapters:** not yet (Chapter 14)
+**Evidence that distinguishes:** Check whether a wide frame is a leaf (real self cost) or has children spanning nearly its full width (a wrapper passing width through) before deciding it's the target — Chapter 14's lab's `thread_start`/`_pthread_start` frames are wide but do essentially no work of their own.
+**Used in chapters:** 14
+
+### M31 — proposed, pending review
+**Misconception:** A flame graph's frame height or color encodes how expensive or "hot" a function is.
+**Correct intuition:** Only width encodes magnitude (share of samples); height encodes stack depth (how many calls deep a frame sits), and color is only ever a visual distinguisher between adjacent frames, never a second magnitude scale.
+**Evidence that distinguishes:** Two frames at the same depth with very different sample counts get different widths but the same height; two adjacent frames with nearly identical sample counts can be rendered in visually different colors purely because the renderer's palette differs by name, not by cost.
+**Used in chapters:** 14
+
+### M32 — proposed, pending review
+**Misconception:** A narrow frame in a CPU flame graph can't matter to tail latency.
+**Correct intuition:** A CPU flame graph only shows on-CPU sampled execution (M08); a rare, narrow frame can still be on the critical path of a slow request, and a genuinely tail-latency-dominating cause may be off-CPU entirely and invisible to a CPU flame graph no matter how the reader squints at frame widths.
+**Evidence that distinguishes:** Chapter 11's opening story directly: a rare 500ms event a few times an hour would appear, at best, as a vanishingly narrow sliver (or nothing at all) in a CPU flame graph, while dominating a fraction of users' worst-case latency.
+**Used in chapters:** 14
 
 ### M08
 **Misconception:** Sampling profiles show all latency.
 **Correct intuition:** They primarily show on-CPU execution unless an off-CPU method is used.
-**Used in chapters:** not yet (Chapter 12/29)
+**Evidence that distinguishes:** A CPU profile's own off-CPU-adjacent frames (e.g. a thread blocked in `pthread_join`) show only that a thread was scheduled onto something, not why it was blocked or for how long relative to a request's actual latency; full off-CPU accounting needs the tools Chapter 29 introduces.
+**Used in chapters:** 12 (introduced); full off-CPU treatment Chapter 29
 
 ### M09
 **Misconception:** Pinning always improves performance.
@@ -187,4 +202,17 @@ the Section 16 seed didn't anticipate them.
 **Misconception:** Sorting data specifically to help the branch predictor is always worth the sorting cost.
 **Correct intuition:** Sorting has its own real cost (at best O(n log n) comparisons); for a single linear pass over the data, that cost can easily exceed whatever misprediction penalty it saves, and is only clearly worthwhile when the same sorted order is reused across many passes.
 **Evidence that distinguishes:** Compare total time for "sort then scan once" against "scan once unsorted" on the same data; the sorted version can lose even though its scan phase alone is faster, once the sort's own cost is included.
+**Used in chapters:** 9
+
+### M29 — proposed, pending review
+**Misconception:** The function with the highest cost in a profile is always the best optimization target.
+**Correct intuition:** A high *inclusive* cost can come entirely from a function's position in the call graph (called from many otherwise-unrelated places) rather than from its own code being expensive; only self cost points at the function's own code.
+**Evidence that distinguishes:** Check a profile's self cost, not just inclusive cost, before deciding where to spend optimization effort — a function with high inclusive cost but low self cost points at its callees, not at itself.
+**Used in chapters:** 12
+
+### M30 — proposed, pending review
+**Misconception:** Kernel frames in a profile are irrelevant to application performance.
+**Correct intuition:** Time an application's own code causes to be spent in the kernel (a syscall, a page fault, a scheduling decision) is still time that request or workload waited for, even though the executing code isn't the application's own.
+**Evidence that distinguishes:** Compare a profile with and without kernel frames included; a kernel-side frame reached only because of an application's own call (e.g. blocking in a syscall the application invoked) still explains real elapsed time for that workload.
+**Used in chapters:** 12
 **Used in chapters:** 9

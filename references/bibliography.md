@@ -60,6 +60,26 @@ manuals — both needed directly by Part II.
   developer site for the specific core) — the Arm-side equivalent,
   relevant given `cyclelab`'s Arm64 support (Chapters 8-9).
 
+## Profiling internals and macOS-specific tools (added for Chapters 11-15)
+
+The Section 19 seed list is Linux-`perf`-centric; this book's reference
+machine is macOS, so Part III's guided labs use macOS's own profiling
+tools as the tested, portable path, documented alongside the Linux
+equivalents.
+
+- DWARF Debugging Standard: <https://dwarfstd.org> — primary source for
+  the debug-information format underlying source-line annotation and
+  DWARF-based stack unwinding (Chapters 12-13).
+- `sample`(1) and `dtrace`(1) manual pages (macOS) — `man sample`,
+  `man dtrace`; this book's portable Chapters 11-13 labs are built
+  directly on `sample`.
+- Brendan Gregg, "The Flame Graph," *Communications of the ACM*, Vol. 59
+  No. 6, 2016 — the original explanation of the technique from its
+  creator, cited directly in Chapter 14.
+- Brendan Gregg's differential flame graphs writeup (search "differential
+  flame graphs brendan gregg") — origin of the red/blue convention this
+  book's `flamegraph_svg.py --diff-against` mode follows (Chapter 15).
+
 ## Additions for Chapters 1-5
 
 The Section 19 seed list has no entry for general performance-workload
@@ -85,9 +105,9 @@ silently folded into the seed list above.
 
 ## Per-chapter reference stubs
 
-`references/chapters/ch01-references.md` through `ch10-references.md`
+`references/chapters/ch01-references.md` through `ch15-references.md`
 point back into this file for the specific entries each drafted chapter
-actually cites in its Further Reading section. Chapters 11-30 will get
+actually cites in its Further Reading section. Chapters 16-30 will get
 their own stubs, and likely their own bibliography entries, as they are
 drafted — see BLUEPRINT.md Section 19's rule that "the final bibliography
 should add architecture-specific and chapter-specific sources."

@@ -19,10 +19,13 @@ editorial decision. This README covers what's actually implemented.
 
 ## Status
 
-**Parts I and II (Chapters 1-10) are drafted.** `cyclelab`'s `compute`
-and `branch` modes are implemented; its other nine modes are recognized
-by the CLI but not yet built. See [`ROADMAP.md`](ROADMAP.md) for the
-full phase-by-phase status.
+**Parts I through III (Chapters 1-15) are drafted.** `cyclelab`'s
+`compute` and `branch` modes are implemented; its other nine modes are
+recognized by the CLI but not yet built. Part III also adds a small,
+dependency-free flame-graph toolchain (`labs/scripts/foldstacks.py`,
+`flamegraph_svg.py`, `capture_sample_profile.sh`) built on macOS's
+`sample`(1) utility. See [`ROADMAP.md`](ROADMAP.md) for the full
+phase-by-phase status.
 
 ## Quickstart
 
@@ -43,14 +46,14 @@ ROADMAP.md                phase-by-phase progress against BLUEPRINT.md Section 2
 CONTRIBUTING.md           how to add a chapter, update registries, contribute code
 style-guide.md            voice, commands, numbers, architecture portability
 glossary.md               every term introduced so far, by concept level
-misconceptions.md         the misconception registry (M01-M26)
+misconceptions.md         the misconception registry (M01-M32)
 analogy-registry.md       canonical analogies and where they're used
 concept-graph.yaml/.md    machine- and human-readable concept dependency graph
 book/                     the manuscript itself, one directory per Part
 labs/cyclelab/            the recurring C lab tool (see its own README)
 labs/scripts/             helper scripts backing each chapter's guided lab
 labs/mini-service/        planned second recurring example (not built yet)
-figures/                  diagram sources and generated assets (empty for now)
+figures/                  diagram sources and generated assets (mostly empty; one real flame graph)
 references/               bibliography and per-chapter reference stubs
 templates/                chapter, lab, and performance-report templates
 scripts/                  doctor.sh (real) + validator stubs + smoke test (real)

@@ -1,6 +1,6 @@
 # Minimal Quarto book scaffold. Not yet rendered as part of this phase --
-# see ROADMAP.md. Only Parts I and II's ten drafted chapters are listed;
-# Parts III-VI and the appendices will be added to `chapters:` as they're
+# see ROADMAP.md. Only Parts I-III's fifteen drafted chapters are listed;
+# Parts IV-VI and the appendices will be added to `chapters:` as they're
 # drafted (BLUEPRINT.md Section 24's drafting order).
 
 project:
@@ -27,7 +27,13 @@ book:
         - ../book/part-2-what-the-cpu-is-doing/chapter-08-the-pipeline-front-end-back-end-and-stalls.md
         - ../book/part-2-what-the-cpu-is-doing/chapter-09-branch-prediction-speculation-and-dependencies.md
         - ../book/part-2-what-the-cpu-is-doing/chapter-10-perf-stat-turning-counters-into-a-hypothesis.md
-    # Part III — Where the CPU Time Goes (Chapters 11-15): not yet drafted
+    - part: "Part III — Where the CPU Time Goes"
+      chapters:
+        - ../book/part-3-where-cpu-time-goes/chapter-11-counting-sampling-and-tracing.md
+        - ../book/part-3-where-cpu-time-goes/chapter-12-perf-record-perf-report-and-perf-annotate.md
+        - ../book/part-3-where-cpu-time-goes/chapter-13-stacks-symbols-and-unwinding.md
+        - ../book/part-3-where-cpu-time-goes/chapter-14-flame-graphs-reading-the-shape-of-work.md
+        - ../book/part-3-where-cpu-time-goes/chapter-15-differential-profiling-and-optimization-proof.md
     # Part IV — Why Memory Changes Everything (Chapters 16-20): not yet drafted
     # Part V — Where the Work Runs (Chapters 21-25): not yet drafted
     # Part VI — Seeing the Invisible (Chapters 26-30): not yet drafted

@@ -36,11 +36,33 @@ progress against that order.
       Chapter 10 has no dedicated script (its lab is a direct `perf stat`
       invocation, documented in the chapter text)
 
-## Phase 3 — Profiling (not started)
+## Phase 3 — Profiling (complete)
 
-- [ ] Chapters 11-15
-- [ ] Symbol and unwinding fixtures
-- [ ] Flame-graph generation pipeline
+- [x] Chapters 11-15 (Part III — Where the CPU Time Goes)
+- [x] Symbol and unwinding fixtures (Chapter 13's three-variant build:
+      full debug info, no debug info, frame-pointer-omitted)
+- [x] Flame-graph generation pipeline — built from scratch, since this
+      book's macOS reference machine has no `perf`/FlameGraph Perl
+      toolchain: `labs/scripts/foldstacks.py` (macOS `sample` → folded
+      stacks, same format as `stackcollapse-perf.pl`),
+      `labs/scripts/flamegraph_svg.py` (folded stacks → SVG, with a
+      differential `--diff-against` mode), and
+      `labs/scripts/capture_sample_profile.sh` (reusable capture+fold
+      wrapper). One real captured figure,
+      `figures/generated/ch14-flame-graph-example.svg`, is used in
+      Chapter 14 — a deliberate, narrow exception to the "no figures
+      yet" policy, since that chapter is specifically about reading a
+      visual artifact.
+- Note: as in Phase 2, this book's reference machine is macOS, so all of
+  Part III's guided labs use macOS `sample` as the tested, portable
+  primary tool; every `perf record`/`perf report`/`perf annotate`/`perf
+  diff` command shown is documented against `perf`'s stable interface
+  but not tested against real captured output, clearly marked as such.
+- [x] Guided-lab scripts for Chapters 11-15
+      (`ch12_profile_hot_path.sh`, `ch13_symbol_availability.sh`,
+      `ch15_before_after.sh`; Chapters 11 and 14 reuse
+      `capture_sample_profile.sh` directly rather than a per-chapter
+      script)
 
 ## Phase 4 — Memory (not started)
 
@@ -75,7 +97,9 @@ progress against that order.
 ## Not yet started, no matter the phase
 
 - Quarto HTML/PDF/EPUB build (`publish/_quarto.yml` exists and lists only
-  Parts I-II; `scripts/prepare_manuscript_for_publish.py` is a stub)
+  Parts I-III; `scripts/prepare_manuscript_for_publish.py` is a stub)
 - CI wiring for any of the validators above
-- Figures (`figures/source/`, `figures/generated/` are empty by design —
-  see their READMEs)
+- Figures: still mostly empty by design (see `figures/source/` and
+  `figures/generated/` READMEs) — the one exception is Chapter 14's real
+  captured flame graph, added because that chapter is specifically about
+  reading a visual artifact
