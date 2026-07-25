@@ -1,0 +1,34 @@
+# Minimal Quarto book scaffold. Not yet rendered as part of this phase --
+# see ROADMAP.md. Only Part I's five drafted chapters are listed; Parts
+# II-VI and the appendices will be added to `chapters:` as they're drafted
+# (BLUEPRINT.md Section 24's drafting order).
+
+project:
+  type: book
+
+book:
+  title: "Thinking in Cycles"
+  subtitle: "A Mental Model for Linux Performance"
+  author: "Alessandro Bessi"
+  chapters:
+    - ../book/README.md
+    - ../book/preface.md
+    - part: "Part I — Measuring Reality"
+      chapters:
+        - ../book/part-1-measuring-reality/chapter-01-why-fast-looking-code-runs-slowly.md
+        - ../book/part-1-measuring-reality/chapter-02-performance-is-a-question-not-a-number.md
+        - ../book/part-1-measuring-reality/chapter-03-latency-throughput-utilization-saturation.md
+        - ../book/part-1-measuring-reality/chapter-04-noise-variance-and-honest-benchmarks.md
+        - ../book/part-1-measuring-reality/chapter-05-the-performance-investigation-loop.md
+    # Part II — What the CPU Is Doing (Chapters 6-10): not yet drafted
+    # Part III — Where the CPU Time Goes (Chapters 11-15): not yet drafted
+    # Part IV — Why Memory Changes Everything (Chapters 16-20): not yet drafted
+    # Part V — Where the Work Runs (Chapters 21-25): not yet drafted
+    # Part VI — Seeing the Invisible (Chapters 26-30): not yet drafted
+    # Appendices A-G: not yet drafted
+
+format:
+  html:
+    theme: cosmo
+    toc: true
+    code-copy: true

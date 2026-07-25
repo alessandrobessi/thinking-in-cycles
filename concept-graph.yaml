@@ -1,0 +1,249 @@
+# Machine-readable concept dependency graph for "Thinking in Cycles".
+# Source of truth for term lists: BLUEPRINT.md Section 11 (Concept Dependency
+# Graph) and Section 12 (Narrative Graph). Levels are ordered: a chapter may
+# assume any concept whose level is lower than (or equal to and already
+# introduced within) its own.
+#
+# `introduced_in_chapter: null` means the concept has not yet been formally
+# taught by any drafted chapter (Chapters 1-5 only, as of this revision).
+# `also_appears_in` records informal/operational use before formal
+# introduction, which BLUEPRINT.md itself does in a few places (see the
+# "known tensions" note at the bottom and concept-graph.md for discussion).
+#
+# This schema deliberately encodes level-ordering only, not a per-term
+# dependency DAG -- BLUEPRINT.md Section 11 does not specify finer-grained
+# edges than "no chapter may rely on a concept before its prerequisites have
+# been introduced" at the level granularity.
+
+version: 1
+
+levels:
+  - level: 0
+    name: "Questions and Measurements"
+    concepts:
+      - name: workload
+        introduced_in_chapter: 1
+      - name: metric
+        introduced_in_chapter: null
+      - name: latency
+        introduced_in_chapter: 3
+      - name: throughput
+        introduced_in_chapter: 3
+      - name: utilization
+        introduced_in_chapter: 3
+      - name: saturation
+        introduced_in_chapter: 3
+      - name: variance
+        introduced_in_chapter: 4
+        note: "Chapter title concept; not in Ch4's literal 'Introduces' line but covered throughout."
+      - name: distribution
+        introduced_in_chapter: 4
+      - name: baseline
+        introduced_in_chapter: 5
+      - name: experiment
+        introduced_in_chapter: 5
+        note: "Informal throughout Ch1-4 benchmarks; formalized as part of the investigation loop in Ch5."
+      - name: confounder
+        introduced_in_chapter: 4
+      - name: measurement overhead
+        introduced_in_chapter: null
+
+  - level: 1
+    name: "Linux Execution"
+    concepts:
+      - name: process
+        introduced_in_chapter: null
+      - name: thread
+        introduced_in_chapter: null
+      - name: runnable
+        introduced_in_chapter: null
+      - name: running
+        introduced_in_chapter: null
+      - name: sleeping
+        introduced_in_chapter: null
+      - name: blocked
+        introduced_in_chapter: null
+      - name: scheduler
+        introduced_in_chapter: null
+      - name: run queue
+        introduced_in_chapter: null
+      - name: context switch
+        introduced_in_chapter: null
+      - name: CPU migration
+        introduced_in_chapter: null
+      - name: user time
+        introduced_in_chapter: null
+        also_appears_in: [1]
+        note: "Ch1's guided lab compares user/system/wall time operationally, without formal scheduler treatment."
+      - name: system time
+        introduced_in_chapter: null
+        also_appears_in: [1]
+      - name: wall time
+        introduced_in_chapter: null
+        also_appears_in: [1]
+
+  - level: 2
+    name: "CPU Work"
+    concepts:
+      - { name: instruction, introduced_in_chapter: null }
+      - { name: cycle, introduced_in_chapter: null }
+      - { name: retired instruction, introduced_in_chapter: null }
+      - { name: IPC, introduced_in_chapter: null }
+      - { name: CPI, introduced_in_chapter: null }
+      - { name: pipeline, introduced_in_chapter: null }
+      - { name: front end, introduced_in_chapter: null }
+      - { name: back end, introduced_in_chapter: null }
+      - { name: branch prediction, introduced_in_chapter: null }
+      - { name: speculation, introduced_in_chapter: null }
+      - { name: dependency, introduced_in_chapter: null }
+      - { name: stall, introduced_in_chapter: null }
+      - { name: PMU, introduced_in_chapter: null }
+      - { name: hardware performance event, introduced_in_chapter: null }
+      - { name: multiplexing, introduced_in_chapter: null }
+
+  - level: 3
+    name: "Profiling"
+    concepts:
+      - { name: counter, introduced_in_chapter: null }
+      - { name: sampling, introduced_in_chapter: null }
+      - { name: tracing, introduced_in_chapter: null }
+      - { name: sample frequency, introduced_in_chapter: null }
+      - { name: call stack, introduced_in_chapter: null }
+      - { name: symbol, introduced_in_chapter: null }
+      - { name: debug information, introduced_in_chapter: null }
+      - { name: unwinding, introduced_in_chapter: null }
+      - { name: frame pointer, introduced_in_chapter: null }
+      - { name: call graph, introduced_in_chapter: null }
+      - { name: flame graph, introduced_in_chapter: null }
+      - { name: differential flame graph, introduced_in_chapter: null }
+      - { name: annotation, introduced_in_chapter: null }
+
+  - level: 4
+    name: "Memory Behavior"
+    concepts:
+      - { name: cache line, introduced_in_chapter: null }
+      - { name: L1/L2/LLC, introduced_in_chapter: null }
+      - { name: locality, introduced_in_chapter: null }
+      - { name: working set, introduced_in_chapter: null }
+      - { name: cache hit, introduced_in_chapter: null }
+      - { name: cache miss, introduced_in_chapter: null }
+      - { name: prefetching, introduced_in_chapter: null }
+      - { name: coherence, introduced_in_chapter: null }
+      - { name: false sharing, introduced_in_chapter: null }
+      - { name: memory-level parallelism, introduced_in_chapter: null }
+      - { name: memory bandwidth, introduced_in_chapter: null }
+      - { name: memory latency, introduced_in_chapter: null }
+      - { name: uncore, introduced_in_chapter: null }
+      - { name: roofline intuition, introduced_in_chapter: null }
+
+  - level: 5
+    name: "Topology and Placement"
+    concepts:
+      - { name: core, introduced_in_chapter: null }
+      - { name: logical CPU, introduced_in_chapter: null }
+      - { name: SMT, introduced_in_chapter: null }
+      - { name: socket, introduced_in_chapter: null }
+      - { name: CPU affinity, introduced_in_chapter: null }
+      - { name: cpuset, introduced_in_chapter: null }
+      - { name: cgroup, introduced_in_chapter: null }
+      - { name: isolation, introduced_in_chapter: null }
+      - { name: NUMA node, introduced_in_chapter: null }
+      - { name: NUMA distance, introduced_in_chapter: null }
+      - { name: first-touch allocation, introduced_in_chapter: null }
+      - { name: local memory, introduced_in_chapter: null }
+      - { name: remote memory, introduced_in_chapter: null }
+      - { name: memory policy, introduced_in_chapter: null }
+      - { name: page migration, introduced_in_chapter: null }
+
+  - level: 6
+    name: "Dynamic Tracing"
+    concepts:
+      - { name: event, introduced_in_chapter: null }
+      - { name: tracepoint, introduced_in_chapter: null }
+      - { name: kprobe, introduced_in_chapter: null }
+      - { name: kretprobe, introduced_in_chapter: null }
+      - { name: uprobe, introduced_in_chapter: null }
+      - { name: USDT, introduced_in_chapter: null }
+      - { name: eBPF program, introduced_in_chapter: null }
+      - { name: verifier, introduced_in_chapter: null }
+      - { name: map, introduced_in_chapter: null }
+      - { name: helper, introduced_in_chapter: null }
+      - { name: attachment point, introduced_in_chapter: null }
+      - { name: ring buffer, introduced_in_chapter: null }
+      - { name: histogram, introduced_in_chapter: null }
+      - { name: BTF, introduced_in_chapter: null }
+      - { name: CO-RE, introduced_in_chapter: null }
+      - { name: BCC, introduced_in_chapter: null }
+      - { name: bpftrace, introduced_in_chapter: null }
+
+  - level: 7
+    name: "Whole-System Diagnosis"
+    concepts:
+      - name: on-CPU time
+        introduced_in_chapter: null
+        also_appears_in: [1]
+        note: "Ch1 uses 'on-CPU'/'off-CPU' informally to establish the time-accounting problem; formal treatment is Ch29."
+      - name: off-CPU time
+        introduced_in_chapter: null
+        also_appears_in: [1]
+      - { name: wake-up latency, introduced_in_chapter: null }
+      - { name: lock contention, introduced_in_chapter: null }
+      - { name: futex, introduced_in_chapter: null }
+      - { name: I/O latency, introduced_in_chapter: null }
+      - { name: queueing delay, introduced_in_chapter: null }
+      - { name: interference, introduced_in_chapter: null }
+      - name: bottleneck shift
+        introduced_in_chapter: null
+        also_appears_in: [5]
+        note: "Ch5 uses 'bottleneck shift' operationally as step 9 of the investigation loop; formal treatment is Part VII synthesis (Ch30)."
+      - { name: regression, introduced_in_chapter: null }
+      - { name: scalability, introduced_in_chapter: null }
+      - name: tail latency
+        introduced_in_chapter: 3
+        note: "BLUEPRINT.md lists 'tail latency' at both Level 0/3-adjacent Ch3 Introduces and formal Level 7. Treated as introduced in Ch3 (matches the Section 11 per-chapter outline), with Level 7 representing its full whole-system treatment in Part VII."
+      - name: causal claim
+        introduced_in_chapter: null
+        also_appears_in: [5]
+        note: "Ch5 uses 'causal claim' operationally in the investigation loop; formal Level 7 treatment is later."
+
+rules:
+  - "No chapter may rely on a concept before its prerequisites have been introduced (Section 11)."
+  - "Dependency is level-ordered: a concept at level N may assume all concepts at levels < N."
+  - "A few terms BLUEPRINT.md's own per-chapter outlines introduce early (tail latency, bottleneck shift, causal claim, on/off-CPU time) are formally listed at Level 7. These are treated as 'informal/operational use now, systematized later' rather than a contradiction -- see concept-graph.md for the full discussion."
+
+narrative_graph:
+  # BLUEPRINT.md Section 12 -- one chain of 30 questions, each tagged with
+  # its chapter. 1-5 are drafted; 6-30 are pending.
+  - { n: 1, question: "Why can a program feel slow when no obvious resource is fully used?", chapter: 1 }
+  - { n: 2, question: "What exactly does \"faster\" mean for this workload?", chapter: 2 }
+  - { n: 3, question: "How do latency, throughput, utilization, and saturation differ?", chapter: 3 }
+  - { n: 4, question: "How do we know a measured difference is real?", chapter: 4 }
+  - { n: 5, question: "What investigation process prevents random tuning?", chapter: 5 }
+  - { n: 6, question: "What work does the CPU actually execute?", chapter: 6 }
+  - { n: 7, question: "What do cycles and instructions tell us?", chapter: 7 }
+  - { n: 8, question: "Why can a CPU spend cycles without retiring useful work?", chapter: 8 }
+  - { n: 9, question: "How do branches and dependencies disrupt execution?", chapter: 9 }
+  - { n: 10, question: "How can counters turn a vague slowdown into a hypothesis?", chapter: 10 }
+  - { n: 11, question: "When should we count, sample, or trace?", chapter: 11 }
+  - { n: 12, question: "Which functions and code paths consume CPU time?", chapter: 12 }
+  - { n: 13, question: "Why are call stacks sometimes missing or wrong?", chapter: 13 }
+  - { n: 14, question: "How do flame graphs show the shape of work?", chapter: 14 }
+  - { n: 15, question: "How do we prove that an optimization changed the right thing?", chapter: 15 }
+  - { n: 16, question: "Why can memory access dominate code that performs little computation?", chapter: 16 }
+  - { n: 17, question: "Why do access order and working-set size change performance?", chapter: 17 }
+  - { n: 18, question: "How can independent threads slow each other through cache coherence?", chapter: 18 }
+  - { n: 19, question: "How do we tell whether a workload is limited by memory bandwidth?", chapter: 19 }
+  - { n: 20, question: "Which tools reveal cache and memory behavior?", chapter: 20 }
+  - { n: 21, question: "How does Linux decide where runnable work executes?", chapter: 21 }
+  - { n: 22, question: "How do migrations and neighboring workloads add noise and delay?", chapter: 22 }
+  - { n: 23, question: "When does CPU affinity help, hurt, or merely hide a problem?", chapter: 23 }
+  - { n: 24, question: "Why is some memory farther away than other memory?", chapter: 24 }
+  - { n: 25, question: "How do allocation and execution placement interact on NUMA systems?", chapter: 25 }
+  - { n: 26, question: "What can dynamic tracing observe that counters and sampling cannot?", chapter: 26 }
+  - { n: 27, question: "How can eBPF safely run custom measurements inside the kernel?", chapter: 27 }
+  - { n: 28, question: "How do bpftrace and BCC turn questions into live instrumentation?", chapter: 28 }
+  - { n: 29, question: "Where does time go when a thread is not on a CPU?", chapter: 29 }
+  - { n: 30, question: "How do all the layers combine into one defensible investigation?", chapter: 30 }
+
+chapters_drafted: [1, 2, 3, 4, 5]
+chapters_pending: [6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30]

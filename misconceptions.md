@@ -1,0 +1,158 @@
+# Misconception Registry
+
+Seed table reproduced verbatim from BLUEPRINT.md Section 16, then expanded
+into full entries per BLUEPRINT.md Section 9's "Common Misconceptions"
+requirement (why it's wrong / correct intuition / distinguishing evidence)
+and tracked by which chapter actually uses each one. M21–M23 are new
+entries proposed while drafting Chapters 2, 3, and 5, where none of the
+seed M01–M20 fit well — each is marked **proposed — pending review** since
+the Section 16 seed didn't anticipate them.
+
+## Seed table (BLUEPRINT.md Section 16, verbatim)
+
+| ID | Misconception | Correct intuition |
+|---|---|---|
+| M01 | Low average CPU usage means the CPU cannot be involved in latency. | Critical threads can wait runnable, serialize, migrate, or use only one core while the machine average remains low. |
+| M02 | 100% CPU means a process is CPU-bound in the useful-work sense. | A CPU can be busy retiring waste, spinning, handling kernel work, or waiting on memory while still reporting busy time. |
+| M03 | Fewer instructions always means faster code. | Instruction count is one factor; stalls, vector width, memory behavior, and frequency also matter. |
+| M04 | Higher IPC always means better performance. | IPC describes pipeline utilization for a workload; elapsed time and completed work remain primary. |
+| M05 | A high cache-miss percentage proves a cache bottleneck. | Rates need access volume, miss cost, overlap, and workload context. |
+| M06 | A flame graph is a timeline. | It aggregates stack samples; horizontal position is not chronological. |
+| M07 | The widest frame is the function to optimize. | Width may represent necessary work, a wrapper, or accumulated child cost. |
+| M08 | Sampling profiles show all latency. | They primarily show on-CPU execution unless an off-CPU method is used. |
+| M09 | Pinning always improves performance. | Affinity can reduce migrations or increase queueing and imbalance. |
+| M10 | CPU affinity also binds memory. | CPU and memory placement are separate policies. |
+| M11 | NUMA matters only at enormous scale. | Any multi-node system can suffer remote-memory cost and bandwidth imbalance. |
+| M12 | Local memory is always optimal. | Interleaving can improve aggregate bandwidth; placement depends on access pattern. |
+| M13 | eBPF has zero overhead. | Overhead depends on hook rate, work per event, stack capture, aggregation, and output. |
+| M14 | More tracing produces more truth. | Excess event volume can perturb the workload and bury the useful signal. |
+| M15 | One benchmark run is evidence. | One run is an anecdote unless the effect is overwhelming and the environment is controlled. |
+| M16 | A microbenchmark improvement guarantees a production improvement. | Production may have a different workload, bottleneck, concurrency pattern, or critical path. |
+| M17 | An optimization is complete when the original hotspot shrinks. | The workload outcome must improve, and the bottleneck may move elsewhere. |
+| M18 | Vendor peak bandwidth is the expected application bandwidth. | Sustainable bandwidth depends on channels, access pattern, concurrency, instructions, and platform configuration. |
+| M19 | Context-switch counts alone diagnose scheduler overhead. | The impact depends on why switches occur, where the critical thread waits, and what locality is lost. |
+| M20 | A profiler's output is ground truth. | Every profiler is a measurement system with scope, overhead, permissions, and blind spots. |
+
+## Full registry
+
+### M01
+**Misconception:** Low average CPU usage means the CPU cannot be involved in latency.
+**Correct intuition:** Critical threads can wait runnable, serialize, migrate, or use only one core while the machine average remains low.
+**Evidence that distinguishes:** Compare machine-wide CPU utilization against the wall time of the single critical request path; a low average can coexist with one saturated core or one serialized thread on the request's critical path.
+**Used in chapters:** 1
+
+### M02
+**Misconception:** 100% CPU means a process is CPU-bound in the useful-work sense.
+**Correct intuition:** A CPU can be busy retiring waste, spinning, handling kernel work, or waiting on memory while still reporting busy time.
+**Evidence that distinguishes:** Compare user vs. system time, and completed work per CPU-second, across two runs with the same "100% busy" reading — busy time alone does not certify useful work.
+**Used in chapters:** 1
+
+### M03
+**Misconception:** Fewer instructions always means faster code.
+**Correct intuition:** Instruction count is one factor; stalls, vector width, memory behavior, and frequency also matter.
+**Used in chapters:** not yet (Part II, Chapter 6)
+
+### M04
+**Misconception:** Higher IPC always means better performance.
+**Correct intuition:** IPC describes pipeline utilization for a workload; elapsed time and completed work remain primary.
+**Used in chapters:** not yet (Chapter 7)
+
+### M05
+**Misconception:** A high cache-miss percentage proves a cache bottleneck.
+**Correct intuition:** Rates need access volume, miss cost, overlap, and workload context.
+**Used in chapters:** not yet (Chapter 17)
+
+### M06
+**Misconception:** A flame graph is a timeline.
+**Correct intuition:** It aggregates stack samples; horizontal position is not chronological.
+**Used in chapters:** not yet (Chapter 14)
+
+### M07
+**Misconception:** The widest frame is the function to optimize.
+**Correct intuition:** Width may represent necessary work, a wrapper, or accumulated child cost.
+**Used in chapters:** not yet (Chapter 14)
+
+### M08
+**Misconception:** Sampling profiles show all latency.
+**Correct intuition:** They primarily show on-CPU execution unless an off-CPU method is used.
+**Used in chapters:** not yet (Chapter 12/29)
+
+### M09
+**Misconception:** Pinning always improves performance.
+**Correct intuition:** Affinity can reduce migrations or increase queueing and imbalance.
+**Used in chapters:** not yet (Chapter 23)
+
+### M10
+**Misconception:** CPU affinity also binds memory.
+**Correct intuition:** CPU and memory placement are separate policies.
+**Used in chapters:** not yet (Chapter 23/24)
+
+### M11
+**Misconception:** NUMA matters only at enormous scale.
+**Correct intuition:** Any multi-node system can suffer remote-memory cost and bandwidth imbalance.
+**Used in chapters:** not yet (Chapter 24)
+
+### M12
+**Misconception:** Local memory is always optimal.
+**Correct intuition:** Interleaving can improve aggregate bandwidth; placement depends on access pattern.
+**Used in chapters:** not yet (Chapter 25)
+
+### M13
+**Misconception:** eBPF has zero overhead.
+**Correct intuition:** Overhead depends on hook rate, work per event, stack capture, aggregation, and output.
+**Used in chapters:** not yet (Chapter 27)
+
+### M14
+**Misconception:** More tracing produces more truth.
+**Correct intuition:** Excess event volume can perturb the workload and bury the useful signal.
+**Used in chapters:** not yet (Chapter 26/28)
+
+### M15
+**Misconception:** One benchmark run is evidence.
+**Correct intuition:** One run is an anecdote unless the effect is overwhelming and the environment is controlled.
+**Evidence that distinguishes:** Run the same configuration repeatedly and interleaved with its comparison; if repeat runs of the *same* configuration spread nearly as much as the two configurations differ, a single run proves nothing.
+**Used in chapters:** 4
+
+### M16
+**Misconception:** A microbenchmark improvement guarantees a production improvement.
+**Correct intuition:** Production may have a different workload, bottleneck, concurrency pattern, or critical path.
+**Used in chapters:** not yet (Chapter 30)
+
+### M17
+**Misconception:** An optimization is complete when the original hotspot shrinks.
+**Correct intuition:** The workload outcome must improve, and the bottleneck may move elsewhere.
+**Used in chapters:** not yet (Chapter 15/30)
+
+### M18
+**Misconception:** Vendor peak bandwidth is the expected application bandwidth.
+**Correct intuition:** Sustainable bandwidth depends on channels, access pattern, concurrency, instructions, and platform configuration.
+**Used in chapters:** not yet (Chapter 19)
+
+### M19
+**Misconception:** Context-switch counts alone diagnose scheduler overhead.
+**Correct intuition:** The impact depends on why switches occur, where the critical thread waits, and what locality is lost.
+**Used in chapters:** not yet (Chapter 22)
+
+### M20
+**Misconception:** A profiler's output is ground truth.
+**Correct intuition:** Every profiler is a measurement system with scope, overhead, permissions, and blind spots.
+**Evidence that distinguishes:** Compare a tool's reported number against an independent measurement of the same quantity (e.g. wall time vs. a summed sampled estimate); disagreement reveals the tool's own scope and blind spots.
+**Used in chapters:** touched on in Chapter 4 (in the context of trusting benchmark tooling); full treatment Chapter 20
+
+### M21 — proposed, pending review
+**Misconception:** A program has one true performance number.
+**Correct intuition:** "Faster" is only meaningful for a stated workload, input, and metric; the same change can help one input size or metric and hurt another.
+**Evidence that distinguishes:** Run the same change across multiple input sizes or metrics (e.g. total time vs. p99 latency) and show the ranking of "which version is faster" flips.
+**Used in chapters:** 2
+
+### M22 — proposed, pending review
+**Misconception:** 100% utilization is always bad, and any utilization below 100% means there's no problem.
+**Correct intuition:** Utilization and saturation are different measurements; a resource can be moderately utilized and still heavily saturated (queueing) under bursty or correlated arrivals, and full utilization is sometimes the deliberate goal (e.g. a batch job).
+**Evidence that distinguishes:** Drive a system at increasing concurrency and plot utilization alongside queue growth/latency; saturation can appear before utilization visibly reaches 100%, and utilization near 100% is not itself evidence of a problem for a throughput-oriented workload.
+**Used in chapters:** 3
+
+### M23 — proposed, pending review
+**Misconception:** Changing several things at once and observing an improvement proves which change mattered.
+**Correct intuition:** Without changing one thing at a time and testing a falsifiable hypothesis, an improvement after a multi-part change cannot be attributed to any specific part of it — it could even be masking a regression in one part.
+**Evidence that distinguishes:** Revert changes one at a time (or apply them one at a time from baseline) and re-measure; if the ranking of "which single change explains the improvement" is undefined or contradictory, the original multi-change comparison was not diagnostic.
+**Used in chapters:** 5
