@@ -37,8 +37,8 @@ You'll see one recurring lab tool throughout — `cyclelab` — a small
 command-line workload generator with modes that expose different
 performance phenomena, so that each new chapter builds on a codebase
 you already understand instead of asking you to learn a new one. As of
-this edition, only `cyclelab`'s `compute` mode is implemented; the rest
-are recognized by the tool but not yet built, and later parts of the book
+this edition, `cyclelab`'s `compute` and `branch` modes are implemented;
+the rest are recognized by the tool but not yet built, and later parts of the book
 will build them as they're needed.
 
 By the end of this book, "the system is slow" should no longer feel like
@@ -47,6 +47,6 @@ investigation — one you know how to run yourself.
 
 ---
 
-*This is a pre-publication manuscript. As of this edition, Part I
-(Chapters 1-5) is drafted; Parts II through VI and the appendices are
+*This is a pre-publication manuscript. As of this edition, Parts I and II
+(Chapters 1-10) are drafted; Parts III through VI and the appendices are
 not yet written. See `ROADMAP.md` for current status.*

@@ -16,6 +16,13 @@ typedef enum {
     CYCLELAB_FMT_TEXT
 } cyclelab_format_t;
 
+typedef enum {
+    CYCLELAB_PATTERN_SORTED,
+    CYCLELAB_PATTERN_RANDOM
+} cyclelab_pattern_t;
+
+#define CYCLELAB_MAX_CHAINS 16
+
 typedef struct {
     const char *mode;          /* "compute", "branch", ... */
     double duration_s;         /* default 2.0; ignored if iterations > 0 */
@@ -27,6 +34,12 @@ typedef struct {
     const char *output_path;   /* "-" (default) = stdout */
     int quiet;                 /* suppress warnings on stderr */
     cyclelab_op_t op;          /* compute-specific, default MIXED */
+    int chains;                /* compute-specific, default 1, max CYCLELAB_MAX_CHAINS:
+                                 * number of independent accumulator chains per thread,
+                                 * for Chapter 8's dependency-chain-vs-ILP lab */
+    cyclelab_pattern_t pattern; /* branch-specific, default SORTED */
+    long branch_table_size;    /* branch-specific, default 1000000: size of the
+                                 * per-thread lookup table the branch mode walks */
 } cyclelab_options_t;
 
 void cli_defaults(cyclelab_options_t *opts);

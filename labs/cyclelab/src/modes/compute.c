@@ -63,38 +63,48 @@ static void *compute_worker(void *arg) {
      * do not all retrace the same accumulator sequence. */
     unsigned long seed = ctx->opts->seed + (unsigned long)ctx->index * 2654435761UL;
 
-    /* Genuine loop-carried dependency: each block's result depends on the
-     * previous block's result, so the compiler cannot hoist, reorder away,
-     * or constant-fold the loop. `volatile` is belt-and-suspenders on top
-     * of that real dependency and the fact that the final values are
-     * printed (BLUEPRINT.md Section 8: "prints work completed and a
-     * checksum to prevent dead-code elimination"). */
-    volatile long long int_acc = (long long)(seed | 1UL);
-    volatile double float_acc = 1.0 + (double)(seed % 1000) / 7.0;
+    /* Genuine loop-carried dependency, per chain: chain c's result at unroll
+     * slot u depends only on chain c's own previous result, so the compiler
+     * cannot hoist, reorder away, or constant-fold any chain's loop -- and
+     * with chains > 1, no chain depends on any other chain either, which is
+     * exactly the independent-work Chapter 8's lab needs to demonstrate.
+     * `volatile` is belt-and-suspenders on top of that real dependency and
+     * the fact that the final, folded values are printed (BLUEPRINT.md
+     * Section 8: "prints work completed and a checksum to prevent
+     * dead-code elimination"). */
+    int chains = ctx->opts->chains;
+    volatile long long int_acc[CYCLELAB_MAX_CHAINS];
+    volatile double float_acc[CYCLELAB_MAX_CHAINS];
+    for (int c = 0; c < chains; c++) {
+        unsigned long chain_seed = seed + (unsigned long)c * 0x9E3779B97F4A7C15UL;
+        int_acc[c] = (long long)(chain_seed | 1UL);
+        float_acc[c] = 1.0 + (double)(chain_seed % 1000) / 7.0;
+    }
 
     long iters = 0;
     double start = timing_now_seconds();
 
     for (;;) {
         for (int u = 0; u < OPS_PER_ITERATION; u++) {
+            int c = u % chains;
             switch (ctx->opts->op) {
                 case CYCLELAB_OP_INT:
-                    int_acc = int_acc * 2654435761LL + (long long)u + 1;
-                    int_acc ^= (int_acc >> 13);
+                    int_acc[c] = int_acc[c] * 2654435761LL + (long long)u + 1;
+                    int_acc[c] ^= (int_acc[c] >> 13);
                     break;
                 case CYCLELAB_OP_FLOAT:
-                    float_acc = float_acc * 1.0000001 + 0.0000003 * (double)(u + 1);
-                    if (float_acc > 1e6 || float_acc < -1e6) {
-                        float_acc = float_acc - (double)(long long)(float_acc / 1e6) * 1e6;
+                    float_acc[c] = float_acc[c] * 1.0000001 + 0.0000003 * (double)(u + 1);
+                    if (float_acc[c] > 1e6 || float_acc[c] < -1e6) {
+                        float_acc[c] = float_acc[c] - (double)(long long)(float_acc[c] / 1e6) * 1e6;
                     }
                     break;
                 case CYCLELAB_OP_MIXED:
                 default:
-                    int_acc = int_acc * 2654435761LL + (long long)u + 1;
-                    int_acc ^= (int_acc >> 13);
-                    float_acc = float_acc * 1.0000001 + (double)(int_acc & 0xff) * 1e-7;
-                    if (float_acc > 1e6 || float_acc < -1e6) {
-                        float_acc = float_acc - (double)(long long)(float_acc / 1e6) * 1e6;
+                    int_acc[c] = int_acc[c] * 2654435761LL + (long long)u + 1;
+                    int_acc[c] ^= (int_acc[c] >> 13);
+                    float_acc[c] = float_acc[c] * 1.0000001 + (double)(int_acc[c] & 0xff) * 1e-7;
+                    if (float_acc[c] > 1e6 || float_acc[c] < -1e6) {
+                        float_acc[c] = float_acc[c] - (double)(long long)(float_acc[c] / 1e6) * 1e6;
                     }
                     break;
             }
@@ -112,8 +122,18 @@ static void *compute_worker(void *arg) {
 
     ctx->elapsed_s = timing_now_seconds() - start;
     ctx->iterations_done = iters;
-    ctx->int_checksum = int_acc;
-    ctx->float_checksum = float_acc;
+
+    /* Fold all chains into the same two-field checksum the JSON schema
+     * already had before --chains existed, so output shape doesn't change
+     * for the chains=1 (default) case. */
+    long long int_fold = 0;
+    double float_fold = 0.0;
+    for (int c = 0; c < chains; c++) {
+        int_fold ^= int_acc[c];
+        float_fold += float_acc[c];
+    }
+    ctx->int_checksum = int_fold;
+    ctx->float_checksum = float_fold;
     return NULL;
 }
 
@@ -178,7 +198,8 @@ static void print_json(FILE *out, const cyclelab_options_t *opts,
     fprintf(out, "    \"threads\": %d,\n", opts->threads);
     fprintf(out, "    \"affinity\": \""); json_write_escaped(out, opts->affinity_spec); fprintf(out, "\",\n");
     fprintf(out, "    \"seed\": %lu,\n", opts->seed);
-    fprintf(out, "    \"op\": \"%s\"\n", op_name(opts->op));
+    fprintf(out, "    \"op\": \"%s\",\n", op_name(opts->op));
+    fprintf(out, "    \"chains\": %d\n", opts->chains);
     fprintf(out, "  },\n");
 
     fprintf(out, "  \"warnings\": [");
@@ -223,7 +244,8 @@ static void print_text(FILE *out, const cyclelab_options_t *opts,
 
     fprintf(out, "cyclelab compute -- %s/%s, %d logical CPUs, build=%s\n",
             host->os, host->arch, host->logical_cpus, CYCLELAB_BUILD_TYPE);
-    fprintf(out, "threads=%d op=%s seed=%lu\n", opts->threads, op_name(opts->op), opts->seed);
+    fprintf(out, "threads=%d op=%s chains=%d seed=%lu\n",
+            opts->threads, op_name(opts->op), opts->chains, opts->seed);
     for (int i = 0; i < nwarnings; i++) {
         fprintf(out, "warning: %s\n", warnings[i]);
     }

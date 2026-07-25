@@ -30,6 +30,9 @@ void cli_defaults(cyclelab_options_t *opts) {
     opts->output_path = "-";
     opts->quiet = 0;
     opts->op = CYCLELAB_OP_MIXED;
+    opts->chains = 1;
+    opts->pattern = CYCLELAB_PATTERN_SORTED;
+    opts->branch_table_size = 1000000;
 }
 
 void cli_print_usage(const char *prog) {
@@ -55,8 +58,13 @@ void cli_print_usage(const char *prog) {
         "  --version             show version and exit\n"
         "\n"
         "compute-specific options:\n"
-        "  --op=int|float|mixed  which accumulator chain to run (default mixed)\n",
-        prog);
+        "  --op=int|float|mixed  which accumulator chain to run (default mixed)\n"
+        "  --chains=N            independent accumulator chains per thread, 1-%d (default 1)\n"
+        "\n"
+        "branch-specific options:\n"
+        "  --pattern=sorted|random   table order to walk (default sorted)\n"
+        "  --branch-table-size=N     per-thread table size (default 1000000)\n",
+        prog, CYCLELAB_MAX_CHAINS);
 }
 
 void cli_print_version(void) {
@@ -203,6 +211,26 @@ int cli_parse(int argc, char **argv, cyclelab_options_t *opts,
             else if (strcmp(value, "mixed") == 0) opts->op = CYCLELAB_OP_MIXED;
             else {
                 fprintf(stderr, "%s: --op expects 'int', 'float', or 'mixed'\n", prog);
+                *exit_now = 1; *exit_code = 64; return -1;
+            }
+        } else if (strcmp(key, "--chains") == 0 && value) {
+            long c = 0;
+            if (parse_long(value, &c) != 0 || c < 1 || c > CYCLELAB_MAX_CHAINS) {
+                fprintf(stderr, "%s: --chains expects an integer from 1 to %d\n",
+                        prog, CYCLELAB_MAX_CHAINS);
+                *exit_now = 1; *exit_code = 64; return -1;
+            }
+            opts->chains = (int)c;
+        } else if (strcmp(key, "--pattern") == 0 && value) {
+            if (strcmp(value, "sorted") == 0) opts->pattern = CYCLELAB_PATTERN_SORTED;
+            else if (strcmp(value, "random") == 0) opts->pattern = CYCLELAB_PATTERN_RANDOM;
+            else {
+                fprintf(stderr, "%s: --pattern expects 'sorted' or 'random'\n", prog);
+                *exit_now = 1; *exit_code = 64; return -1;
+            }
+        } else if (strcmp(key, "--branch-table-size") == 0 && value) {
+            if (parse_long(value, &opts->branch_table_size) != 0 || opts->branch_table_size <= 0) {
+                fprintf(stderr, "%s: --branch-table-size expects a positive integer\n", prog);
                 *exit_now = 1; *exit_code = 64; return -1;
             }
         } else {

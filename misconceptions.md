@@ -50,12 +50,14 @@ the Section 16 seed didn't anticipate them.
 ### M03
 **Misconception:** Fewer instructions always means faster code.
 **Correct intuition:** Instruction count is one factor; stalls, vector width, memory behavior, and frequency also matter.
-**Used in chapters:** not yet (Part II, Chapter 6)
+**Evidence that distinguishes:** Compare two functions' instruction counts *and* their measured elapsed time under the same conditions; a function with more instructions can still finish faster if its instructions are cheaper or better pipelined.
+**Used in chapters:** 6 (introduced), 7 (revisited via the IPC/CPI framing that explains why)
 
 ### M04
 **Misconception:** Higher IPC always means better performance.
 **Correct intuition:** IPC describes pipeline utilization for a workload; elapsed time and completed work remain primary.
-**Used in chapters:** not yet (Chapter 7)
+**Evidence that distinguishes:** Compare elapsed time and completed work directly, alongside IPC, rather than ranking implementations by IPC alone.
+**Used in chapters:** 7
 
 ### M05
 **Misconception:** A high cache-miss percentage proves a cache bottleneck.
@@ -137,7 +139,7 @@ the Section 16 seed didn't anticipate them.
 **Misconception:** A profiler's output is ground truth.
 **Correct intuition:** Every profiler is a measurement system with scope, overhead, permissions, and blind spots.
 **Evidence that distinguishes:** Compare a tool's reported number against an independent measurement of the same quantity (e.g. wall time vs. a summed sampled estimate); disagreement reveals the tool's own scope and blind spots.
-**Used in chapters:** touched on in Chapter 4 (in the context of trusting benchmark tooling); full treatment Chapter 20
+**Used in chapters:** touched on in Chapter 4 (trusting benchmark tooling) and Chapter 10 (multiplexed/scaled `perf stat` counters); full treatment Chapter 20
 
 ### M21 — proposed, pending review
 **Misconception:** A program has one true performance number.
@@ -156,3 +158,33 @@ the Section 16 seed didn't anticipate them.
 **Correct intuition:** Without changing one thing at a time and testing a falsifiable hypothesis, an improvement after a multi-part change cannot be attributed to any specific part of it — it could even be masking a regression in one part.
 **Evidence that distinguishes:** Revert changes one at a time (or apply them one at a time from baseline) and re-measure; if the ranking of "which single change explains the improvement" is undefined or contradictory, the original multi-change comparison was not diagnostic.
 **Used in chapters:** 5
+
+### M24 — proposed, pending review
+**Misconception:** A pipeline stall means the CPU is broken or misconfigured.
+**Correct intuition:** Stalls are a normal, expected consequence of a workload's dependency structure and memory access pattern, not a hardware fault — a CPU with zero stalls would require unlimited independent work, which essentially never occurs in practice.
+**Evidence that distinguishes:** Run the exact same CPU on the exact same instruction mix with varying amounts of independent work available (e.g. `cyclelab compute --chains=N` at increasing N); stall behavior changes dramatically with zero hardware changes, showing the workload's shape, not the hardware, is the variable.
+**Used in chapters:** 8
+
+### M25 — proposed, pending review
+**Misconception:** A branchless implementation is always faster.
+**Correct intuition:** Removing a branch replaces an occasional misprediction cost with a guaranteed, unconditional cost — worthwhile only when the original branch was actually expensive (frequently mispredicted), and a net loss when it wasn't.
+**Evidence that distinguishes:** Measure the original branch's actual predictability on realistic data (or elapsed time as a proxy, absent a misprediction counter) before assuming a branchless rewrite will win; a highly predictable branch is already nearly free, and a branchless rewrite there adds guaranteed cost to avoid a rarely-paid penalty.
+**Used in chapters:** 9
+
+### M26 — proposed, pending review
+**Misconception:** More requested performance-counter events always means a more complete picture.
+**Correct intuition:** The PMU has a limited number of physical counter registers; requesting more events than fit forces multiplexing, degrading the precision of every requested event rather than adding a free extra dimension.
+**Evidence that distinguishes:** Compare a small, targeted event list's `perf stat` output against a large, unfocused one on the same command, and check the reported scaling percentages in the second case.
+**Used in chapters:** 10
+
+### M27 — proposed, pending review
+**Misconception:** Adding more CPU cores or threads fixes a dependency-chain-limited workload.
+**Correct intuition:** A single dependency chain running on one thread is bound by that thread's own available instruction-level parallelism, not by how many other cores exist on the machine; more cores help independent tasks that can run in parallel, not one sequential chain of dependent operations.
+**Evidence that distinguishes:** Compare `cyclelab compute --chains=1` run with `--threads=1` against the same run with `--threads=8` on an 8-core machine; per-thread throughput for the single dependency chain does not improve, because the bottleneck was never a shortage of cores.
+**Used in chapters:** 8
+
+### M28 — proposed, pending review
+**Misconception:** Sorting data specifically to help the branch predictor is always worth the sorting cost.
+**Correct intuition:** Sorting has its own real cost (at best O(n log n) comparisons); for a single linear pass over the data, that cost can easily exceed whatever misprediction penalty it saves, and is only clearly worthwhile when the same sorted order is reused across many passes.
+**Evidence that distinguishes:** Compare total time for "sort then scan once" against "scan once unsorted" on the same data; the sorted version can lose even though its scan phase alone is faster, once the sort's own cost is included.
+**Used in chapters:** 9

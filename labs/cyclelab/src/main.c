@@ -2,6 +2,7 @@
 
 #include "cli.h"
 #include "sysinfo.h"
+#include "modes/branch.h"
 #include "modes/compute.h"
 #include "modes/stub.h"
 
@@ -18,6 +19,11 @@ int main(int argc, char **argv) {
         cyclelab_hostinfo_t host;
         sysinfo_collect(&host);
         return compute_run(&opts, &host);
+    }
+    if (strcmp(opts.mode, "branch") == 0) {
+        cyclelab_hostinfo_t host;
+        sysinfo_collect(&host);
+        return branch_run(&opts, &host);
     }
 
     /* Every other name cli_parse() accepted is a known-but-unimplemented

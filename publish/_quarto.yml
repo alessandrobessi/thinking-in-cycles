@@ -1,7 +1,7 @@
 # Minimal Quarto book scaffold. Not yet rendered as part of this phase --
-# see ROADMAP.md. Only Part I's five drafted chapters are listed; Parts
-# II-VI and the appendices will be added to `chapters:` as they're drafted
-# (BLUEPRINT.md Section 24's drafting order).
+# see ROADMAP.md. Only Parts I and II's ten drafted chapters are listed;
+# Parts III-VI and the appendices will be added to `chapters:` as they're
+# drafted (BLUEPRINT.md Section 24's drafting order).
 
 project:
   type: book
@@ -20,7 +20,13 @@ book:
         - ../book/part-1-measuring-reality/chapter-03-latency-throughput-utilization-saturation.md
         - ../book/part-1-measuring-reality/chapter-04-noise-variance-and-honest-benchmarks.md
         - ../book/part-1-measuring-reality/chapter-05-the-performance-investigation-loop.md
-    # Part II — What the CPU Is Doing (Chapters 6-10): not yet drafted
+    - part: "Part II — What the CPU Is Doing"
+      chapters:
+        - ../book/part-2-what-the-cpu-is-doing/chapter-06-from-source-code-to-retired-instructions.md
+        - ../book/part-2-what-the-cpu-is-doing/chapter-07-cycles-instructions-ipc-and-cpi.md
+        - ../book/part-2-what-the-cpu-is-doing/chapter-08-the-pipeline-front-end-back-end-and-stalls.md
+        - ../book/part-2-what-the-cpu-is-doing/chapter-09-branch-prediction-speculation-and-dependencies.md
+        - ../book/part-2-what-the-cpu-is-doing/chapter-10-perf-stat-turning-counters-into-a-hypothesis.md
     # Part III — Where the CPU Time Goes (Chapters 11-15): not yet drafted
     # Part IV — Why Memory Changes Everything (Chapters 16-20): not yet drafted
     # Part V — Where the Work Runs (Chapters 21-25): not yet drafted

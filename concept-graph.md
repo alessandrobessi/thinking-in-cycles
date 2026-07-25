@@ -8,7 +8,7 @@ the machine-readable source of truth. Both derive from BLUEPRINT.md Section
 levels *< N*. No chapter may rely on a concept before its prerequisites have
 been introduced (BLUEPRINT.md Section 11, closing line).
 
-Status as of this revision: **Chapters 1–5 drafted, Chapters 6–30 pending.**
+Status as of this revision: **Chapters 1–10 drafted, Chapters 11–30 pending.**
 
 ## Level 0 — Questions and Measurements
 
@@ -32,19 +32,31 @@ arrives in Part V (Chapters 21–23).
 
 ## Level 2 — CPU Work
 
-instruction · cycle · retired instruction · IPC · CPI · pipeline ·
-front end · back end · branch prediction · speculation · dependency ·
-stall · PMU · hardware performance event · multiplexing
+instruction⁶ · cycle⁷ · retired instruction⁶ · IPC⁷ · CPI⁷ · pipeline⁸ ·
+front end⁸ · back end⁸ · branch prediction⁹ · speculation⁹ · dependency⁸ ·
+stall⁸ · PMU¹⁰ · hardware performance event¹⁰ · multiplexing¹⁰
 
-Not yet introduced. First formal treatment: Part II (Chapters 6–10).
+All fifteen Level 2 terms are now introduced (Chapters 6–10 complete
+Part II). A few used a slightly different surface form than the Section
+11 seed name: "instruction" as Chapter 6's "machine instruction",
+"pipeline" as Chapter 8's title/Core Intuition (its two halves, front
+end/back end, are Chapter 8's literal New Concepts entries), "branch
+prediction"/"speculation" as Chapter 9's "branch predictor"/"speculative
+execution", and "hardware performance event" as Chapter 10's "hardware
+event". See each chapter's "New concepts:" header line for the exact
+wording used.
 
 ## Level 3 — Profiling
 
-counter · sampling · tracing · sample frequency · call stack · symbol ·
+counter\* · sampling · tracing · sample frequency · call stack · symbol ·
 debug information · unwinding · frame pointer · call graph · flame graph ·
 differential flame graph · annotation
 
-Not yet introduced. First formal treatment: Part III (Chapters 11–15).
+Not formally introduced yet. First formal treatment: Part III (Chapters
+11–15). \* Chapter 10 already uses **counter** operationally throughout
+(PMU counters, `perf stat`) without formally defining it as a concept —
+the same "informal early, formal later" pattern as the Level 7 terms
+below.
 
 ## Level 4 — Memory Behavior
 
@@ -89,6 +101,7 @@ terms to work well before Part VI–VII formally builds them:
 | on-CPU / off-CPU | 7 (Ch29) | Chapter 1 | Chapter 1's whole purpose is to break the "100%-CPU-or-nothing" assumption; it needs the *words* on-CPU/off-CPU as everyday vocabulary before Chapter 29 builds the full off-CPU/wake-up/futex model. |
 | tail latency | 7 | Chapter 3 (formal "Introduces" line) | Chapter 3's Section 11 outline explicitly lists `tail latency` as a *new* Ch3 concept, so its p50/p99 sense is treated as introduced there; Chapter 29's Level-7 sense extends it to whole-system waiting, not just queueing. |
 | bottleneck shift, causal claim | 7 | Chapter 5 (investigation loop) | The 10-step loop (Section 5) uses both terms operationally as loop steps; Chapter 30 is where they get full technical treatment as diagnosis concepts. |
+| counter | 3 | Chapter 10 (`perf stat`) | Chapter 10 is entirely about reading PMU counters via `perf stat`, well before Part III formally defines "counter" as a Level 3 profiling concept alongside sampling and tracing; Chapter 10 needs the word operationally and Chapter 11 is where counting is formally contrasted with sampling and tracing as three observation models. |
 
 This mirrors BLUEPRINT.md's own teaching philosophy (Section 7.3: "a chapter
 may use previously established concepts freely but should introduce only one
@@ -99,7 +112,7 @@ treat entries with `also_appears_in` as intentional, not violations.
 
 ## Supplementary vocabulary (not in Section 11 at any level)
 
-Chapters 1–5 also introduce plain teaching vocabulary that Section 11 never
+Chapters 1–10 also introduce plain teaching vocabulary that Section 11 never
 lists at all. These are tracked in `glossary.md` but have no `level` in
 `concept-graph.yaml`:
 
@@ -108,13 +121,25 @@ lists at all. These are tracked in `glossary.md` but have no `level` in
 - **Chapter 3:** concurrency, queue
 - **Chapter 4:** warm-up, repetition, outlier, randomization, thermal state, frequency scaling, background interference, confidence interval intuition
 - **Chapter 5:** hypothesis, falsification, scope, perturbation
+- **Chapter 6:** compiler, machine instruction, micro-operation intuition, optimization, vectorization, inlining, dead-code elimination
+- **Chapter 7:** instruction count, elapsed cycles, reference cycles, CPU frequency
+- **Chapter 8:** decode, execution units, out-of-order execution, memory wait, issue width intuition
+- **Chapter 9:** branch, branch predictor, misprediction, speculative execution, dependency chain, branchless trade-off
+- **Chapter 10:** hardware event, software event, event group, scaling, per-thread versus system-wide measurement, privilege restrictions
 
 ## Narrative Graph (Section 12)
 
 The book follows one chain of 30 questions, each becoming the next chapter's
 opening question. See `concept-graph.yaml`'s `narrative_graph` list for the
-full machine-readable form (question text + chapter number). Questions 1–5
-are answered by the drafted chapters; 6–30 are pending. The chain is
-verified end-to-end for Chapters 1–5: each chapter's "Next Obvious Question"
-is the verbatim opening question of the chapter that follows, including the
-Chapter 5 → Chapter 6 handoff ("What work does the CPU actually execute?").
+full machine-readable form (question text + chapter number). Questions 1–10
+are answered by the drafted chapters; 11–30 are pending. The chain is
+verified end-to-end for Chapters 1–10: each chapter's "Next Obvious
+Question" is the verbatim opening question of the chapter that follows,
+including the Chapter 5 → Chapter 6 handoff ("What work does the CPU
+actually execute?") and the Chapter 10 → Chapter 11 handoff ("When should
+we count, sample, or trace?"). Two of BLUEPRINT.md's own per-chapter
+"Next question:" shorthand lines (Chapter 8's and Chapter 10's) do not
+match the following chapter's actual opening question verbatim; in both
+cases the drafted chapter uses the next chapter's real opening question,
+not the shorthand paraphrase, per the rule established handling the
+Chapter 5 → 6 transition.

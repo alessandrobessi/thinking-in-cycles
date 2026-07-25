@@ -40,6 +40,26 @@ documentation as those chapters are drafted.
 - Intel Performance Counter Monitor: <https://github.com/intel/pcm>
 - Google Benchmark user guide: <https://google.github.io/benchmark/user_guide.html>
 
+## Compiler and microarchitecture references (added for Chapters 6-10)
+
+Not in the Section 19 seed list, which is perf/BPF/NUMA-focused and has
+no entry for compiler behavior or microarchitecture-level optimization
+manuals — both needed directly by Part II.
+
+- Compiler Explorer: <https://godbolt.org> — the standard interactive
+  tool for exploring how source changes affect compiled output across
+  compilers and architectures (Chapter 6).
+- Intel 64 and IA-32 Architectures Optimization Reference Manual (search
+  Intel's developer site for the current edition) — primary source for
+  x86-64 issue width, execution unit counts, and out-of-order buffer
+  sizes per microarchitecture generation (Chapters 8-9).
+- AMD64 Architecture Programmer's Manual / AMD software optimization
+  guides (search AMD's developer site for the current edition) — the
+  AMD-side equivalent of the above (Chapters 8-9).
+- Arm Cortex-A / Neoverse Software Optimization Guides (search Arm's
+  developer site for the specific core) — the Arm-side equivalent,
+  relevant given `cyclelab`'s Arm64 support (Chapters 8-9).
+
 ## Additions for Chapters 1-5
 
 The Section 19 seed list has no entry for general performance-workload
@@ -65,9 +85,9 @@ silently folded into the seed list above.
 
 ## Per-chapter reference stubs
 
-`references/chapters/ch01-references.md` through `ch05-references.md`
+`references/chapters/ch01-references.md` through `ch10-references.md`
 point back into this file for the specific entries each drafted chapter
-actually cites in its Further Reading section. Chapters 6-30 will get
+actually cites in its Further Reading section. Chapters 11-30 will get
 their own stubs, and likely their own bibliography entries, as they are
 drafted — see BLUEPRINT.md Section 19's rule that "the final bibliography
 should add architecture-specific and chapter-specific sources."

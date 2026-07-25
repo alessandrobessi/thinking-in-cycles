@@ -10,7 +10,7 @@ everything here follows.
 | Part | Chapters | Status |
 |---|---|---|
 | [Part I — Measuring Reality](part-1-measuring-reality/README.md) | 1-5 | drafted |
-| Part II — What the CPU Is Doing | 6-10 | not yet drafted |
+| [Part II — What the CPU Is Doing](part-2-what-the-cpu-is-doing/README.md) | 6-10 | drafted |
 | Part III — Where the CPU Time Goes | 11-15 | not yet drafted |
 | Part IV — Why Memory Changes Everything | 16-20 | not yet drafted |
 | Part V — Where the Work Runs | 21-25 | not yet drafted |

@@ -2,8 +2,8 @@
 
 Terms are grouped by concept level (see `concept-graph.md`), alphabetical
 within each group, then a **Supplementary vocabulary** section for teaching
-terms Chapters 1–5 use that BLUEPRINT.md Section 11 doesn't formally list at
-any level. Status as of this revision: Chapters 1–5 drafted.
+terms Chapters 1–10 use that BLUEPRINT.md Section 11 doesn't formally list at
+any level. Status as of this revision: Chapters 1–10 drafted.
 
 ## Level 0 — Questions and Measurements
 
@@ -134,16 +134,126 @@ CPU time spent executing a process's own (non-kernel) instructions.
 Elapsed real-world time between the start and end of an operation,
 regardless of how it was spent.
 
-## Levels 2–7
+## Level 2 — CPU Work
 
-Not yet introduced by any drafted chapter. Term lists live in
+All fifteen Level 2 terms are introduced by Chapters 6–10 (Part II is
+complete as of this revision).
+
+### back end
+**First introduced:** Chapter 8
+The part of a CPU pipeline containing the execution units that actually
+carry out arithmetic, memory access, and control-flow operations.
+**See also:** front end, pipeline, execution units
+
+### branch prediction
+**First introduced:** Chapter 9 (as "branch predictor")
+Dedicated CPU hardware that guesses which way a conditional branch will
+go, based on that branch's recent history, before the condition is
+actually evaluated.
+**See also:** speculation, misprediction
+
+### CPI
+**First introduced:** Chapter 7
+Cycles per instruction: elapsed cycles divided by retired instruction
+count — the reciprocal of IPC.
+**See also:** IPC, cycle, instruction
+
+### cycle
+**First introduced:** Chapter 7
+One tick of a CPU's clock — the basic unit of time a processor's
+internal state advances by.
+**See also:** CPU frequency, elapsed cycles, reference cycles
+
+### dependency
+**First introduced:** Chapter 8
+A relationship where one instruction's input is another instruction's
+output, forcing the dependent instruction to wait until the first one
+finishes.
+**See also:** stall, dependency chain
+
+### front end
+**First introduced:** Chapter 8
+The part of a CPU pipeline responsible for fetching and decoding
+instructions before handing them to the back end for execution.
+**See also:** back end, pipeline, decode
+
+### hardware performance event
+**First introduced:** Chapter 10 (as "hardware event")
+Something a CPU's PMU counts directly (cycles, instructions retired,
+cache references), as distinct from a software event the kernel counts
+on the CPU's behalf.
+**See also:** PMU, software event
+
+### instruction
+**First introduced:** Chapter 6 (as "machine instruction")
+A single, architecture-specific operation a CPU can execute — what a
+compiler translates source code into.
+**See also:** retired instruction, compiler
+
+### IPC
+**First introduced:** Chapter 7
+Instructions per cycle: retired instruction count divided by elapsed
+cycles — a measure of how much useful work a CPU packed into each clock
+tick, for a specific, scoped measurement.
+**See also:** CPI, cycle, instruction
+
+### multiplexing
+**First introduced:** Chapter 10
+The kernel time-slicing a requested set of performance-counter events
+across a CPU's limited physical counter registers, when more events are
+requested than there are registers to count them simultaneously.
+**See also:** PMU, scaling, event group
+
+### PMU
+**First introduced:** Chapter 10
+Performance Monitoring Unit: dedicated CPU hardware that counts specific
+architectural events without slowing down the code being measured.
+**See also:** hardware performance event, multiplexing
+
+### pipeline
+**First introduced:** Chapter 8
+The CPU's internal assembly-line-like structure for fetching, decoding,
+and executing instructions, split into a front end and a back end.
+**See also:** front end, back end, stall
+
+### retired instruction
+**First introduced:** Chapter 6
+An instruction that has actually completed execution and had its effect
+committed — the unit hardware performance counters count when they
+report "instructions."
+**See also:** instruction, IPC
+
+### speculation
+**First introduced:** Chapter 9 (as "speculative execution")
+A CPU executing instructions down a predicted-but-not-yet-confirmed
+branch path, before the branch's actual outcome is known.
+**See also:** branch prediction, misprediction
+
+### stall
+**First introduced:** Chapter 8
+A cycle in which some part of the pipeline has no useful work to do,
+because the next instruction it would run is waiting on a dependency or
+a memory access.
+**See also:** dependency, memory wait
+
+## Levels 3–7
+
+Not yet formally introduced by any drafted chapter. Term lists live in
 `concept-graph.yaml`/`concept-graph.md`; definitions will be added as
-Chapters 6–30 are drafted.
+Chapters 11–30 are drafted.
 
-**Exception:** `on-CPU time` and `off-CPU time` (formally Level 7, Chapter
-29) are used informally starting in Chapter 1 to establish the book's
-central time-accounting problem — see `concept-graph.md`'s "Known tensions"
-section.
+**Exceptions (informal use before formal treatment):** `on-CPU time` and
+`off-CPU time` (formally Level 7, Chapter 29) are used informally
+starting in Chapter 1; `counter` (formally Level 3, Chapter 11) is used
+informally starting in Chapter 10 — see `concept-graph.md`'s "Known
+tensions" section for all of these.
+
+### counter
+**Used informally in:** Chapter 10 · **Formal definition:** Chapter 11
+A hardware- or software-tracked count of a specific event, read via a
+tool like `perf stat` — used operationally throughout Chapter 10's `perf
+stat` material before Chapter 11 formally contrasts counting with
+sampling and tracing as three distinct observation models.
 
 ### on-CPU time
 **Used informally in:** Chapter 1 · **Formal definition:** Chapter 29
@@ -156,9 +266,9 @@ waiting, blocked, or sleeping.
 
 ## Supplementary vocabulary
 
-Plain teaching terms Chapters 1–5 introduce that Section 11 doesn't list at
-any formal level. Tracked here so they're not silently invented; not part
-of `concept-graph.yaml`'s level structure.
+Plain teaching terms Chapters 1–10 introduce that Section 11 doesn't list
+at any formal level. Tracked here so they're not silently invented; not
+part of `concept-graph.yaml`'s level structure.
 
 ### Chapter 1
 
@@ -247,3 +357,106 @@ does not cover.
 
 **perturbation** — Any change introduced by the act of measuring or
 experimenting itself, which can distort the very behavior being studied.
+
+### Chapter 6
+
+**compiler** — A program that translates source code into machine
+instructions for a specific target architecture.
+
+**machine instruction** — A single, architecture-specific operation a CPU
+executes (load, add, branch, etc.), as opposed to a line of source code.
+
+**micro-operation intuition** — The informal awareness that CPUs often
+break machine instructions down further internally before executing them;
+covered by name only in Chapter 6, mechanics deferred to Chapter 8.
+
+**optimization** — Any compiler transformation that makes the emitted
+instructions do the same job with less work.
+
+**vectorization** — A compiler optimization that uses instructions
+operating on multiple data elements at once instead of one at a time.
+
+**inlining** — Replacing a function call with the callee's body directly,
+removing call overhead and enabling further optimization across the
+former call boundary.
+
+**dead-code elimination** — Removing computations whose results provably
+cannot affect a program's observable output.
+
+### Chapter 7
+
+**instruction count** — How many machine instructions actually retired
+while running some piece of code.
+
+**elapsed cycles** — Actual CPU clock ticks counted during a measurement.
+
+**reference cycles** — Clock ticks counted at a fixed reference rate,
+independent of the CPU's actual (dynamically scaled) frequency.
+
+**CPU frequency** — The CPU's actual clock speed, which can change
+dynamically due to thermal state and power management.
+
+### Chapter 8
+
+**decode** — The pipeline stage that translates fetched instructions into
+a form the rest of the CPU can execute.
+
+**execution units** — The back end components that actually carry out
+arithmetic, memory access, and control-flow operations.
+
+**out-of-order execution** — A CPU running instructions in an order other
+than program order, when doing so lets it use otherwise-idle execution
+units on instructions whose inputs are already ready.
+
+**memory wait** — A stall caused by an instruction's input depending on a
+cache or memory access that hasn't returned yet.
+
+**issue width intuition** — The informal ceiling on how many instructions
+a CPU can start per cycle, regardless of how much independent work is
+available.
+
+### Chapter 9
+
+**branch** — Any instruction whose next instruction depends on a runtime
+condition (an `if`, a loop check, a `switch`).
+
+**branch predictor** — Dedicated CPU hardware that guesses which way a
+branch will go before its condition is evaluated.
+
+**misprediction** — A branch predictor's guess turning out wrong, forcing
+the CPU to discard speculatively executed work and restart down the
+correct path.
+
+**speculative execution** — A CPU executing instructions down a
+predicted-but-unconfirmed path before the branch's actual outcome is known.
+
+**dependency chain** — A sequence of instructions where each one's input
+is the previous one's output, forcing strictly sequential execution.
+
+**branchless trade-off** — The choice between a branch (cheap if
+well-predicted, expensive if mispredicted) and unconditional code that
+always does the same fixed amount of work regardless of outcome.
+
+### Chapter 10
+
+**hardware event** — Something a CPU's PMU counts directly, such as
+cycles or retired instructions.
+
+**software event** — Something the kernel counts on the CPU's behalf
+(context switches, page faults), reported through the same `perf stat`
+interface as hardware events despite a different counting mechanism.
+
+**event group** — A set of performance-counter events `perf stat` is
+asked to count together, guaranteed to be measured over the same interval.
+
+**scaling** — `perf stat` extrapolating a full-run estimate for a
+multiplexed event from the fraction of the run it was actually counted
+during.
+
+**per-thread versus system-wide measurement** — The distinction between
+measuring one process/thread's counters and measuring an entire
+machine's activity (`perf stat -a`) over a fixed duration.
+
+**privilege restrictions** — The permission model (root,
+`perf_event_paranoid`, `CAP_PERFMON`) governing who can read hardware
+performance counters on a given Linux system.

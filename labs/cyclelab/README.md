@@ -10,7 +10,7 @@ example codebase per chapter.
 | Mode | Status |
 |---|---|
 | `compute` | implemented |
-| `branch` | not yet implemented (see `ROADMAP.md`) |
+| `branch` | implemented |
 | `sequential-memory` | not yet implemented |
 | `random-memory` | not yet implemented |
 | `bandwidth` | not yet implemented |
@@ -57,6 +57,11 @@ global options:
 
 compute-specific options:
   --op=int|float|mixed  which accumulator chain to run (default mixed)
+  --chains=N            independent accumulator chains per thread, 1-16 (default 1)
+
+branch-specific options:
+  --pattern=sorted|random   table order to walk (default sorted)
+  --branch-table-size=N     per-thread table size (default 1000000)
 ```
 
 Examples:
@@ -64,7 +69,10 @@ Examples:
 ```bash
 ./bin/cyclelab compute --duration=2 --threads=4
 ./bin/cyclelab compute --iterations=5000000 --op=float --format=text
-./bin/cyclelab branch          # not yet implemented -> exit 2
+./bin/cyclelab compute --duration=1 --chains=8       # independent-chain ILP demo
+./bin/cyclelab branch --pattern=sorted --duration=1
+./bin/cyclelab branch --pattern=random --duration=1  # compare against the above
+./bin/cyclelab sleep          # not yet implemented -> exit 2
 ```
 
 `--affinity` is best-effort: on Linux it uses `pthread_setaffinity_np`; on
@@ -88,6 +96,34 @@ A run is time-boxed by `--duration` (checked every 1024 iterations to keep
 timing overhead negligible) unless `--iterations` is given, which runs
 each thread for exactly that many iterations instead.
 
+`--chains=N` (default 1) splits each thread's work across N independent
+accumulator chains instead of one: with `--chains=1`, unroll slot *u*
+always updates the same accumulator, so slot *u+1* must wait for slot
+*u*'s result; with `--chains=8`, the 8 unrolled slots each update their
+*own* chain, so none of them depend on each other within an iteration.
+This is what Chapter 8 uses to make the CPU's available instruction-level
+parallelism visible as a throughput difference rather than an abstract
+claim -- on the reference machine for this book, `--chains=8` measured
+roughly 4x the throughput of `--chains=1` for `--op=int`.
+
+## `branch` mode
+
+Each of `--threads` worker threads builds its own `--branch-table-size`
+table of pseudo-random byte values (deterministic from `--seed`, via a
+small built-in xorshift64 generator -- not libc's `rand()`, so table
+contents are reproducible across platforms), in either `--pattern=sorted`
+or `--pattern=random` order, then repeatedly walks the table applying a
+data-dependent conditional (`if (value >= 128) ... else ...`). Sorted
+order groups long runs of the same branch outcome together, which a
+branch predictor learns easily; random order does not. On the reference
+machine for this book, `--pattern=sorted` measured roughly 3x the
+throughput of `--pattern=random` at the same table size -- entirely from
+how predictable the same conditional was, with identical work otherwise.
+
+One "table pass" is one full walk of the table; `--iterations=N` (if
+given) runs each thread for exactly N full passes instead of time-boxing
+by `--duration`.
+
 ## Output schema (stable core, extended by later modes)
 
 ```jsonc
@@ -99,7 +135,8 @@ each thread for exactly that many iterations instead.
   "build":  { "type": "release", "cflags": "...", "compiler": "..." },
   "host":   { "os": "...", "kernel": "...", "arch": "...", "hostname": "...", "logical_cpus": 8 },
   "config": { "duration_requested_s": 2.0, "iterations_requested": null,
-              "threads": 4, "affinity": "none", "seed": 12345, "op": "mixed" },
+              "threads": 4, "affinity": "none", "seed": 12345, "op": "mixed",
+              "chains": 1 },
   "warnings": ["..."],
   "results": {
     "duration_actual_s": 2.000123,
@@ -114,11 +151,36 @@ each thread for exactly that many iterations instead.
 }
 ```
 
-`--format=text` prints the same information as human-readable lines instead
-of JSON. Every field the book's guided labs read from `--format=json`
-output (`results.total_iterations`, `results.throughput_ops_per_s`,
-`results.combined_checksum`) is considered part of the stable core and
-will only ever gain siblings, not change meaning, as later modes are added.
+`branch` mode uses the same `tool`/`version`/`mode`/`started_at`/`build`/
+`host`/`warnings` envelope, but its own `config` and `results` shape,
+since it measures a different thing (table passes and elements
+processed, not iterations):
+
+```jsonc
+{
+  "mode": "branch",
+  "config": { "duration_requested_s": 2.0, "table_passes_requested": null,
+              "threads": 4, "affinity": "none", "seed": 12345,
+              "pattern": "sorted", "branch_table_size": 1000000 },
+  "results": {
+    "duration_actual_s": 2.000123,
+    "total_table_passes": 1234,
+    "total_elements_processed": 1234000000,
+    "throughput_elements_per_s": 616950000.0,
+    "threads": [
+      { "index": 0, "table_passes": 308, "elapsed_s": 2.0001,
+        "affinity_applied": false, "checksum": "<16 hex chars>" }
+    ],
+    "combined_checksum": "<16 hex chars>"
+  }
+}
+```
+
+`--format=text` prints the same information as human-readable lines
+instead of JSON, for both modes. Every field the book's guided labs read
+from `--format=json` output is considered part of that mode's stable
+core and will only ever gain siblings, not change meaning, as later
+modes are added.
 
 ## Exit codes
 

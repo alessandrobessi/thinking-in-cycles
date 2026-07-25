@@ -5,7 +5,7 @@
 # introduced within) its own.
 #
 # `introduced_in_chapter: null` means the concept has not yet been formally
-# taught by any drafted chapter (Chapters 1-5 only, as of this revision).
+# taught by any drafted chapter (Chapters 1-10 only, as of this revision).
 # `also_appears_in` records informal/operational use before formal
 # introduction, which BLUEPRINT.md itself does in a few places (see the
 # "known tensions" note at the bottom and concept-graph.md for discussion).
@@ -85,26 +85,39 @@ levels:
   - level: 2
     name: "CPU Work"
     concepts:
-      - { name: instruction, introduced_in_chapter: null }
-      - { name: cycle, introduced_in_chapter: null }
-      - { name: retired instruction, introduced_in_chapter: null }
-      - { name: IPC, introduced_in_chapter: null }
-      - { name: CPI, introduced_in_chapter: null }
-      - { name: pipeline, introduced_in_chapter: null }
-      - { name: front end, introduced_in_chapter: null }
-      - { name: back end, introduced_in_chapter: null }
-      - { name: branch prediction, introduced_in_chapter: null }
-      - { name: speculation, introduced_in_chapter: null }
-      - { name: dependency, introduced_in_chapter: null }
-      - { name: stall, introduced_in_chapter: null }
-      - { name: PMU, introduced_in_chapter: null }
-      - { name: hardware performance event, introduced_in_chapter: null }
-      - { name: multiplexing, introduced_in_chapter: null }
+      - name: instruction
+        introduced_in_chapter: 6
+        note: "Introduced as 'machine instruction' in Chapter 6's New Concepts."
+      - { name: cycle, introduced_in_chapter: 7 }
+      - { name: retired instruction, introduced_in_chapter: 6 }
+      - { name: IPC, introduced_in_chapter: 7 }
+      - { name: CPI, introduced_in_chapter: 7 }
+      - name: pipeline
+        introduced_in_chapter: 8
+        note: "Named in Chapter 8's title and Core Intuition; front end/back end (its two halves) are Chapter 8's formal New Concepts entries."
+      - { name: front end, introduced_in_chapter: 8 }
+      - { name: back end, introduced_in_chapter: 8 }
+      - name: branch prediction
+        introduced_in_chapter: 9
+        note: "Introduced via 'branch predictor' in Chapter 9's New Concepts."
+      - name: speculation
+        introduced_in_chapter: 9
+        note: "Introduced via 'speculative execution' in Chapter 9's New Concepts."
+      - { name: dependency, introduced_in_chapter: 8 }
+      - { name: stall, introduced_in_chapter: 8 }
+      - { name: PMU, introduced_in_chapter: 10 }
+      - name: hardware performance event
+        introduced_in_chapter: 10
+        note: "Introduced as 'hardware event' in Chapter 10's New Concepts."
+      - { name: multiplexing, introduced_in_chapter: 10 }
 
   - level: 3
     name: "Profiling"
     concepts:
-      - { name: counter, introduced_in_chapter: null }
+      - name: counter
+        introduced_in_chapter: null
+        also_appears_in: [10]
+        note: "Chapter 10 uses 'counter' operationally throughout (PMU counters, perf stat) without formally defining the term as a Level 3 concept; formal treatment begins Part III (Chapter 11)."
       - { name: sampling, introduced_in_chapter: null }
       - { name: tracing, introduced_in_chapter: null }
       - { name: sample frequency, introduced_in_chapter: null }
@@ -245,5 +258,5 @@ narrative_graph:
   - { n: 29, question: "Where does time go when a thread is not on a CPU?", chapter: 29 }
   - { n: 30, question: "How do all the layers combine into one defensible investigation?", chapter: 30 }
 
-chapters_drafted: [1, 2, 3, 4, 5]
-chapters_pending: [6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30]
+chapters_drafted: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+chapters_pending: [11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30]

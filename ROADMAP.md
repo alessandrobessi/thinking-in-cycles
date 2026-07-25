@@ -4,23 +4,37 @@ Drafting order follows BLUEPRINT.md Section 24 ("Draft by concept
 dependency, not by excitement about tools"). This file tracks actual
 progress against that order.
 
-## Phase 1 — Foundation (in progress)
+## Phase 1 — Foundation (complete)
 
 - [x] Chapters 1-5 (Part I — Measuring Reality)
 - [x] Benchmark harness (`cyclelab compute` mode; `labs/scripts/ch1-ch5_*.sh`)
 - [x] Environment doctor (`scripts/doctor.sh`)
 - [x] Glossary and misconception registry, seeded for Chapters 1-5
-- [ ] `cyclelab` modes beyond `compute` (branch, sequential-memory,
+- [x] `cyclelab branch` mode (built in Phase 2, for Chapter 9)
+- [ ] `cyclelab` modes beyond `compute`/`branch` (sequential-memory,
       random-memory, bandwidth, false-sharing, lock-contention, syscall,
       sleep, numa, mixed) — currently recognized-but-stubbed
 - [ ] `labs/mini-service` (second recurring example) — not started; see
       `labs/mini-service/README.md`
 
-## Phase 2 — CPU model (not started)
+## Phase 2 — CPU model (complete)
 
-- [ ] Chapters 6-10
-- [ ] `cyclelab compute` and `branch` modes exercised together
-- [ ] Architecture-review pass (x86-64 / Arm64)
+- [x] Chapters 6-10 (Part II — What the CPU Is Doing)
+- [x] `cyclelab compute --chains=N` (Chapters 7-8) and `cyclelab branch`
+      (Chapter 9) modes, exercised together with `cyclelab compute`
+- [x] Architecture-review pass (x86-64 / Arm64) — see
+      `book/part-2-what-the-cpu-is-doing/README.md`'s note on portability
+      and the architecture-neutral prose / arch-specific-sidebar split
+      applied throughout Chapters 6-10
+- Note: this book's reference machine is macOS/Arm64, so `perf`-based
+  commands in Chapters 7, 9, and 10 are documented against `perf`'s
+  stable interface but not tested against real captured output; each is
+  clearly marked schematic, with a portable, tested fallback lab
+  covering the same underlying phenomenon.
+- [x] Guided-lab scripts for Chapters 6-9 (`labs/scripts/ch6_build_and_disassemble.sh`,
+      `ch7_ipc_intuition.sh`, `ch8_dependency_chains.sh`, `ch9_branch_prediction.sh`);
+      Chapter 10 has no dedicated script (its lab is a direct `perf stat`
+      invocation, documented in the chapter text)
 
 ## Phase 3 — Profiling (not started)
 
@@ -61,7 +75,7 @@ progress against that order.
 ## Not yet started, no matter the phase
 
 - Quarto HTML/PDF/EPUB build (`publish/_quarto.yml` exists and lists only
-  Part I; `scripts/prepare_manuscript_for_publish.py` is a stub)
+  Parts I-II; `scripts/prepare_manuscript_for_publish.py` is a stub)
 - CI wiring for any of the validators above
 - Figures (`figures/source/`, `figures/generated/` are empty by design —
   see their READMEs)

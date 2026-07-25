@@ -19,9 +19,10 @@ editorial decision. This README covers what's actually implemented.
 
 ## Status
 
-**Part I (Chapters 1-5) is drafted.** `cyclelab`'s `compute` mode is
-implemented; its other ten modes are recognized by the CLI but not yet
-built. See [`ROADMAP.md`](ROADMAP.md) for the full phase-by-phase status.
+**Parts I and II (Chapters 1-10) are drafted.** `cyclelab`'s `compute`
+and `branch` modes are implemented; its other nine modes are recognized
+by the CLI but not yet built. See [`ROADMAP.md`](ROADMAP.md) for the
+full phase-by-phase status.
 
 ## Quickstart
 
@@ -42,7 +43,7 @@ ROADMAP.md                phase-by-phase progress against BLUEPRINT.md Section 2
 CONTRIBUTING.md           how to add a chapter, update registries, contribute code
 style-guide.md            voice, commands, numbers, architecture portability
 glossary.md               every term introduced so far, by concept level
-misconceptions.md         the misconception registry (M01-M23)
+misconceptions.md         the misconception registry (M01-M26)
 analogy-registry.md       canonical analogies and where they're used
 concept-graph.yaml/.md    machine- and human-readable concept dependency graph
 book/                     the manuscript itself, one directory per Part

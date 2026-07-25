@@ -18,8 +18,18 @@ make lab-cyclelab   # from the repo root
 | `ch3_concurrency_sweep.sh` | 3 | Drives a local `python3 -m http.server` at increasing concurrency (documented stand-in for the not-yet-built `labs/mini-service`). |
 | `ch4_interleaved_ab.sh` | 4 | Runs two `cyclelab compute` configurations interleaved, for eyeballing distributions rather than single numbers. |
 | `ch5_investigate_slow_config.sh` | 5 | Runs a deliberately over-threaded `cyclelab compute` config alongside `ps`/`vmstat` guidance, for working through the investigation loop. |
+| `ch6_build_and_disassemble.sh` | 6 | Builds `cyclelab` at `-O0` and `-O2` and disassembles the same function from both, comparing static instruction count. |
+| `ch7_ipc_intuition.sh` | 7 | Runs `cyclelab compute --chains=1` vs `--chains=8` (same instruction mix) as a portable, indirect view of an IPC difference. |
+| `ch8_dependency_chains.sh` | 8 | Sweeps `cyclelab compute --chains` from 1 to 16, showing throughput rise-then-plateau as independent work saturates the pipeline. |
+| `ch9_branch_prediction.sh` | 9 | Runs `cyclelab branch --pattern=sorted` vs `--pattern=random`, same conditional, to show a misprediction-driven throughput gap. |
 
-Every script is **portable** (BLUEPRINT.md Section 13.2): no root, no
-`perf`, no special hardware. They run on Linux and macOS; a few print
-platform-appropriate follow-up commands (e.g. `vmstat` vs. `vm_stat`)
-rather than pretending one OS's tool exists everywhere.
+Chapter 10 has no dedicated script: its lab is a direct `perf stat`
+invocation documented in the chapter text (Linux-only; not testable on
+this project's macOS reference machine), with Chapter 7's script serving
+as its portable fallback.
+
+Every script above is **portable** (BLUEPRINT.md Section 13.2): no root,
+no `perf`, no special hardware. They run on Linux and macOS; a few print
+platform-appropriate follow-up commands (e.g. `vmstat` vs. `vm_stat`, or
+`objdump`'s macOS `--macho` flag vs. plain Linux usage) rather than
+pretending one OS's tool exists everywhere.
