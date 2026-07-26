@@ -2,6 +2,8 @@
 
 ### A Mental Model for Linux Performance
 
+<img src="figures/generated/cover.png" alt="Thinking in Cycles cover art" width="360">
+
 *Thinking in Cycles* is a practical, intuition-first guide to Linux
 performance engineering. It builds a cumulative model of how workloads
 become processes and threads, how Linux schedules them, how CPUs execute
