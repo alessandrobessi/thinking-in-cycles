@@ -13,7 +13,11 @@
     publish/) resolves to a real file or directory, relative to the
     repository root. Tokens containing a wildcard ('*') or looking like
     a placeholder (e.g. 'chNN', 'partN') are skipped, since those are
-    intentionally generic prose, not a literal path.
+    intentionally generic prose, not a literal path. Paths under
+    labs/cyclelab/bin/ are also skipped: a gitignored build-output
+    directory that legitimately doesn't exist until `make lab-cyclelab`
+    runs, referenced throughout chapter prose assuming the reader
+    already built it.
 
 Exit code: 0 if no issue is found, 1 otherwise.
 """
@@ -37,6 +41,10 @@ SCAN_GLOBS = [
     "concept-graph.md",
 ]
 PLACEHOLDER_RE = re.compile(r"ch[A-Z0-9]|part[A-Z0-9]|<|>|\{|\}")
+# Gitignored build-output paths: real, expected-missing until `make
+# lab-cyclelab` runs, referenced throughout chapter prose as "build it
+# first, then run ./labs/cyclelab/bin/cyclelab ...". Not broken links.
+BUILD_OUTPUT_PREFIXES = ("labs/cyclelab/bin/",)
 
 
 def scan_files(root: Path):
@@ -66,6 +74,8 @@ def check_repo_paths(root: Path, path: Path, text: str, errors, warnings):
     for token in set(REPO_PATH_RE.findall(text)):
         clean = token.rstrip(".,;:)`'\"")
         if "*" in clean or PLACEHOLDER_RE.search(Path(clean).name):
+            continue
+        if clean.startswith(BUILD_OUTPUT_PREFIXES):
             continue
         resolved = (root / clean)
         if not resolved.exists():

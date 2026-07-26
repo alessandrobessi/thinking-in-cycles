@@ -341,18 +341,56 @@ appendices + preface + index).
   registry/link checks for a faster local iteration loop, or
   `--format html`/`--format typst`/`--format epub` for just one format).
 
+## Git remote and CI (live)
+
+- [x] Remote configured: `origin` →
+      <https://github.com/alessandrobessi/thinking-in-cycles.git>;
+      `main` pushed and tracking `origin/main`.
+- [x] `.github/workflows/ci.yml` activated on push, and immediately
+      earned its keep: the first real run
+      (`https://github.com/alessandrobessi/thinking-in-cycles/actions/runs/30201760388`)
+      failed on both the `ubuntu-latest` build and the manuscript
+      validation job, catching two real bugs neither this session's own
+      testing nor any prior review had found, because both only exist
+      on a genuinely different Linux environment:
+      - `labs/cyclelab` failed to compile on Linux at all: glibc hides
+        `clock_gettime`/`CLOCK_MONOTONIC`, `gmtime_r`, and `nanosleep`
+        behind a feature-test macro under strict `-std=c11`, which
+        macOS's libc does not do (why this was invisible on this
+        session's own reference machine through Phases 1-7). Fixed by
+        adding `-D_DEFAULT_SOURCE` to both build variants' CFLAGS. A
+        first attempt at this fix used `-D_POSIX_C_SOURCE=200809L`
+        instead, which fixed Linux but broke the macOS build in the
+        opposite direction (it additionally *restricts* visibility on
+        Darwin, hiding BSD-only `struct rusage` fields `ru_nvcsw`/
+        `ru_nivcsw` and `_SC_NPROCESSORS_ONLN`) — caught by re-running
+        `make clean && make lab-cyclelab && make smoke` locally before
+        pushing the fix, not by a second failed CI run.
+      - `validate_links.py` had a genuine false-positive: it flagged
+        every chapter's reference to `labs/cyclelab/bin/cyclelab` as a
+        broken link, because that path is gitignored build output that
+        legitimately doesn't exist in a fresh checkout until `make
+        lab-cyclelab` runs — true on this session's own machine too,
+        just never noticed because the binary had always already been
+        built locally before the validator was written. Fixed by
+        excluding the `labs/cyclelab/bin/` prefix from the
+        path-existence check.
+      Both fixes verified locally (`make clean && make lab-cyclelab &&
+      make smoke && make validate`, all passing) before being pushed as
+      a second commit. The `cyclelab` job (matrixed across
+      `ubuntu-latest`/`macos-latest`: `make doctor` + `make lab-cyclelab`
+      + `make smoke`) and `manuscript` job (`make validate`) follow
+      BLUEPRINT.md Section 21's "CI must never fail a build over a
+      performance threshold" rule — every step is a compile, a
+      correctness/schema check, or a manuscript consistency check,
+      never a timing assertion.
+- [x] Cover artwork added: `figures/generated/cover.png`, wired into
+      `_quarto.yml`'s `book.cover-image` key. Verified it actually
+      embeds, not just references a path: the rendered EPUB carries the
+      full image under `EPUB/media/` plus a generated cover page.
+
 ## Not yet started, no matter the phase
 
-- CI wiring: `.github/workflows/ci.yml` is authored and real (a
-  `cyclelab` job matrixed across `ubuntu-latest`/`macos-latest` running
-  `make doctor` + `make lab-cyclelab` + `make smoke`, and a `manuscript`
-  job running `make validate`), following BLUEPRINT.md Section 21's "CI
-  must never fail a build over a performance threshold" rule directly
-  (every step is a compile, a correctness/schema check, or a manuscript
-  consistency check, never a timing assertion). It cannot actually run
-  yet: **this repository has no git remote configured**, so nothing is
-  pushed anywhere GitHub Actions could trigger from. It will activate
-  automatically the first time this repo is pushed to GitHub.
 - Figures: still mostly empty by design (see `figures/source/` and
   `figures/generated/` READMEs) — the one exception is Chapter 14's real
   captured flame graph, added because that chapter is specifically about
