@@ -2,10 +2,9 @@
 #
 # Minimal functional smoke test for labs/cyclelab. Unlike the
 # scripts/validate_*.py stubs, this one is real: it builds cyclelab and
-# checks that the implemented modes (compute, branch) actually run and
-# produce well-formed output. BLUEPRINT.md Section 21 ("What CI must
-# not do"): this checks correctness and that commands terminate, never
-# a performance threshold.
+# checks that the implemented modes actually run and produce well-formed
+# output. BLUEPRINT.md Section 21 ("What CI must not do"): this checks
+# correctness and that commands terminate, never a performance threshold.
 set -uo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -76,6 +75,33 @@ if command -v python3 >/dev/null 2>&1; then
   else
     echo "  JSON parses, combined_checksum present: $CHECKSUM"
   fi
+fi
+
+echo "-- random-memory mode --"
+OUT="$("$CYCLELAB" random-memory --duration=0.3 --threads=1 --working-set-size=1M --quiet)"
+RC=$?
+if [ "$RC" -ne 0 ]; then
+  fail "cyclelab random-memory exited $RC, expected 0"
+else
+  echo "  exit code: OK (0)"
+fi
+
+echo "-- bandwidth mode --"
+OUT="$("$CYCLELAB" bandwidth --duration=0.3 --threads=2 --working-set-size=1M --quiet)"
+RC=$?
+if [ "$RC" -ne 0 ]; then
+  fail "cyclelab bandwidth exited $RC, expected 0"
+else
+  echo "  exit code: OK (0)"
+fi
+
+echo "-- false-sharing mode --"
+OUT="$("$CYCLELAB" false-sharing --duration=0.3 --threads=2 --padding=padded --quiet)"
+RC=$?
+if [ "$RC" -ne 0 ]; then
+  fail "cyclelab false-sharing exited $RC, expected 0"
+else
+  echo "  exit code: OK (0)"
 fi
 
 echo "-- stub mode (sleep) --"

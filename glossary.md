@@ -2,8 +2,8 @@
 
 Terms are grouped by concept level (see `concept-graph.md`), alphabetical
 within each group, then a **Supplementary vocabulary** section for teaching
-terms Chapters 1–15 use that BLUEPRINT.md Section 11 doesn't formally list at
-any level. Status as of this revision: Chapters 1–15 drafted.
+terms Chapters 1–20 use that BLUEPRINT.md Section 11 doesn't formally list at
+any level. Status as of this revision: Chapters 1–20 drafted.
 
 ## Level 0 — Questions and Measurements
 
@@ -328,11 +328,107 @@ sampled snapshot, commonly via frame pointers or, on supporting
 platforms, DWARF-based or last-branch-record-based alternatives.
 **See also:** frame pointer, call stack
 
-## Levels 4–7
+## Level 4 — Memory Behavior
+
+All fourteen Level 4 terms are introduced by Chapters 16–20 (Part IV is
+complete as of this revision).
+
+### cache hit
+**First introduced:** Chapter 17
+An access satisfied by a cache level instead of going further out to a
+slower one.
+
+### cache line
+**First introduced:** Chapter 16
+The unit caches actually move data in (commonly 64 bytes) — touching
+even one byte pulls in the whole line.
+**See also:** L1/L2/LLC, locality
+
+### cache miss
+**First introduced:** Chapter 17 (as "compulsory miss" and "capacity
+miss intuition")
+An access not satisfied by a given cache level. A compulsory miss is
+the unavoidable first-ever access to an address; misses beyond that
+reflect the working set exceeding that level's capacity.
+**See also:** working set, cache hit
+
+### coherence
+**First introduced:** Chapter 18
+The protocol (commonly a MESI variant) that keeps multiple cores' cached
+copies of the same cache line consistent, via ownership and
+invalidation.
+**See also:** false sharing, shared cache line
+
+### false sharing
+**First introduced:** Chapter 18
+Cache-coherence traffic caused by unrelated variables that merely
+happen to share a cache line, with no genuine logical contention
+between the threads involved.
+**See also:** coherence, true sharing
+
+### L1/L2/LLC
+**First introduced:** Chapter 16
+Progressively larger, progressively slower layers of on-chip cache
+sitting between registers and main memory; LLC is the last-level
+(commonly shared) cache before DRAM.
+**See also:** cache line, DRAM
+
+### locality
+**First introduced:** Chapter 16
+The general principle that makes caching effective: spatial locality
+(nearby addresses accessed close together in time) and temporal
+locality (the same address accessed again soon).
+
+### memory bandwidth
+**First introduced:** Chapter 19 (as "sustained bandwidth"/"peak
+bandwidth")
+Bytes transferred per second between memory and the CPU; sustained
+bandwidth is what's actually achieved under load, peak bandwidth is the
+theoretical hardware maximum.
+**See also:** bandwidth saturation, memory-level parallelism
+
+### memory latency
+**First introduced:** Chapter 16 (as "latency")
+The time a single memory access takes to complete, growing sharply at
+each layer further from the CPU.
+
+### memory-level parallelism
+**First introduced:** Chapter 19
+How many memory requests a workload can keep outstanding at once —
+near-zero for a dependent pointer chase, high for independent streaming
+access.
+**See also:** memory bandwidth, roofline intuition
+
+### prefetching
+**First introduced:** Chapter 17 (as "prefetcher")
+Hardware speculatively loading data it predicts will be needed soon,
+based on recently observed access patterns such as a constant stride.
+
+### roofline intuition
+**First introduced:** Chapter 19
+The informal picture that a workload's achievable performance is
+bounded by either compute throughput or bandwidth times arithmetic
+intensity, whichever ceiling is lower for that workload.
+**See also:** arithmetic intensity, memory bandwidth
+
+### uncore
+**First introduced:** Chapter 20
+CPU-package circuitry outside the cores themselves — shared cache,
+interconnect, and memory controller logic — with its own, separate
+performance counters.
+**See also:** memory controller
+
+### working set
+**First introduced:** Chapter 17
+The specific data a program actually touches repeatedly during some
+phase of execution, as opposed to all the memory it could touch.
+**See also:** cache hit, cache miss, reuse
+
+## Levels 5–7
 
 Not yet formally introduced by any drafted chapter. Term lists live in
 `concept-graph.yaml`/`concept-graph.md`; definitions will be added as
-Chapters 16–30 are drafted.
+Chapters 21–30 are drafted.
 
 **Exception (informal use before formal treatment):** `on-CPU time` and
 `off-CPU time` (formally Level 7, Chapter 29) are used informally
@@ -350,7 +446,7 @@ waiting, blocked, or sleeping.
 
 ## Supplementary vocabulary
 
-Plain teaching terms Chapters 1–15 introduce that Section 11 doesn't list
+Plain teaching terms Chapters 1–20 introduce that Section 11 doesn't list
 at any formal level. Tracked here so they're not silently invented; not
 part of `concept-graph.yaml`'s level structure.
 
@@ -635,3 +731,83 @@ same before/after discipline used to catch improvements.
 comparison is normalized by time, by completed operations, or by
 another unit — since equal wall-clock duration does not mean equal
 completed work when one version is faster.
+
+### Chapter 16
+
+**register** — The fastest storage a CPU has, directly wired into its
+execution units, effectively free to access.
+
+**DRAM** — Main memory itself: much larger than any cache level, and
+much slower to reach.
+
+### Chapter 17
+
+**stride** — The fixed distance advanced between successive accesses in
+a regular access pattern.
+
+**reuse** — Accessing the same data again while it's still cached.
+
+**TLB (as a forward pointer)** — A small cache of virtual-to-physical
+address translations, itself subject to the same hit/miss dynamics as a
+data cache and itself capacity-limited.
+
+### Chapter 18
+
+**shared cache line** — A cache line more than one core has a copy of.
+
+**ownership** — A cache line's state under the coherence protocol,
+determining which core(s) may read or write it without first
+coordinating with others.
+
+**invalidation** — A core writing to a line it doesn't exclusively own
+forcing every other core's copy of that line to be discarded.
+
+**coherence traffic** — Real bus/interconnect activity generated by
+ownership transfers and invalidations, invisible to source code.
+
+**true sharing** — Coherence traffic from genuinely shared data that
+multiple threads actually read and write.
+
+**HITM intuition** — The informal sense of a hardware event where a
+read or write "hits" a cache line another core has modified, the
+underlying signal cache-to-cache-transfer tools detect directly.
+
+### Chapter 19
+
+**bytes transferred** — The total data moved between memory and the CPU
+over some measurement.
+
+**sustained bandwidth** — Bytes transferred per second under real,
+continued load.
+
+**peak bandwidth** — The theoretical maximum a memory system could ever
+deliver; a hardware specification, essentially never achieved in
+practice.
+
+**arithmetic intensity** — The ratio of useful computation to bytes
+transferred (operations per byte), separating compute-bound workloads
+from bandwidth-bound ones.
+
+**bandwidth saturation** — The point past which additional concurrent
+demand cannot increase delivered throughput, because the memory
+channels are already moving data near their sustainable rate.
+
+### Chapter 20
+
+**load/store sampling** — Sampling individual memory-access instructions
+specifically (as `perf mem` does), rather than instruction-pointer
+sampling generally, tagging each with a data source.
+
+**data source** — Which cache level or memory location satisfied a
+sampled memory access.
+
+**local/remote classification** — On NUMA systems, whether a sampled
+access was satisfied by memory local to the accessing core's node or
+remote to it.
+
+**cache-to-cache transfer** — A cache line moving directly from one
+core's cache to another's rather than from a shared cache or memory,
+the event `perf c2c` is built to detect.
+
+**memory controller** — The uncore logic responsible for actually
+issuing reads and writes to DRAM on behalf of the cores.

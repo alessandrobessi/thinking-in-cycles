@@ -33,6 +33,9 @@ void cli_defaults(cyclelab_options_t *opts) {
     opts->chains = 1;
     opts->pattern = CYCLELAB_PATTERN_SORTED;
     opts->branch_table_size = 1000000;
+    opts->working_set_bytes = 1048576; /* 1 MiB */
+    opts->mem_stride_slots = 1;
+    opts->padding = CYCLELAB_PADDING_PACKED;
 }
 
 void cli_print_usage(const char *prog) {
@@ -63,8 +66,23 @@ void cli_print_usage(const char *prog) {
         "\n"
         "branch-specific options:\n"
         "  --pattern=sorted|random   table order to walk (default sorted)\n"
-        "  --branch-table-size=N     per-thread table size (default 1000000)\n",
-        prog, CYCLELAB_MAX_CHAINS);
+        "  --branch-table-size=N     per-thread table size (default 1000000)\n"
+        "\n"
+        "sequential-memory/random-memory-specific options:\n"
+        "  --working-set-size=BYTES  per-thread buffer size, accepts K/M/G suffixes\n"
+        "                            (default 1048576, i.e. 1M)\n"
+        "  --pattern=sequential|random  overrides the mode's default access order\n"
+        "  --stride=N                slots (of %dB) advanced per step, sequential only\n"
+        "                            (default 1)\n"
+        "\n"
+        "bandwidth-specific options:\n"
+        "  --working-set-size=BYTES  per-thread buffer size, accepts K/M/G suffixes\n"
+        "                            (default 1048576; use a size larger than your\n"
+        "                            last-level cache to measure real DRAM bandwidth)\n"
+        "\n"
+        "false-sharing-specific options:\n"
+        "  --padding=packed|padded   counter layout (default packed)\n",
+        prog, CYCLELAB_MAX_CHAINS, CYCLELAB_CACHE_LINE_BYTES);
 }
 
 void cli_print_version(void) {
@@ -92,6 +110,23 @@ static int parse_ulong(const char *s, unsigned long *out) {
     unsigned long v = strtoul(s, &end, 10);
     if (end == s || *end != '\0') return -1;
     *out = v;
+    return 0;
+}
+
+/* Parses a byte count with an optional trailing K/M/G suffix (base 1024,
+ * case-insensitive), e.g. "64K", "16M", "1073741824". */
+static int parse_size_bytes(const char *s, long *out) {
+    char *end = NULL;
+    double v = strtod(s, &end);
+    if (end == s || v < 0) return -1;
+    long multiplier = 1;
+    if (*end != '\0') {
+        if ((end[0] == 'k' || end[0] == 'K') && end[1] == '\0') multiplier = 1024L;
+        else if ((end[0] == 'm' || end[0] == 'M') && end[1] == '\0') multiplier = 1024L * 1024L;
+        else if ((end[0] == 'g' || end[0] == 'G') && end[1] == '\0') multiplier = 1024L * 1024L * 1024L;
+        else return -1;
+    }
+    *out = (long)(v * (double)multiplier);
     return 0;
 }
 
@@ -154,6 +189,13 @@ int cli_parse(int argc, char **argv, cyclelab_options_t *opts,
         *exit_now = 1;
         *exit_code = 64;
         return -1;
+    }
+    /* random-memory's whole point is a random access order; give it that
+     * default even though the global default (used by "branch" and
+     * "sequential-memory") is SORTED/sequential. An explicit --pattern
+     * below still overrides this. */
+    if (strcmp(opts->mode, "random-memory") == 0) {
+        opts->pattern = CYCLELAB_PATTERN_RANDOM;
     }
 
     for (int i = 2; i < argc; i++) {
@@ -222,15 +264,34 @@ int cli_parse(int argc, char **argv, cyclelab_options_t *opts,
             }
             opts->chains = (int)c;
         } else if (strcmp(key, "--pattern") == 0 && value) {
-            if (strcmp(value, "sorted") == 0) opts->pattern = CYCLELAB_PATTERN_SORTED;
+            if (strcmp(value, "sorted") == 0 || strcmp(value, "sequential") == 0)
+                opts->pattern = CYCLELAB_PATTERN_SORTED;
             else if (strcmp(value, "random") == 0) opts->pattern = CYCLELAB_PATTERN_RANDOM;
             else {
-                fprintf(stderr, "%s: --pattern expects 'sorted' or 'random'\n", prog);
+                fprintf(stderr, "%s: --pattern expects 'sorted'/'sequential' or 'random'\n", prog);
                 *exit_now = 1; *exit_code = 64; return -1;
             }
         } else if (strcmp(key, "--branch-table-size") == 0 && value) {
             if (parse_long(value, &opts->branch_table_size) != 0 || opts->branch_table_size <= 0) {
                 fprintf(stderr, "%s: --branch-table-size expects a positive integer\n", prog);
+                *exit_now = 1; *exit_code = 64; return -1;
+            }
+        } else if (strcmp(key, "--working-set-size") == 0 && value) {
+            if (parse_size_bytes(value, &opts->working_set_bytes) != 0 || opts->working_set_bytes < CYCLELAB_CACHE_LINE_BYTES * 2) {
+                fprintf(stderr, "%s: --working-set-size expects a byte count (optionally suffixed K/M/G) of at least %d\n",
+                        prog, CYCLELAB_CACHE_LINE_BYTES * 2);
+                *exit_now = 1; *exit_code = 64; return -1;
+            }
+        } else if (strcmp(key, "--stride") == 0 && value) {
+            if (parse_long(value, &opts->mem_stride_slots) != 0 || opts->mem_stride_slots < 1) {
+                fprintf(stderr, "%s: --stride expects a positive integer (in cache-line slots)\n", prog);
+                *exit_now = 1; *exit_code = 64; return -1;
+            }
+        } else if (strcmp(key, "--padding") == 0 && value) {
+            if (strcmp(value, "packed") == 0) opts->padding = CYCLELAB_PADDING_PACKED;
+            else if (strcmp(value, "padded") == 0) opts->padding = CYCLELAB_PADDING_PADDED;
+            else {
+                fprintf(stderr, "%s: --padding expects 'packed' or 'padded'\n", prog);
                 *exit_now = 1; *exit_code = 64; return -1;
             }
         } else {

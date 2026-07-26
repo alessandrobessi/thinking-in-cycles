@@ -8,7 +8,7 @@ the machine-readable source of truth. Both derive from BLUEPRINT.md Section
 levels *< N*. No chapter may rely on a concept before its prerequisites have
 been introduced (BLUEPRINT.md Section 11, closing line).
 
-Status as of this revision: **Chapters 1–15 drafted, Chapters 16–30 pending.**
+Status as of this revision: **Chapters 1–20 drafted, Chapters 21–30 pending.**
 
 ## Level 0 — Questions and Measurements
 
@@ -66,11 +66,17 @@ separate "sample" and "frequency" entries.
 
 ## Level 4 — Memory Behavior
 
-cache line · L1/L2/LLC · locality · working set · cache hit · cache miss ·
-prefetching · coherence · false sharing · memory-level parallelism ·
-memory bandwidth · memory latency · uncore · roofline intuition
+cache line¹⁶ · L1/L2/LLC¹⁶ · locality¹⁶ · working set¹⁷ · cache hit¹⁷ ·
+cache miss¹⁷ · prefetching¹⁷ · coherence¹⁸ · false sharing¹⁸ ·
+memory-level parallelism¹⁹ · memory bandwidth¹⁹ · memory latency¹⁶ ·
+uncore²⁰ · roofline intuition¹⁹
 
-Not yet introduced. First formal treatment: Part IV (Chapters 16–20).
+All fourteen Level 4 terms are now introduced (Chapters 16–20 complete
+Part IV). A few used a different surface form than the seed name:
+"cache miss" as Chapter 17's "compulsory miss"/"capacity miss
+intuition", "prefetching" as "prefetcher", "memory bandwidth" as
+"sustained bandwidth"/"peak bandwidth", "memory latency" as Chapter
+16's plain "latency".
 
 ## Level 5 — Topology and Placement
 
@@ -118,7 +124,7 @@ treat entries with `also_appears_in` as intentional, not violations.
 
 ## Supplementary vocabulary (not in Section 11 at any level)
 
-Chapters 1–15 also introduce plain teaching vocabulary that Section 11 never
+Chapters 1–20 also introduce plain teaching vocabulary that Section 11 never
 lists at all. These are tracked in `glossary.md` but have no `level` in
 `concept-graph.yaml`:
 
@@ -137,22 +143,28 @@ lists at all. These are tracked in `glossary.md` but have no `level` in
 - **Chapter 13:** stripped binary, DWARF, last branch records, JIT symbols, kernel symbols
 - **Chapter 14:** folded stack, stack aggregation, frame width, ancestry, plateau, tower, off-CPU flame graph
 - **Chapter 15:** before/after profile, normalized workload, `perf diff`, regression, total-work normalization
+- **Chapter 16:** register, DRAM (as plain terms alongside their Level 4 counterparts)
+- **Chapter 17:** stride, reuse, TLB (introduced as "a forward pointer")
+- **Chapter 18:** shared cache line, ownership, invalidation, coherence traffic, true sharing, HITM intuition
+- **Chapter 19:** bytes transferred, sustained bandwidth, peak bandwidth, arithmetic intensity, bandwidth saturation
+- **Chapter 20:** load/store sampling, data source, local/remote classification, cache-to-cache transfer, memory controller
 
 ## Narrative Graph (Section 12)
 
 The book follows one chain of 30 questions, each becoming the next chapter's
 opening question. See `concept-graph.yaml`'s `narrative_graph` list for the
-full machine-readable form (question text + chapter number). Questions 1–15
-are answered by the drafted chapters; 16–30 are pending. The chain is
-verified end-to-end for Chapters 1–15: each chapter's "Next Obvious
+full machine-readable form (question text + chapter number). Questions 1–20
+are answered by the drafted chapters; 21–30 are pending. The chain is
+verified end-to-end for Chapters 1–20: each chapter's "Next Obvious
 Question" is the verbatim opening question of the chapter that follows,
 including the Chapter 5 → Chapter 6 handoff ("What work does the CPU
 actually execute?"), the Chapter 10 → Chapter 11 handoff ("When should
-we count, sample, or trace?"), and the Chapter 15 → Chapter 16 handoff
+we count, sample, or trace?"), the Chapter 15 → Chapter 16 handoff
 ("Why can memory access dominate code that performs little
-computation?"). Two of BLUEPRINT.md's own per-chapter
-"Next question:" shorthand lines (Chapter 8's and Chapter 10's) do not
-match the following chapter's actual opening question verbatim; in both
-cases the drafted chapter uses the next chapter's real opening question,
-not the shorthand paraphrase, per the rule established handling the
-Chapter 5 → 6 transition.
+computation?"), and the Chapter 20 → Chapter 21 handoff ("How does Linux
+decide where runnable work executes?"). Two of BLUEPRINT.md's own
+per-chapter "Next question:" shorthand lines (Chapter 8's and Chapter
+10's) do not match the following chapter's actual opening question
+verbatim; in both cases the drafted chapter uses the next chapter's real
+opening question, not the shorthand paraphrase, per the rule established
+handling the Chapter 5 → 6 transition.

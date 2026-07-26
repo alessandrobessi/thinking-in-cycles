@@ -40,6 +40,18 @@ as its portable fallback.
 Chapters 11 and 14 use `capture_sample_profile.sh` (plus, for Chapter 14,
 `flamegraph_svg.py`) directly rather than a dedicated per-chapter script.
 
+| Script | Chapter | What it does |
+|---|---|---|
+| `ch16_memory_hierarchy.sh` | 16 | Sweeps `cyclelab random-memory --working-set-size` from 16K to 128M, showing the cache-hierarchy latency staircase. |
+| `ch17_stride_sweep.sh` | 17 | Sweeps `cyclelab sequential-memory --stride` at a fixed 64MB working set, isolating access order from working-set size. |
+| `ch18_false_sharing.sh` | 18 | Compares `cyclelab false-sharing --padding=packed` vs `padded` throughput across thread counts 1-10. |
+| `ch19_bandwidth_scaling.sh` | 19 | Sweeps `cyclelab bandwidth --threads` at a fixed 64MB-per-thread working set, showing the aggregate bandwidth saturation curve. |
+
+Chapter 20 has no dedicated script: its lab is a written synthesis
+exercise over Chapters 16-19's own results, documented in the chapter
+text (its `perf mem`/`perf c2c`/PCM commands are Linux/hardware-specific
+and not testable on this project's macOS reference machine).
+
 Every script above is **portable** (BLUEPRINT.md Section 13.2): no root,
 no `perf`, no special hardware — except that the Chapter 11-15 scripts
 specifically require macOS's built-in `sample`(1) utility, since this

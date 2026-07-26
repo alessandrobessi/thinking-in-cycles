@@ -5,7 +5,7 @@
 # introduced within) its own.
 #
 # `introduced_in_chapter: null` means the concept has not yet been formally
-# taught by any drafted chapter (Chapters 1-15 only, as of this revision).
+# taught by any drafted chapter (Chapters 1-20 only, as of this revision).
 # `also_appears_in` records informal/operational use before formal
 # introduction, which BLUEPRINT.md itself does in a few places (see the
 # "known tensions" note at the bottom and concept-graph.md for discussion).
@@ -145,20 +145,28 @@ levels:
   - level: 4
     name: "Memory Behavior"
     concepts:
-      - { name: cache line, introduced_in_chapter: null }
-      - { name: L1/L2/LLC, introduced_in_chapter: null }
-      - { name: locality, introduced_in_chapter: null }
-      - { name: working set, introduced_in_chapter: null }
-      - { name: cache hit, introduced_in_chapter: null }
-      - { name: cache miss, introduced_in_chapter: null }
-      - { name: prefetching, introduced_in_chapter: null }
-      - { name: coherence, introduced_in_chapter: null }
-      - { name: false sharing, introduced_in_chapter: null }
-      - { name: memory-level parallelism, introduced_in_chapter: null }
-      - { name: memory bandwidth, introduced_in_chapter: null }
-      - { name: memory latency, introduced_in_chapter: null }
-      - { name: uncore, introduced_in_chapter: null }
-      - { name: roofline intuition, introduced_in_chapter: null }
+      - { name: cache line, introduced_in_chapter: 16 }
+      - { name: L1/L2/LLC, introduced_in_chapter: 16 }
+      - { name: locality, introduced_in_chapter: 16 }
+      - { name: working set, introduced_in_chapter: 17 }
+      - { name: cache hit, introduced_in_chapter: 17 }
+      - name: cache miss
+        introduced_in_chapter: 17
+        note: "Introduced via 'compulsory miss' and 'capacity miss intuition' in Chapter 17's New Concepts."
+      - name: prefetching
+        introduced_in_chapter: 17
+        note: "Introduced via 'prefetcher' in Chapter 17's New Concepts."
+      - { name: coherence, introduced_in_chapter: 18 }
+      - { name: false sharing, introduced_in_chapter: 18 }
+      - { name: memory-level parallelism, introduced_in_chapter: 19 }
+      - name: memory bandwidth
+        introduced_in_chapter: 19
+        note: "Introduced via 'sustained bandwidth'/'peak bandwidth' in Chapter 19's New Concepts."
+      - name: memory latency
+        introduced_in_chapter: 16
+        note: "Introduced as 'latency' in Chapter 16's New Concepts."
+      - { name: uncore, introduced_in_chapter: 20 }
+      - { name: roofline intuition, introduced_in_chapter: 19 }
 
   - level: 5
     name: "Topology and Placement"
@@ -269,5 +277,5 @@ narrative_graph:
   - { n: 29, question: "Where does time go when a thread is not on a CPU?", chapter: 29 }
   - { n: 30, question: "How do all the layers combine into one defensible investigation?", chapter: 30 }
 
-chapters_drafted: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
-chapters_pending: [16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30]
+chapters_drafted: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
+chapters_pending: [21, 22, 23, 24, 25, 26, 27, 28, 29, 30]

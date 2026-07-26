@@ -11,8 +11,9 @@ progress against that order.
 - [x] Environment doctor (`scripts/doctor.sh`)
 - [x] Glossary and misconception registry, seeded for Chapters 1-5
 - [x] `cyclelab branch` mode (built in Phase 2, for Chapter 9)
-- [ ] `cyclelab` modes beyond `compute`/`branch` (sequential-memory,
-      random-memory, bandwidth, false-sharing, lock-contention, syscall,
+- [x] `cyclelab sequential-memory`/`random-memory`/`bandwidth`/`false-sharing`
+      modes (built in Phase 4, for Chapters 16-19)
+- [ ] `cyclelab` modes beyond those six (lock-contention, syscall,
       sleep, numa, mixed) — currently recognized-but-stubbed
 - [ ] `labs/mini-service` (second recurring example) — not started; see
       `labs/mini-service/README.md`
@@ -64,11 +65,36 @@ progress against that order.
       `capture_sample_profile.sh` directly rather than a per-chapter
       script)
 
-## Phase 4 — Memory (not started)
+## Phase 4 — Memory (complete)
 
-- [ ] Chapters 16-20
-- [ ] `sequential-memory`, `random-memory`, `bandwidth`, `false-sharing` modes
-- [ ] Multi-architecture event audit
+- [x] Chapters 16-20 (Part IV — Why Memory Changes Everything)
+- [x] `sequential-memory`, `random-memory`, `bandwidth`, `false-sharing`
+      modes — `sequential-memory`/`random-memory` share one
+      pointer-chase implementation (Sattolo's-algorithm single-cycle
+      permutation for the random case); `bandwidth` is a
+      prefetch-friendly streaming-sum kernel deliberately different in
+      shape from the pointer chase; `false-sharing` compares packed vs.
+      cache-line-padded per-thread counters
+- Note: as in Phases 2-3, every number in Chapters 16-20 is real,
+  captured data from this book's reference machine (Apple M4, macOS,
+  arm64) — cache-hierarchy latency cliffs, stride effects, false-sharing
+  scaling, and bandwidth saturation curves. Chapter 20's `perf
+  mem`/`perf c2c`/PCM commands are documented against each tool's stable
+  interface but not tested, clearly marked as such; its portable lab
+  instead synthesizes Chapters 16-19's own tested results as a "rung 1"
+  tool-ladder exercise.
+- [ ] Formal multi-architecture (x86-64 vs. Arm64) event/timing audit —
+      not done; this Part follows the established architecture-neutral
+      prose policy (numbers are captioned with machine/architecture
+      provenance, no architecture-specific claim is stated as
+      universal) but all real measurements were taken on one machine
+      (Arm64), not cross-checked against x86-64 hardware
+- [x] Guided-lab scripts for Chapters 16-19
+      (`ch16_memory_hierarchy.sh`, `ch17_stride_sweep.sh`,
+      `ch18_false_sharing.sh`, `ch19_bandwidth_scaling.sh`); Chapter 20
+      has no dedicated script (its lab is a written synthesis exercise
+      over Chapters 16-19's existing results, documented in the chapter
+      text)
 
 ## Phase 5 — Topology (not started)
 
@@ -97,7 +123,7 @@ progress against that order.
 ## Not yet started, no matter the phase
 
 - Quarto HTML/PDF/EPUB build (`publish/_quarto.yml` exists and lists only
-  Parts I-III; `scripts/prepare_manuscript_for_publish.py` is a stub)
+  Parts I-IV; `scripts/prepare_manuscript_for_publish.py` is a stub)
 - CI wiring for any of the validators above
 - Figures: still mostly empty by design (see `figures/source/` and
   `figures/generated/` READMEs) — the one exception is Chapter 14's real

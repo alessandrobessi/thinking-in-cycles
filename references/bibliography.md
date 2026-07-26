@@ -80,6 +80,20 @@ equivalents.
   flame graphs brendan gregg") — origin of the red/blue convention this
   book's `flamegraph_svg.py --diff-against` mode follows (Chapter 15).
 
+## Memory hierarchy and bandwidth references (added for Chapters 16-20)
+
+Not in the Section 19 seed list, which covers NUMA and false-sharing
+specifically but not general cache-hierarchy or bandwidth-modeling
+sources.
+
+- Ulrich Drepper, "What Every Programmer Should Know About Memory,"
+  2007 — the canonical deep treatment of cache hierarchy, prefetching,
+  and TLB behavior, cited directly in Chapters 16-17.
+- Samuel Williams, Andrew Waterman, David Patterson, "Roofline: An
+  Insightful Visual Performance Model for Multicore Architectures,"
+  *Communications of the ACM*, 2009 — the formal roofline model Chapter
+  19's informal intuition is a deliberately simplified preview of.
+
 ## Additions for Chapters 1-5
 
 The Section 19 seed list has no entry for general performance-workload
@@ -105,9 +119,9 @@ silently folded into the seed list above.
 
 ## Per-chapter reference stubs
 
-`references/chapters/ch01-references.md` through `ch15-references.md`
+`references/chapters/ch01-references.md` through `ch20-references.md`
 point back into this file for the specific entries each drafted chapter
-actually cites in its Further Reading section. Chapters 16-30 will get
+actually cites in its Further Reading section. Chapters 21-30 will get
 their own stubs, and likely their own bibliography entries, as they are
 drafted — see BLUEPRINT.md Section 19's rule that "the final bibliography
 should add architecture-specific and chapter-specific sources."

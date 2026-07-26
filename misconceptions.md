@@ -45,7 +45,7 @@ the Section 16 seed didn't anticipate them.
 **Misconception:** 100% CPU means a process is CPU-bound in the useful-work sense.
 **Correct intuition:** A CPU can be busy retiring waste, spinning, handling kernel work, or waiting on memory while still reporting busy time.
 **Evidence that distinguishes:** Compare user vs. system time, and completed work per CPU-second, across two runs with the same "100% busy" reading — busy time alone does not certify useful work.
-**Used in chapters:** 1
+**Used in chapters:** 1 (introduced); revisited in Chapter 19 for memory-bandwidth-saturated CPUs specifically
 
 ### M03
 **Misconception:** Fewer instructions always means faster code.
@@ -62,7 +62,8 @@ the Section 16 seed didn't anticipate them.
 ### M05
 **Misconception:** A high cache-miss percentage proves a cache bottleneck.
 **Correct intuition:** Rates need access volume, miss cost, overlap, and workload context.
-**Used in chapters:** not yet (Chapter 17)
+**Evidence that distinguishes:** Connect a miss count (or an elapsed-time proxy for it) to total access volume and completed work before concluding anything is a bottleneck — a high rate over few accesses can matter less than a lower rate over many.
+**Used in chapters:** 17
 
 ### M06
 **Misconception:** A flame graph is a timeline.
@@ -215,4 +216,27 @@ the Section 16 seed didn't anticipate them.
 **Correct intuition:** Time an application's own code causes to be spent in the kernel (a syscall, a page fault, a scheduling decision) is still time that request or workload waited for, even though the executing code isn't the application's own.
 **Evidence that distinguishes:** Compare a profile with and without kernel frames included; a kernel-side frame reached only because of an application's own call (e.g. blocking in a syscall the application invoked) still explains real elapsed time for that workload.
 **Used in chapters:** 12
-**Used in chapters:** 9
+
+### M33 — proposed, pending review
+**Misconception:** A working set that fits in cache is automatically fast.
+**Correct intuition:** Fitting in cache is necessary but not sufficient — an access pattern that defeats spatial or temporal locality can still perform poorly even within a cache level's capacity.
+**Evidence that distinguishes:** Compare two access patterns over the exact same, cache-resident working set but different orders (e.g. Chapter 17's stride sweep); a poorly-ordered pattern can still cost far more per access than a well-ordered one at identical size.
+**Used in chapters:** 16
+
+### M34 — proposed, pending review
+**Misconception:** Padding every shared structure is a safe, free optimization.
+**Correct intuition:** Padding increases memory footprint, sometimes drastically, and applying it to data that isn't actually experiencing false sharing wastes memory and can hurt locality elsewhere for no benefit.
+**Evidence that distinguishes:** Measure scaling with and without padding before applying it — Chapter 18's own lab shows padding helps when threads independently write to nearby counters, not as a universal rule to apply reflexively.
+**Used in chapters:** 18
+
+### M35 — proposed, pending review
+**Misconception:** Flat, non-idle CPU utilization during a bandwidth-saturated workload means nothing is wrong.
+**Correct intuition:** A core can be technically busy while making very little forward progress, stalled waiting for data the memory system can't deliver any faster — utilization measures busy time, not useful throughput (an extension of M02 into memory-bandwidth territory specifically).
+**Evidence that distinguishes:** Chapter 19's own lab: adding threads past the bandwidth saturation point does not increase completed work, even though every added thread is technically running and utilization stays non-idle.
+**Used in chapters:** 19
+
+### M36 — proposed, pending review
+**Misconception:** A single memory-related counter or tool can report "the memory bottleneck."
+**Correct intuition:** Memory behavior spans latency, bandwidth, coherence, and topology, each requiring a different measurement; no single number aggregates all of them meaningfully.
+**Evidence that distinguishes:** Chapter 20's own synthesis exercise: four genuinely different Part IV findings (latency, stride, coherence, bandwidth) from Chapters 16-19, none reducible to a shared single metric.
+**Used in chapters:** 20

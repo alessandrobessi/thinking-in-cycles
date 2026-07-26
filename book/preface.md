@@ -37,7 +37,8 @@ You'll see one recurring lab tool throughout — `cyclelab` — a small
 command-line workload generator with modes that expose different
 performance phenomena, so that each new chapter builds on a codebase
 you already understand instead of asking you to learn a new one. As of
-this edition, `cyclelab`'s `compute` and `branch` modes are implemented;
+this edition, `cyclelab`'s `compute`, `branch`, `sequential-memory`,
+`random-memory`, `bandwidth`, and `false-sharing` modes are implemented;
 the rest are recognized by the tool but not yet built, and later parts of the book
 will build them as they're needed.
 
@@ -48,5 +49,5 @@ investigation — one you know how to run yourself.
 ---
 
 *This is a pre-publication manuscript. As of this edition, Parts I
-through III (Chapters 1-15) are drafted; Parts IV through VI and the
+through IV (Chapters 1-20) are drafted; Parts V and VI and the
 appendices are not yet written. See `ROADMAP.md` for current status.*

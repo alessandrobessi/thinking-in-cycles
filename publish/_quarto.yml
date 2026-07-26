@@ -1,6 +1,6 @@
 # Minimal Quarto book scaffold. Not yet rendered as part of this phase --
-# see ROADMAP.md. Only Parts I-III's fifteen drafted chapters are listed;
-# Parts IV-VI and the appendices will be added to `chapters:` as they're
+# see ROADMAP.md. Only Parts I-IV's twenty drafted chapters are listed;
+# Parts V-VI and the appendices will be added to `chapters:` as they're
 # drafted (BLUEPRINT.md Section 24's drafting order).
 
 project:
@@ -34,7 +34,13 @@ book:
         - ../book/part-3-where-cpu-time-goes/chapter-13-stacks-symbols-and-unwinding.md
         - ../book/part-3-where-cpu-time-goes/chapter-14-flame-graphs-reading-the-shape-of-work.md
         - ../book/part-3-where-cpu-time-goes/chapter-15-differential-profiling-and-optimization-proof.md
-    # Part IV — Why Memory Changes Everything (Chapters 16-20): not yet drafted
+    - part: "Part IV — Why Memory Changes Everything"
+      chapters:
+        - ../book/part-4-why-memory-changes-everything/chapter-16-the-memory-hierarchy-and-locality.md
+        - ../book/part-4-why-memory-changes-everything/chapter-17-working-sets-cache-misses-and-prefetching.md
+        - ../book/part-4-why-memory-changes-everything/chapter-18-cache-coherence-and-false-sharing.md
+        - ../book/part-4-why-memory-changes-everything/chapter-19-memory-bandwidth-and-the-roofline-intuition.md
+        - ../book/part-4-why-memory-changes-everything/chapter-20-measuring-memory-with-perf-mem-perf-c2c-and-pcm.md
     # Part V — Where the Work Runs (Chapters 21-25): not yet drafted
     # Part VI — Seeing the Invisible (Chapters 26-30): not yet drafted
     # Appendices A-G: not yet drafted

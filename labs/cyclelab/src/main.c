@@ -2,8 +2,11 @@
 
 #include "cli.h"
 #include "sysinfo.h"
+#include "modes/bandwidth.h"
 #include "modes/branch.h"
 #include "modes/compute.h"
+#include "modes/false_sharing.h"
+#include "modes/memory.h"
 #include "modes/stub.h"
 
 int main(int argc, char **argv) {
@@ -24,6 +27,21 @@ int main(int argc, char **argv) {
         cyclelab_hostinfo_t host;
         sysinfo_collect(&host);
         return branch_run(&opts, &host);
+    }
+    if (strcmp(opts.mode, "sequential-memory") == 0 || strcmp(opts.mode, "random-memory") == 0) {
+        cyclelab_hostinfo_t host;
+        sysinfo_collect(&host);
+        return memory_run(&opts, &host);
+    }
+    if (strcmp(opts.mode, "false-sharing") == 0) {
+        cyclelab_hostinfo_t host;
+        sysinfo_collect(&host);
+        return false_sharing_run(&opts, &host);
+    }
+    if (strcmp(opts.mode, "bandwidth") == 0) {
+        cyclelab_hostinfo_t host;
+        sysinfo_collect(&host);
+        return bandwidth_run(&opts, &host);
     }
 
     /* Every other name cli_parse() accepted is a known-but-unimplemented

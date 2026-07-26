@@ -11,10 +11,10 @@ example codebase per chapter.
 |---|---|
 | `compute` | implemented |
 | `branch` | implemented |
-| `sequential-memory` | not yet implemented |
-| `random-memory` | not yet implemented |
-| `bandwidth` | not yet implemented |
-| `false-sharing` | not yet implemented |
+| `sequential-memory` | implemented |
+| `random-memory` | implemented |
+| `bandwidth` | implemented |
+| `false-sharing` | implemented |
 | `lock-contention` | not yet implemented |
 | `syscall` | not yet implemented |
 | `sleep` | not yet implemented |
@@ -62,6 +62,18 @@ compute-specific options:
 branch-specific options:
   --pattern=sorted|random   table order to walk (default sorted)
   --branch-table-size=N     per-thread table size (default 1000000)
+
+sequential-memory/random-memory-specific options:
+  --working-set-size=BYTES  per-thread buffer size, K/M/G suffixes ok (default 1M)
+  --pattern=sequential|random  overrides the mode's default access order
+  --stride=N                slots (64B each) advanced per step, sequential only
+
+bandwidth-specific options:
+  --working-set-size=BYTES  per-thread buffer size, K/M/G suffixes ok (default 1M;
+                            use larger than your last-level cache for real DRAM bandwidth)
+
+false-sharing-specific options:
+  --padding=packed|padded   counter layout (default packed)
 ```
 
 Examples:
@@ -72,6 +84,11 @@ Examples:
 ./bin/cyclelab compute --duration=1 --chains=8       # independent-chain ILP demo
 ./bin/cyclelab branch --pattern=sorted --duration=1
 ./bin/cyclelab branch --pattern=random --duration=1  # compare against the above
+./bin/cyclelab random-memory --working-set-size=64M --duration=1   # cache/DRAM latency
+./bin/cyclelab sequential-memory --working-set-size=64M --duration=1  # same size, prefetch-friendly
+./bin/cyclelab bandwidth --working-set-size=128M --threads=8 --duration=1  # sustained GB/s
+./bin/cyclelab false-sharing --padding=packed --threads=8 --duration=1
+./bin/cyclelab false-sharing --padding=padded --threads=8 --duration=1  # compare against the above
 ./bin/cyclelab sleep          # not yet implemented -> exit 2
 ```
 
@@ -123,6 +140,59 @@ how predictable the same conditional was, with identical work otherwise.
 One "table pass" is one full walk of the table; `--iterations=N` (if
 given) runs each thread for exactly N full passes instead of time-boxing
 by `--duration`.
+
+## `sequential-memory` / `random-memory` modes
+
+Each of `--threads` worker threads builds its own `--working-set-size`
+buffer, divided into 64-byte slots, then repeatedly chases a pointer
+through it (`buf[cur].next`) -- a genuine dependent-load chain, so
+elapsed time per step is a real latency measurement, not something
+out-of-order execution or prefetching can hide. `sequential-memory`
+defaults to `--pattern=sequential` (advancing `--stride` slots each
+step, wrapping); `random-memory` defaults to `--pattern=random` (a
+single-cycle random permutation of every slot, built with Sattolo's
+algorithm so the whole buffer is genuinely exercised, not a handful of
+short, independent sub-cycles). Either mode accepts either pattern via
+`--pattern`. On the reference machine for this book, sweeping
+`--working-set-size` with `random-memory` showed clean latency cliffs:
+~1.6-1.8ns/access up to 128K, ~5.5-9.9ns/access from 256K-8M, and
+~30-106ns/access from 16M-128M -- roughly L1/L2, LLC, and DRAM. At a
+fixed 64M working set, `sequential-memory` measured ~2.1ns/access versus
+`random-memory`'s ~93.8ns/access -- prefetching hiding almost all of the
+DRAM latency for the predictable pattern and none of it for the random
+one.
+
+## `bandwidth` mode
+
+Each of `--threads` worker threads streams sequentially through its own
+`--working-set-size` buffer of doubles, summing every element in a
+plain, non-dependent loop the compiler can vectorize and the CPU can
+prefetch aggressively -- the opposite access shape from
+sequential-memory/random-memory's deliberately dependent pointer chase,
+because bandwidth measurement needs the hardware's latency-hiding
+tricks turned on, not defeated. Use a `--working-set-size` well beyond
+your machine's last-level cache to measure real DRAM bandwidth rather
+than cache bandwidth. On the reference machine for this book, sweeping
+`--threads` at a fixed 64M working set showed clear saturation:
+throughput scaled roughly linearly from 1 to 4 threads (14.6 to 52.3
+GB/s) and then flattened from 6 to 10 threads (65.6 to 76.2 GB/s) as the
+shared memory channels approached their sustainable limit.
+
+## `false-sharing` mode
+
+Each of `--threads` worker threads repeatedly increments its own
+dedicated counter, as fast as possible, with no lock and (in source-code
+terms) no reason to interact with any other thread. In
+`--padding=packed` (default), the counters sit in one tightly packed
+array, so several typically share a 64-byte cache line; in
+`--padding=padded`, each counter is padded out to its own exclusive
+cache line. Any scaling difference between the two layouts at the same
+thread count is false sharing -- cache-coherence traffic from threads
+writing to the same line, even though each only touches its own
+logically distinct counter. On the reference machine for this book,
+`--padding=padded` measured consistently higher throughput than
+`--padding=packed` at every thread count tested, growing to roughly 46%
+higher at 8 threads.
 
 ## Output schema (stable core, extended by later modes)
 
@@ -176,8 +246,67 @@ processed, not iterations):
 }
 ```
 
+`sequential-memory`/`random-memory` share one schema (`mode` differs):
+
+```jsonc
+{
+  "mode": "random-memory",
+  "config": { "duration_requested_s": 2.0, "steps_requested": null,
+              "threads": 1, "affinity": "none", "seed": 12345,
+              "pattern": "random", "working_set_bytes": 67108864,
+              "num_slots": 1048576, "cache_line_bytes": 64, "stride_slots": 1 },
+  "results": {
+    "duration_actual_s": 2.000123,
+    "total_steps": 21312,
+    "ns_per_access": 93.841,
+    "threads": [
+      { "index": 0, "steps": 21312, "elapsed_s": 2.0001,
+        "affinity_applied": false, "checksum": 512034 }
+    ]
+  }
+}
+```
+
+`bandwidth` mode:
+
+```jsonc
+{
+  "mode": "bandwidth",
+  "config": { "duration_requested_s": 2.0, "passes_requested": null,
+              "threads": 8, "affinity": "none", "working_set_bytes": 67108864 },
+  "results": {
+    "duration_actual_s": 2.000123,
+    "total_passes": 2456,
+    "total_bytes_read": 164698112000,
+    "bandwidth_gb_per_s": 74.29,
+    "threads": [
+      { "index": 0, "passes": 307, "elapsed_s": 2.0001, "affinity_applied": false }
+    ]
+  }
+}
+```
+
+`false-sharing` mode:
+
+```jsonc
+{
+  "mode": "false-sharing",
+  "config": { "duration_requested_s": 2.0, "increments_requested": null,
+              "threads": 8, "affinity": "none", "padding": "padded",
+              "cache_line_bytes": 64 },
+  "results": {
+    "duration_actual_s": 2.000123,
+    "total_increments": 12290604610,
+    "throughput_increments_per_s": 6145302305.0,
+    "threads": [
+      { "index": 0, "increments": 1536325576, "elapsed_s": 2.0001, "affinity_applied": false }
+    ]
+  }
+}
+```
+
 `--format=text` prints the same information as human-readable lines
-instead of JSON, for both modes. Every field the book's guided labs read
+instead of JSON, for all modes. Every field the book's guided labs read
 from `--format=json` output is considered part of that mode's stable
 core and will only ever gain siblings, not change meaning, as later
 modes are added.
