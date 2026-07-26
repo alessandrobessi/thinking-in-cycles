@@ -103,7 +103,9 @@ python3 scripts/validate_links.py            # internal links and referenced lab
 
 Each exits 0 with no ERROR-level findings, non-zero otherwise; WARNING-
 level findings are informational (documented, legitimate deviations, not
-bugs) and don't fail the exit code. They are not wired into CI yet — see
-`ROADMAP.md`'s Phase 7 entry — so running them locally before a change
-is, for now, the only enforcement mechanism alongside manual review
-against the Definition of Done checklist.
+bugs) and don't fail the exit code. `.github/workflows/ci.yml` runs the
+same three validators (as `make validate`) plus `make lab-cyclelab` and
+`make smoke` on Linux and macOS, but this repository currently has no
+git remote configured, so nothing triggers it yet — running everything
+locally before a change is, for now, the only enforcement mechanism
+alongside manual review against the Definition of Done checklist.

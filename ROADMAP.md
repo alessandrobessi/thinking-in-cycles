@@ -295,8 +295,16 @@ alongside CI wiring and the Quarto render below.
 - Quarto HTML/PDF/EPUB build (`publish/_quarto.yml` now lists all six
   Parts and all thirty chapters, but has not been rendered;
   `scripts/prepare_manuscript_for_publish.py` is a stub)
-- CI wiring for the three validators (all three are real and runnable
-  locally via `make validate`; none run automatically yet)
+- CI wiring: `.github/workflows/ci.yml` is authored and real (a
+  `cyclelab` job matrixed across `ubuntu-latest`/`macos-latest` running
+  `make doctor` + `make lab-cyclelab` + `make smoke`, and a `manuscript`
+  job running `make validate`), following BLUEPRINT.md Section 21's "CI
+  must never fail a build over a performance threshold" rule directly
+  (every step is a compile, a correctness/schema check, or a manuscript
+  consistency check, never a timing assertion). It cannot actually run
+  yet: **this repository has no git remote configured**, so nothing is
+  pushed anywhere GitHub Actions could trigger from. It will activate
+  automatically the first time this repo is pushed to GitHub.
 - Figures: still mostly empty by design (see `figures/source/` and
   `figures/generated/` READMEs) — the one exception is Chapter 14's real
   captured flame graph, added because that chapter is specifically about

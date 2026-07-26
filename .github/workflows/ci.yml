@@ -1,0 +1,51 @@
+name: CI
+
+# BLUEPRINT.md Section 21 ("What CI must not do"): CI must never fail a
+# build because a benchmark did not reach a performance threshold --
+# shared runners are not valid performance laboratories. Every job below
+# only compiles, runs correctness/schema checks, executes short smoke
+# tests, or validates the manuscript's own internal consistency -- never
+# a timing assertion.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  cyclelab:
+    name: Build and smoke-test cyclelab (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Report environment (never fails a build)
+        run: bash scripts/doctor.sh
+
+      - name: Build cyclelab (debug + release)
+        run: make lab-cyclelab
+
+      - name: Smoke test
+        run: make smoke
+
+  manuscript:
+    name: Validate manuscript
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Install PyYAML
+        run: pip install pyyaml
+
+      - name: Run manuscript validators
+        run: make validate
