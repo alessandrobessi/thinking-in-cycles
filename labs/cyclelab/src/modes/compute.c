@@ -9,6 +9,7 @@
 
 #include "../affinity.h"
 #include "../jsonout.h"
+#include "../rusage_util.h"
 #include "../timing.h"
 
 #ifndef CYCLELAB_BUILD_TYPE
@@ -157,6 +158,7 @@ static void print_json(FILE *out, const cyclelab_options_t *opts,
                         compute_worker_ctx_t *ctxs, int nthreads,
                         double duration_actual_s, long long total_iterations,
                         uint64_t combined_checksum,
+                        long ctx_nvcsw, long ctx_nivcsw,
                         const char **warnings, int nwarnings) {
     char started_at[32];
     time_t now = time(NULL);
@@ -228,7 +230,9 @@ static void print_json(FILE *out, const cyclelab_options_t *opts,
         fprintf(out, "      }%s\n", (i == nthreads - 1) ? "" : ",");
     }
     fprintf(out, "    ],\n");
-    fprintf(out, "    \"combined_checksum\": \"%016llx\"\n", (unsigned long long)combined_checksum);
+    fprintf(out, "    \"combined_checksum\": \"%016llx\",\n", (unsigned long long)combined_checksum);
+    fprintf(out, "    \"context_switches\": { \"voluntary\": %ld, \"involuntary\": %ld }\n",
+            ctx_nvcsw, ctx_nivcsw);
     fprintf(out, "  }\n");
     fprintf(out, "}\n");
 }
@@ -238,6 +242,7 @@ static void print_text(FILE *out, const cyclelab_options_t *opts,
                         compute_worker_ctx_t *ctxs, int nthreads,
                         double duration_actual_s, long long total_iterations,
                         uint64_t combined_checksum,
+                        long ctx_nvcsw, long ctx_nivcsw,
                         const char **warnings, int nwarnings) {
     double total_ops = (double)total_iterations * OPS_PER_ITERATION;
     double throughput = (duration_actual_s > 0) ? (total_ops / duration_actual_s) : 0.0;
@@ -257,6 +262,7 @@ static void print_text(FILE *out, const cyclelab_options_t *opts,
                 (ctxs[i].affinity_result == CYCLELAB_AFFINITY_APPLIED) ? "true" : "false");
     }
     fprintf(out, "combined_checksum=%016llx\n", (unsigned long long)combined_checksum);
+    fprintf(out, "context_switches voluntary=%ld involuntary=%ld\n", ctx_nvcsw, ctx_nivcsw);
 }
 
 int compute_run(const cyclelab_options_t *opts, const cyclelab_hostinfo_t *host) {
@@ -336,12 +342,15 @@ int compute_run(const cyclelab_options_t *opts, const cyclelab_hostinfo_t *host)
         close_out = 1;
     }
 
+    long ctx_nvcsw, ctx_nivcsw;
+    rusage_get_context_switches(&ctx_nvcsw, &ctx_nivcsw);
+
     if (opts->format == CYCLELAB_FMT_JSON) {
         print_json(out, opts, host, ctxs, nthreads, duration_actual_s, total_iterations,
-                   combined_checksum, warnings, nwarnings);
+                   combined_checksum, ctx_nvcsw, ctx_nivcsw, warnings, nwarnings);
     } else {
         print_text(out, opts, host, ctxs, nthreads, duration_actual_s, total_iterations,
-                   combined_checksum, warnings, nwarnings);
+                   combined_checksum, ctx_nvcsw, ctx_nivcsw, warnings, nwarnings);
     }
 
     if (close_out) fclose(out);

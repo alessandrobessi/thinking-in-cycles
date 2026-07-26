@@ -2,8 +2,8 @@
 
 Terms are grouped by concept level (see `concept-graph.md`), alphabetical
 within each group, then a **Supplementary vocabulary** section for teaching
-terms Chapters 1–20 use that BLUEPRINT.md Section 11 doesn't formally list at
-any level. Status as of this revision: Chapters 1–20 drafted.
+terms Chapters 1–25 use that BLUEPRINT.md Section 11 doesn't formally list at
+any level. Status as of this revision: Chapters 1–25 drafted.
 
 ## Level 0 — Questions and Measurements
 
@@ -77,42 +77,54 @@ never an abstract "the program."
 
 ## Level 1 — Linux Execution
 
-None of these are formally introduced yet (first full treatment: Part V,
-Chapters 21–23). Chapter 1's guided lab uses **user time**, **system time**,
-and **wall time** operationally, comparing them for a `cyclelab compute`
-run, without a formal scheduler model.
+Ten of thirteen Level 1 terms are introduced by Chapters 21-22.
+**process** and **thread** remain informal (used from Chapter 1 onward,
+never given their own dedicated "New concepts" treatment); **user
+time**, **system time**, and **wall time** remain as Chapter 1's guided
+lab left them — compared operationally, without a full formal scheduler
+model built around them specifically.
 
 ### blocked
+**First introduced:** Chapter 21
 A thread state in which a thread cannot run because it is waiting on an
 event (I/O, a lock, a signal) rather than merely waiting for a CPU.
 
 ### context switch
+**First introduced:** Chapter 22 (as "voluntary"/"involuntary context switch")
 The act of a CPU stopping execution of one thread and beginning another,
 saving and restoring the state needed to resume each.
+**See also:** run queue, CPU migration
 
 ### CPU migration
+**First introduced:** Chapter 22 (as "migration")
 A thread resuming execution on a different logical CPU than the one it
 last ran on.
+**See also:** cache warmth
 
 ### process
 An OS-managed unit of execution with its own address space, containing one
 or more threads.
 
 ### run queue
+**First introduced:** Chapter 21
 The set of runnable threads waiting for a CPU on which to execute.
 
 ### runnable
+**First introduced:** Chapter 21
 A thread state in which a thread is ready to execute but is not currently
 assigned a CPU.
 
 ### running
+**First introduced:** Chapter 21
 A thread state in which a thread is currently executing on a CPU.
 
 ### scheduler
+**First introduced:** Chapter 21
 The kernel subsystem that decides which runnable thread runs on which CPU
 and for how long.
 
 ### sleeping
+**First introduced:** Chapter 21
 A thread state in which a thread has voluntarily given up the CPU to wait
 for a condition, timer, or event.
 
@@ -424,11 +436,102 @@ The specific data a program actually touches repeatedly during some
 phase of execution, as opposed to all the memory it could touch.
 **See also:** cache hit, cache miss, reuse
 
-## Levels 5–7
+## Level 5 — Topology and Placement
+
+All fifteen Level 5 terms are introduced by Chapters 23-25.
+
+### cgroup
+**First introduced:** Chapter 23 (as "cgroup CPU constraints")
+A Linux kernel mechanism for grouping and constraining processes'
+resource usage, commonly what cpusets and container CPU limits are
+built on.
+
+### core
+**First introduced:** Chapter 23 (as "physical core")
+A physical execution unit on a CPU package, potentially presenting as
+more than one logical CPU under SMT.
+**See also:** logical CPU, SMT
+
+### CPU affinity
+**First introduced:** Chapter 23
+A restriction on which logical CPUs a thread is allowed to run on, set
+via an affinity mask.
+**See also:** affinity mask, cpuset
+
+### cpuset
+**First introduced:** Chapter 23
+A named partition of CPUs (and memory nodes) that threads can be
+restricted to.
+
+### first-touch allocation
+**First introduced:** Chapter 25
+The default memory policy where a page isn't physically assigned to a
+location until the first time something writes to it, at which point
+it's placed on the node local to whichever CPU did the writing.
+**See also:** local allocation policy, NUMA node
+
+### isolation
+**First introduced:** Chapter 23
+Keeping specific CPUs mostly free of the kernel's own routine work
+(via `isolcpus` and related configuration), reserved for
+latency-sensitive threads.
+
+### local memory
+**First introduced:** Chapter 24
+Memory attached to the same NUMA node as the CPU accessing it.
+**See also:** remote memory, NUMA node
+
+### logical CPU
+**First introduced:** Chapter 23
+One schedulable unit of execution from the OS's perspective; a single
+physical core can present as more than one logical CPU under SMT.
+
+### memory policy
+**First introduced:** Chapter 25 (via "local allocation policy",
+"interleave", "bind", "preferred node")
+The rule governing where a thread's memory allocations are physically
+placed relative to NUMA nodes.
+**See also:** first-touch allocation, page migration
+
+### NUMA distance
+**First introduced:** Chapter 24 (as "distance")
+A relative, often unitless number reported for how costly reaching a
+given NUMA node's memory is from a given CPU.
+
+### NUMA node
+**First introduced:** Chapter 24
+A group of CPUs and the memory directly attached to them, commonly
+(though not always) one node per socket.
+**See also:** local memory, remote memory, NUMA distance
+
+### page migration
+**First introduced:** Chapter 25
+The kernel physically moving a page of memory to a different NUMA node,
+typically to fix an access pattern that has become predominantly
+remote.
+**See also:** automatic NUMA balancing (supplementary, Chapter 25)
+
+### remote memory
+**First introduced:** Chapter 24
+Memory attached to a different NUMA node than the CPU accessing it,
+reachable only by crossing an interconnect.
+**See also:** local memory, NUMA distance
+
+### SMT
+**First introduced:** Chapter 23 (as "SMT sibling")
+Simultaneous multithreading: one physical core presenting as more than
+one logical CPU to the scheduler, sharing the core's execution
+resources.
+
+### socket
+**First introduced:** Chapter 23
+A physical CPU package, potentially containing many cores.
+
+## Levels 6–7
 
 Not yet formally introduced by any drafted chapter. Term lists live in
 `concept-graph.yaml`/`concept-graph.md`; definitions will be added as
-Chapters 21–30 are drafted.
+Chapters 26–30 are drafted.
 
 **Exception (informal use before formal treatment):** `on-CPU time` and
 `off-CPU time` (formally Level 7, Chapter 29) are used informally
@@ -446,7 +549,7 @@ waiting, blocked, or sleeping.
 
 ## Supplementary vocabulary
 
-Plain teaching terms Chapters 1–20 introduce that Section 11 doesn't list
+Plain teaching terms Chapters 1–25 introduce that Section 11 doesn't list
 at any formal level. Tracked here so they're not silently invented; not
 part of `concept-graph.yaml`'s level structure.
 
@@ -811,3 +914,85 @@ the event `perf c2c` is built to detect.
 
 **memory controller** — The uncore logic responsible for actually
 issuing reads and writes to DRAM on behalf of the cores.
+
+### Chapter 21
+
+**time slice intuition** — The informal sense that a running thread
+gets a bounded slice of time before the scheduler reconsiders who
+should run next, especially when others are waiting.
+
+**wake-up** — A sleeping thread becoming runnable again, in response to
+whatever it was waiting for becoming available.
+
+**load balancing** — The scheduler's ongoing effort to keep runnable
+work spread reasonably evenly across available CPUs.
+
+**scheduling class** — The policy category a thread belongs to (e.g.
+the default time-shared class, or a real-time class), affecting how
+scheduling mechanics apply to it.
+
+### Chapter 22
+
+**cache warmth** — The accumulated benefit of a thread's data already
+sitting in a specific core's cache, discarded (at least partly) by a
+context switch or migration.
+
+**interrupt** — A signal that diverts a CPU to handle an event
+immediately, which can concentrate real cost on whichever CPU handles
+it most.
+
+**steal time** — In a virtualized environment, CPU time a guest was
+ready to use but couldn't, because the hypervisor gave it to something
+else.
+
+**noisy neighbor** — Unrelated, co-located work competing for the same
+shared CPUs (or other resources), degrading a workload's performance
+with no code-level relationship to it.
+
+**CPU pressure** — The general sense of demand for CPU time exceeding
+what's readily available, whether from a workload's own threads or
+from unrelated neighbors.
+
+### Chapter 23
+
+**affinity mask** — A specification of exactly which logical CPUs a
+thread is allowed to run on.
+
+**`taskset`** — The Linux command-line tool for setting a process's CPU
+affinity.
+
+**`sched_setaffinity`** — The Linux system call underlying `taskset`
+and similar tools.
+
+### Chapter 24
+
+**interconnect** — The physical link between NUMA nodes (commonly
+sockets), slower and lower-bandwidth than a node's own direct memory
+connection.
+
+**node topology** — The overall map of how many NUMA nodes exist and
+how they're connected.
+
+**memory-only node** — A NUMA node with no CPUs attached, whose memory
+is reachable only remotely.
+
+### Chapter 25
+
+**local allocation policy** — A memory policy explicitly requesting
+first-touch behavior.
+
+**interleave** — A memory policy that spreads a buffer's pages
+round-robin across multiple NUMA nodes deliberately.
+
+**bind** — A memory policy that forces allocation onto one specific
+NUMA node regardless of which CPU touches it first.
+
+**preferred node** — A softer memory-placement hint than bind: try this
+node, fall back if it's full.
+
+**automatic NUMA balancing** — The kernel's background effort to notice
+a page being accessed predominantly from a remote node and consider
+migrating it closer.
+
+**NUMA hit/miss statistics** — Counters reporting how often memory
+accesses were satisfied locally versus remotely.

@@ -98,17 +98,20 @@ the Section 16 seed didn't anticipate them.
 ### M09
 **Misconception:** Pinning always improves performance.
 **Correct intuition:** Affinity can reduce migrations or increase queueing and imbalance.
-**Used in chapters:** not yet (Chapter 23)
+**Evidence that distinguishes:** Compare a workload's performance pinned versus unpinned at its actual thread count, not assumed from a different workload's earlier success with pinning — a pinned set too small for the thread count increases queueing instead of reducing it.
+**Used in chapters:** 23
 
 ### M10
 **Misconception:** CPU affinity also binds memory.
 **Correct intuition:** CPU and memory placement are separate policies.
-**Used in chapters:** not yet (Chapter 23/24)
+**Evidence that distinguishes:** Chapter 24/25's NUMA placement tools (`numactl --membind`, etc.) operate independently of CPU affinity tools (`taskset`), precisely because the two are orthogonal — pinning CPUs alone leaves memory placement exactly where it was.
+**Used in chapters:** 23 (introduced); revisited 25
 
 ### M11
 **Misconception:** NUMA matters only at enormous scale.
 **Correct intuition:** Any multi-node system can suffer remote-memory cost and bandwidth imbalance.
-**Used in chapters:** not yet (Chapter 24)
+**Evidence that distinguishes:** Check node count directly (`numactl --hardware`) rather than assuming from a machine's size or role — a compact dual-socket server has exactly the same local/remote distinction as a much larger one.
+**Used in chapters:** 24
 
 ### M12
 **Misconception:** Local memory is always optimal.
@@ -149,7 +152,8 @@ the Section 16 seed didn't anticipate them.
 ### M19
 **Misconception:** Context-switch counts alone diagnose scheduler overhead.
 **Correct intuition:** The impact depends on why switches occur, where the critical thread waits, and what locality is lost.
-**Used in chapters:** not yet (Chapter 22)
+**Evidence that distinguishes:** The same metric (involuntary switches) means something different depending on whether it's elevated from genuine contention or not — compare a benchmark alone versus under real interference (Chapter 22's own lab) to see the same count carry different implications.
+**Used in chapters:** 22
 
 ### M20
 **Misconception:** A profiler's output is ground truth.
@@ -240,3 +244,9 @@ the Section 16 seed didn't anticipate them.
 **Correct intuition:** Memory behavior spans latency, bandwidth, coherence, and topology, each requiring a different measurement; no single number aggregates all of them meaningfully.
 **Evidence that distinguishes:** Chapter 20's own synthesis exercise: four genuinely different Part IV findings (latency, stride, coherence, bandwidth) from Chapters 16-19, none reducible to a shared single metric.
 **Used in chapters:** 20
+
+### M37 — proposed, pending review
+**Misconception:** High CPU utilization means the machine is optimally scheduling its work.
+**Correct intuition:** Utilization is an aggregate busy-time measure that says nothing about whether specific threads are waiting in the run queue behind others; a machine can be fully utilized while accumulating real, avoidable queueing delay for latency-sensitive work.
+**Evidence that distinguishes:** Chapter 21's own lab: throughput (a rough utilization proxy) stays flat from 10 to 40 threads on a 10-CPU machine while involuntary context switches nearly triple, showing real additional contention utilization alone never surfaces.
+**Used in chapters:** 21

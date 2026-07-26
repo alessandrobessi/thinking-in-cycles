@@ -34,6 +34,11 @@ documentation as those chapters are drafted.
 ## Scheduling and affinity
 
 - CPU affinity API: <https://man7.org/linux/man-pages/man2/sched_setaffinity.2.html>
+- `taskset`(1) manual page: <https://man7.org/linux/man-pages/man1/taskset.1.html> —
+  added for Chapter 23; the command-line front end to `sched_setaffinity`.
+- `pidstat`(1) manual page: <https://man7.org/linux/man-pages/man1/pidstat.1.html> —
+  added for Chapters 21-22; per-process context-switch and CPU rate
+  observation.
 
 ## Vendor and benchmarking tools
 
@@ -119,9 +124,9 @@ silently folded into the seed list above.
 
 ## Per-chapter reference stubs
 
-`references/chapters/ch01-references.md` through `ch20-references.md`
+`references/chapters/ch01-references.md` through `ch25-references.md`
 point back into this file for the specific entries each drafted chapter
-actually cites in its Further Reading section. Chapters 21-30 will get
+actually cites in its Further Reading section. Chapters 26-30 will get
 their own stubs, and likely their own bibliography entries, as they are
 drafted — see BLUEPRINT.md Section 19's rule that "the final bibliography
 should add architecture-specific and chapter-specific sources."

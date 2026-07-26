@@ -8,7 +8,7 @@ the machine-readable source of truth. Both derive from BLUEPRINT.md Section
 levels *< N*. No chapter may rely on a concept before its prerequisites have
 been introduced (BLUEPRINT.md Section 11, closing line).
 
-Status as of this revision: **Chapters 1–20 drafted, Chapters 21–30 pending.**
+Status as of this revision: **Chapters 1–25 drafted, Chapters 26–30 pending.**
 
 ## Level 0 — Questions and Measurements
 
@@ -21,14 +21,20 @@ not yet introduced.
 
 ## Level 1 — Linux Execution
 
-process · thread · runnable · running · sleeping · blocked · scheduler ·
-run queue · context switch · CPU migration · user time · system time ·
-wall time
+process* · thread* · runnable²¹ · running²¹ · sleeping²¹ · blocked²¹ ·
+scheduler²¹ · run queue²¹ · context switch²² · CPU migration²² ·
+user time · system time · wall time
 
-None formally introduced yet. Chapter 1's guided lab uses **user time**,
-**system time**, and **wall time** operationally (comparing them for a
-`cyclelab compute` run) without a formal scheduler model — that model
-arrives in Part V (Chapters 21–23).
+Ten of thirteen Level 1 terms are now introduced (Chapters 21-22). \*
+**process** and **thread** are used informally from Chapter 1 onward but
+never given a dedicated formal definition of their own — they're
+foundational enough that the book treats them as already understood
+rather than as a "new concept" to introduce. **user time**, **system
+time**, and **wall time** remain informal: Chapter 1's guided lab
+compares them operationally (for a `cyclelab compute` run) without a
+formal scheduler model; Chapter 21 builds that model but reasons in
+terms of running/runnable/sleeping rather than revisiting these three
+terms directly.
 
 ## Level 2 — CPU Work
 
@@ -80,11 +86,18 @@ intuition", "prefetching" as "prefetcher", "memory bandwidth" as
 
 ## Level 5 — Topology and Placement
 
-core · logical CPU · SMT · socket · CPU affinity · cpuset · cgroup ·
-isolation · NUMA node · NUMA distance · first-touch allocation ·
-local memory · remote memory · memory policy · page migration
+core²³ · logical CPU²³ · SMT²³ · socket²³ · CPU affinity²³ · cpuset²³ ·
+cgroup²³ · isolation²³ · NUMA node²⁴ · NUMA distance²⁴ ·
+first-touch allocation²⁵ · local memory²⁴ · remote memory²⁴ ·
+memory policy²⁵ · page migration²⁵
 
-Not yet introduced. First formal treatment: Part V (Chapters 21–25).
+All fifteen Level 5 terms are now introduced (Chapters 23-25 complete
+the topology/placement material in Part V, alongside Chapters 21-22's
+Level 1 scheduling material). A few used a different surface form:
+"core" as "physical core", "SMT" as "SMT sibling", "cgroup" as "cgroup
+CPU constraints", "NUMA distance" as "distance", "memory policy" via
+"local allocation policy"/"interleave"/"bind"/"preferred node"
+collectively.
 
 ## Level 6 — Dynamic Tracing
 
@@ -124,7 +137,7 @@ treat entries with `also_appears_in` as intentional, not violations.
 
 ## Supplementary vocabulary (not in Section 11 at any level)
 
-Chapters 1–20 also introduce plain teaching vocabulary that Section 11 never
+Chapters 1–25 also introduce plain teaching vocabulary that Section 11 never
 lists at all. These are tracked in `glossary.md` but have no `level` in
 `concept-graph.yaml`:
 
@@ -148,23 +161,30 @@ lists at all. These are tracked in `glossary.md` but have no `level` in
 - **Chapter 18:** shared cache line, ownership, invalidation, coherence traffic, true sharing, HITM intuition
 - **Chapter 19:** bytes transferred, sustained bandwidth, peak bandwidth, arithmetic intensity, bandwidth saturation
 - **Chapter 20:** load/store sampling, data source, local/remote classification, cache-to-cache transfer, memory controller
+- **Chapter 21:** time slice intuition, wake-up, load balancing, scheduling class
+- **Chapter 22:** cache warmth, interrupt, steal time, noisy neighbor, CPU pressure
+- **Chapter 23:** affinity mask, `taskset`, `sched_setaffinity`
+- **Chapter 24:** interconnect, node topology, memory-only node
+- **Chapter 25:** local allocation policy, interleave, bind, preferred node, automatic NUMA balancing, NUMA hit/miss statistics
 
 ## Narrative Graph (Section 12)
 
 The book follows one chain of 30 questions, each becoming the next chapter's
 opening question. See `concept-graph.yaml`'s `narrative_graph` list for the
-full machine-readable form (question text + chapter number). Questions 1–20
-are answered by the drafted chapters; 21–30 are pending. The chain is
-verified end-to-end for Chapters 1–20: each chapter's "Next Obvious
+full machine-readable form (question text + chapter number). Questions 1–25
+are answered by the drafted chapters; 26–30 are pending. The chain is
+verified end-to-end for Chapters 1–25: each chapter's "Next Obvious
 Question" is the verbatim opening question of the chapter that follows,
 including the Chapter 5 → Chapter 6 handoff ("What work does the CPU
 actually execute?"), the Chapter 10 → Chapter 11 handoff ("When should
 we count, sample, or trace?"), the Chapter 15 → Chapter 16 handoff
 ("Why can memory access dominate code that performs little
-computation?"), and the Chapter 20 → Chapter 21 handoff ("How does Linux
-decide where runnable work executes?"). Two of BLUEPRINT.md's own
-per-chapter "Next question:" shorthand lines (Chapter 8's and Chapter
-10's) do not match the following chapter's actual opening question
-verbatim; in both cases the drafted chapter uses the next chapter's real
-opening question, not the shorthand paraphrase, per the rule established
+computation?"), the Chapter 20 → Chapter 21 handoff ("How does Linux
+decide where runnable work executes?"), and the Chapter 25 → Chapter 26
+handoff ("What can dynamic tracing observe that counters and sampling
+cannot?"). Two of BLUEPRINT.md's own per-chapter "Next question:"
+shorthand lines (Chapter 8's and Chapter 10's) do not match the
+following chapter's actual opening question verbatim; in both cases the
+drafted chapter uses the next chapter's real opening question, not the
+shorthand paraphrase, per the rule established
 handling the Chapter 5 → 6 transition.

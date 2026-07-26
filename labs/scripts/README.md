@@ -59,3 +59,18 @@ project's reference machine has no `perf`. They run on Linux and macOS;
 a few print platform-appropriate follow-up commands (e.g. `vmstat` vs.
 `vm_stat`, or `objdump`'s macOS `--macho` flag vs. plain Linux usage)
 rather than pretending one OS's tool exists everywhere.
+
+| Script | Chapter | What it does |
+|---|---|---|
+| `ch21_runnable_pressure.sh` | 21 | Sweeps `cyclelab compute --threads` from 1 to 4x logical CPU count, tabulating throughput alongside involuntary context switches as runnable pressure builds. |
+| `ch22_noisy_neighbor.sh` | 22 | Benchmarks a 2-thread `cyclelab compute` alone, then again against a competing `cyclelab compute` neighbor process, showing the throughput and context-switch cost of sharing the machine. |
+| `ch23_affinity_availability.sh` | 23 | Demonstrates `cyclelab compute --affinity=spread`'s honest "not supported on this OS" behavior, reports this machine's P-core/E-core split, then measures natural unpinned-placement throughput variance. |
+
+Chapters 24 and 25 have no dedicated scripts: Chapter 24's lab is
+`scripts/doctor.sh`'s own NUMA section (confirming this reference
+machine has no NUMA topology to exercise), and Chapter 25's lab is a
+written prediction/reasoning exercise, both documented in the chapter
+text. Chapters 21-23's scripts are **portable** — built on `cyclelab`'s
+new cross-cutting `getrusage`-based context-switch reporting, they need
+no root, no `perf`, and no special hardware, and run identically on
+Linux and macOS.

@@ -49,5 +49,5 @@ investigation — one you know how to run yourself.
 ---
 
 *This is a pre-publication manuscript. As of this edition, Parts I
-through IV (Chapters 1-20) are drafted; Parts V and VI and the
-appendices are not yet written. See `ROADMAP.md` for current status.*
+through V (Chapters 1-25) are drafted; Part VI and the appendices are
+not yet written. See `ROADMAP.md` for current status.*

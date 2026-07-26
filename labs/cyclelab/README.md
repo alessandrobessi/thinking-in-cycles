@@ -194,6 +194,22 @@ logically distinct counter. On the reference machine for this book,
 `--padding=packed` at every thread count tested, growing to roughly 46%
 higher at 8 threads.
 
+## Context-switch reporting (every mode)
+
+Every mode's `results` includes a process-wide
+`"context_switches": { "voluntary": N, "involuntary": N }`, read via the
+POSIX `getrusage(2)` `RUSAGE_SELF` fields `ru_nvcsw`/`ru_nivcsw` right
+after all worker threads finish. A voluntary switch is a thread giving
+up the CPU on its own (blocking on I/O, a lock, a sleep); an involuntary
+switch is the scheduler preempting a still-runnable thread. This works
+identically on Linux and macOS (unlike `RUSAGE_THREAD`, which is
+Linux-only) and is exactly what Chapters 21-22 use to make "runnable
+pressure" and scheduling interference directly measurable without
+`perf sched` or `pidstat` -- on the reference machine for this book,
+running `cyclelab compute` with an increasing thread-to-core ratio
+showed involuntary switches climbing from 6 (1 thread) to over 4,900 (20
+threads, double this machine's core count).
+
 ## Output schema (stable core, extended by later modes)
 
 ```jsonc
@@ -216,7 +232,8 @@ higher at 8 threads.
       { "index": 0, "iterations": 30864000, "elapsed_s": 2.0001,
         "affinity_applied": false, "checksum": "<32 hex chars>" }
     ],
-    "combined_checksum": "<16 hex chars>"
+    "combined_checksum": "<16 hex chars>",
+    "context_switches": { "voluntary": 0, "involuntary": 13 }
   }
 }
 ```
@@ -241,7 +258,8 @@ processed, not iterations):
       { "index": 0, "table_passes": 308, "elapsed_s": 2.0001,
         "affinity_applied": false, "checksum": "<16 hex chars>" }
     ],
-    "combined_checksum": "<16 hex chars>"
+    "combined_checksum": "<16 hex chars>",
+    "context_switches": { "voluntary": 0, "involuntary": 14 }
   }
 }
 ```
@@ -262,7 +280,8 @@ processed, not iterations):
     "threads": [
       { "index": 0, "steps": 21312, "elapsed_s": 2.0001,
         "affinity_applied": false, "checksum": 512034 }
-    ]
+    ],
+    "context_switches": { "voluntary": 0, "involuntary": 6 }
   }
 }
 ```
@@ -281,7 +300,8 @@ processed, not iterations):
     "bandwidth_gb_per_s": 74.29,
     "threads": [
       { "index": 0, "passes": 307, "elapsed_s": 2.0001, "affinity_applied": false }
-    ]
+    ],
+    "context_switches": { "voluntary": 0, "involuntary": 5 }
   }
 }
 ```
@@ -300,7 +320,8 @@ processed, not iterations):
     "throughput_increments_per_s": 6145302305.0,
     "threads": [
       { "index": 0, "increments": 1536325576, "elapsed_s": 2.0001, "affinity_applied": false }
-    ]
+    ],
+    "context_switches": { "voluntary": 0, "involuntary": 9 }
   }
 }
 ```

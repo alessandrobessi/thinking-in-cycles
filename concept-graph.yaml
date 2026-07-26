@@ -5,7 +5,7 @@
 # introduced within) its own.
 #
 # `introduced_in_chapter: null` means the concept has not yet been formally
-# taught by any drafted chapter (Chapters 1-20 only, as of this revision).
+# taught by any drafted chapter (Chapters 1-25 only, as of this revision).
 # `also_appears_in` records informal/operational use before formal
 # introduction, which BLUEPRINT.md itself does in a few places (see the
 # "known tensions" note at the bottom and concept-graph.md for discussion).
@@ -53,24 +53,23 @@ levels:
     concepts:
       - name: process
         introduced_in_chapter: null
+        also_appears_in: [1, 21]
+        note: "Used informally from Chapter 1 onward; never given a dedicated formal definition of its own."
       - name: thread
         introduced_in_chapter: null
-      - name: runnable
-        introduced_in_chapter: null
-      - name: running
-        introduced_in_chapter: null
-      - name: sleeping
-        introduced_in_chapter: null
-      - name: blocked
-        introduced_in_chapter: null
-      - name: scheduler
-        introduced_in_chapter: null
-      - name: run queue
-        introduced_in_chapter: null
+        also_appears_in: [1, 5, 8, 21, 22]
+      - { name: runnable, introduced_in_chapter: 21 }
+      - { name: running, introduced_in_chapter: 21 }
+      - { name: sleeping, introduced_in_chapter: 21 }
+      - { name: blocked, introduced_in_chapter: 21 }
+      - { name: scheduler, introduced_in_chapter: 21 }
+      - { name: run queue, introduced_in_chapter: 21 }
       - name: context switch
-        introduced_in_chapter: null
+        introduced_in_chapter: 22
+        note: "Introduced via 'voluntary context switch'/'involuntary context switch' in Chapter 22's New Concepts (informally previewed as a counter in Chapter 21)."
       - name: CPU migration
-        introduced_in_chapter: null
+        introduced_in_chapter: 22
+        note: "Introduced as 'migration' in Chapter 22's New Concepts."
       - name: user time
         introduced_in_chapter: null
         also_appears_in: [1]
@@ -171,21 +170,31 @@ levels:
   - level: 5
     name: "Topology and Placement"
     concepts:
-      - { name: core, introduced_in_chapter: null }
-      - { name: logical CPU, introduced_in_chapter: null }
-      - { name: SMT, introduced_in_chapter: null }
-      - { name: socket, introduced_in_chapter: null }
-      - { name: CPU affinity, introduced_in_chapter: null }
-      - { name: cpuset, introduced_in_chapter: null }
-      - { name: cgroup, introduced_in_chapter: null }
-      - { name: isolation, introduced_in_chapter: null }
-      - { name: NUMA node, introduced_in_chapter: null }
-      - { name: NUMA distance, introduced_in_chapter: null }
-      - { name: first-touch allocation, introduced_in_chapter: null }
-      - { name: local memory, introduced_in_chapter: null }
-      - { name: remote memory, introduced_in_chapter: null }
-      - { name: memory policy, introduced_in_chapter: null }
-      - { name: page migration, introduced_in_chapter: null }
+      - name: core
+        introduced_in_chapter: 23
+        note: "Introduced as 'physical core' in Chapter 23's New Concepts."
+      - { name: logical CPU, introduced_in_chapter: 23 }
+      - name: SMT
+        introduced_in_chapter: 23
+        note: "Introduced as 'SMT sibling' in Chapter 23's New Concepts."
+      - { name: socket, introduced_in_chapter: 23 }
+      - { name: CPU affinity, introduced_in_chapter: 23 }
+      - { name: cpuset, introduced_in_chapter: 23 }
+      - name: cgroup
+        introduced_in_chapter: 23
+        note: "Introduced as 'cgroup CPU constraints' in Chapter 23's New Concepts."
+      - { name: isolation, introduced_in_chapter: 23 }
+      - { name: NUMA node, introduced_in_chapter: 24 }
+      - name: NUMA distance
+        introduced_in_chapter: 24
+        note: "Introduced as 'distance' in Chapter 24's New Concepts."
+      - { name: first-touch allocation, introduced_in_chapter: 25 }
+      - { name: local memory, introduced_in_chapter: 24 }
+      - { name: remote memory, introduced_in_chapter: 24 }
+      - name: memory policy
+        introduced_in_chapter: 25
+        note: "Introduced via 'local allocation policy'/'interleave'/'bind'/'preferred node' in Chapter 25's New Concepts."
+      - { name: page migration, introduced_in_chapter: 25 }
 
   - level: 6
     name: "Dynamic Tracing"
@@ -277,5 +286,5 @@ narrative_graph:
   - { n: 29, question: "Where does time go when a thread is not on a CPU?", chapter: 29 }
   - { n: 30, question: "How do all the layers combine into one defensible investigation?", chapter: 30 }
 
-chapters_drafted: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
-chapters_pending: [21, 22, 23, 24, 25, 26, 27, 28, 29, 30]
+chapters_drafted: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25]
+chapters_pending: [26, 27, 28, 29, 30]

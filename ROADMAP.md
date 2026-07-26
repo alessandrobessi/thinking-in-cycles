@@ -96,11 +96,35 @@ progress against that order.
       over Chapters 16-19's existing results, documented in the chapter
       text)
 
-## Phase 5 — Topology (not started)
+## Phase 5 — Topology (complete)
 
-- [ ] Chapters 21-25
-- [ ] Affinity and NUMA labs
-- [ ] Single-node fallback material
+- [x] Chapters 21-25 (Part V — Where the Work Runs)
+- [x] Cross-cutting `cyclelab` addition: every mode now reports
+      process-wide voluntary/involuntary context-switch counts via
+      POSIX `getrusage(2)` (`labs/cyclelab/src/rusage_util.c`) — portable
+      to Linux and macOS, unlike `RUSAGE_THREAD`. Real, reproducible
+      scheduling-pressure (Chapter 21) and noisy-neighbor interference
+      (Chapter 22) data came directly from this, without needing `perf
+      sched`/`pidstat`.
+- [x] Affinity labs: **not testable** on this book's reference machine —
+      macOS has no user-accessible hard-affinity API, confirmed directly
+      by `cyclelab`'s own `--affinity` flag (reports unsupported and
+      continues). Chapter 23's lab uses that honest result plus natural
+      unpinned-variance measurement as its portable content; Linux
+      `taskset`/`sched_setaffinity` experiments are documented, not
+      tested.
+- [x] Single-node fallback material: this reference machine (Apple M4)
+      has no NUMA topology at all, confirmed by `scripts/doctor.sh`'s
+      own NUMA check. Chapters 24-25 follow BLUEPRINT.md Section 13.2's
+      explicit allowance for schematic multi-socket data on single-node
+      hardware; Chapter 25 in particular has no measured lab at all,
+      only a structured prediction/reasoning exercise in its place.
+- [x] Guided-lab scripts for Chapters 21-23
+      (`ch21_runnable_pressure.sh`, `ch22_noisy_neighbor.sh`,
+      `ch23_affinity_availability.sh`); Chapters 24-25 have no dedicated
+      scripts (their labs use `scripts/doctor.sh` directly and a
+      written reasoning exercise, respectively, documented in the
+      chapter text)
 
 ## Phase 6 — Tracing and synthesis (not started)
 
@@ -123,7 +147,7 @@ progress against that order.
 ## Not yet started, no matter the phase
 
 - Quarto HTML/PDF/EPUB build (`publish/_quarto.yml` exists and lists only
-  Parts I-IV; `scripts/prepare_manuscript_for_publish.py` is a stub)
+  Parts I-V; `scripts/prepare_manuscript_for_publish.py` is a stub)
 - CI wiring for any of the validators above
 - Figures: still mostly empty by design (see `figures/source/` and
   `figures/generated/` READMEs) — the one exception is Chapter 14's real
