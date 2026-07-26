@@ -290,11 +290,59 @@ alongside CI wiring and the Quarto render below.
       specifically, since appendices aren't chapters and have no
       Prerequisites/New-concepts/Opening-Question structure to check).
 
+## Quarto HTML/PDF/EPUB build (complete)
+
+BLUEPRINT.md Section 26's "Definition of Done for the Book" requirement
+("the HTML, PDF, and EPUB builds succeed") is met: all three formats
+render cleanly from the full 39-document manuscript (30 chapters + 7
+appendices + preface + index).
+
+- [x] Installed Quarto 1.10.18 **without root** via its official macOS
+      tarball (`quarto-1.10.18-macos.tar.gz`, extracted to
+      `~/.local/quarto`) after the Homebrew cask's `.pkg` installer
+      failed non-interactively (it shells out to `sudo`, which needs a
+      real terminal for a password prompt this environment doesn't
+      have). No LaTeX/TinyTeX install was needed: PDF renders via
+      Quarto's bundled Typst compiler instead (`format: typst`),
+      confirmed present by `quarto check`.
+- [x] Found and fixed a real, non-obvious structural bug: `_quarto.yml`
+      originally lived in `publish/` with chapter paths like
+      `../book/part-1-.../chapter-01-....md`. Quarto's own render log
+      showed every one of the 39 documents being "processed," and exit
+      cleanly with no error -- but the actual output directory
+      contained only `index.html`, with every chapter's real content
+      silently missing. Root-caused via a minimal isolated
+      reproduction (a two-file test book project): Quarto book
+      projects do not correctly render chapter content reached via
+      `../` parent-directory paths, even though they don't error on
+      it. Fixed by moving `_quarto.yml` (and the book's title page,
+      `index.md`) to the repository root, with `project:
+      output-dir: publish/_book` keeping the actual build output inside
+      `publish/` per BLUEPRINT.md Section 20's intent. Documented in
+      `_quarto.yml`'s own header comment so this doesn't get
+      "helpfully" moved back.
+- [x] Implemented `scripts/prepare_manuscript_for_publish.py` for real:
+      confirms every chapter path in `_quarto.yml` exists, runs the
+      three Phase 7 validators and refuses to render if any reports an
+      error (`--skip-validation` available for local iteration only),
+      copies any new file from `figures/source/` into
+      `figures/generated/` (a no-op today -- `figures/source/` has no
+      editable sources yet -- but real once it does), then invokes
+      `quarto render`.
+- [x] Verified real output, not just a clean exit code: HTML render
+      produces 58 files (one page per chapter/appendix plus search
+      index, confirmed to contain each chapter's actual real text, not
+      a placeholder) with a working search index (473 entries); PDF
+      renders to a valid 172-page, 3.9MB PDF 1.7 document via Typst;
+      EPUB renders to a valid EPUB document via Pandoc. All three
+      together: 8.6MB in `publish/_book/` (gitignored, not committed).
+- Run it yourself: `python3 scripts/prepare_manuscript_for_publish.py`
+  (needs `quarto` on `PATH`; add `--skip-validation` to skip the
+  registry/link checks for a faster local iteration loop, or
+  `--format html`/`--format typst`/`--format epub` for just one format).
+
 ## Not yet started, no matter the phase
 
-- Quarto HTML/PDF/EPUB build (`publish/_quarto.yml` now lists all six
-  Parts and all thirty chapters, but has not been rendered;
-  `scripts/prepare_manuscript_for_publish.py` is a stub)
 - CI wiring: `.github/workflows/ci.yml` is authored and real (a
   `cyclelab` job matrixed across `ubuntu-latest`/`macos-latest` running
   `make doctor` + `make lab-cyclelab` + `make smoke`, and a `manuscript`

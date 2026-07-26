@@ -28,3 +28,6 @@ publish/.quarto/
 
 # Local scratch
 *.local
+
+/.quarto/
+**/*.quarto_ipynb

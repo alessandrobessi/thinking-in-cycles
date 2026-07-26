@@ -32,7 +32,10 @@ toolchain (`labs/scripts/foldstacks.py`, `flamegraph_svg.py`,
 `capture_sample_profile.sh`) built on macOS's `sample`(1) utility,
 reused in Part VI to capture real, tested off-CPU (blocked-in-mutex)
 stacks — something Linux's on-CPU-only `perf record` default cannot do
-without dedicated off-CPU tooling. See [`ROADMAP.md`](ROADMAP.md) for
+without dedicated off-CPU tooling. The manuscript renders cleanly to
+HTML, PDF, and EPUB (`python3 scripts/prepare_manuscript_for_publish.py`),
+and `.github/workflows/ci.yml` is ready to run on push once this repo
+has a git remote. See [`ROADMAP.md`](ROADMAP.md) for
 the full phase-by-phase status.
 
 ## Quickstart
@@ -57,6 +60,7 @@ glossary.md               every term introduced so far, by concept level
 misconceptions.md         the misconception registry (M01-M43)
 analogy-registry.md       canonical analogies and where they're used
 concept-graph.yaml/.md    machine- and human-readable concept dependency graph
+_quarto.yml, index.md     Quarto book config and title page (repo root -- see below)
 book/                     the manuscript itself, one directory per Part
 labs/cyclelab/            the recurring C lab tool (see its own README)
 labs/scripts/             helper scripts backing each chapter's guided lab
@@ -64,8 +68,19 @@ labs/mini-service/        planned second recurring example (not built yet)
 figures/                  diagram sources and generated assets (mostly empty; one real flame graph)
 references/               bibliography and per-chapter reference stubs
 templates/                chapter, lab, and performance-report templates
-scripts/                  doctor.sh, three validators, and smoke test (all real); one publish stub
-publish/                  Quarto book scaffold (not yet rendered)
+scripts/                  doctor.sh, three validators, smoke test, and the Quarto publish script (all real)
+publish/_book/            rendered HTML/PDF/EPUB output (gitignored, not committed)
+```
+
+`_quarto.yml` lives at the repo root, not in `publish/`, because Quarto
+book projects cannot render chapter content reached via `../`
+parent-directory paths (confirmed directly — see `ROADMAP.md`'s Quarto
+entry). `publish/` still holds the actual build output
+(`project.output-dir: publish/_book`), matching BLUEPRINT.md Section
+20's intent that it be "where the built book lives."
+
+```bash
+python3 scripts/prepare_manuscript_for_publish.py   # renders HTML + PDF + EPUB into publish/_book/
 ```
 
 ## License
