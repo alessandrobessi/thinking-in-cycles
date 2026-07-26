@@ -21,6 +21,7 @@ book:
   title: "Thinking in Cycles"
   subtitle: "A Mental Model for Linux Performance"
   author: "Alessandro Bessi"
+  cover-image: figures/generated/cover.png
   chapters:
     - index.md
     - book/preface.md
