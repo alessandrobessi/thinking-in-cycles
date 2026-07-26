@@ -14,7 +14,7 @@ everything here follows.
 | [Part III — Where the CPU Time Goes](part-3-where-cpu-time-goes/README.md) | 11-15 | drafted |
 | [Part IV — Why Memory Changes Everything](part-4-why-memory-changes-everything/README.md) | 16-20 | drafted |
 | [Part V — Where the Work Runs](part-5-where-the-work-runs/README.md) | 21-25 | drafted |
-| Part VI — Seeing the Invisible | 26-30 | not yet drafted |
+| [Part VI — Seeing the Invisible](part-6-seeing-the-invisible/README.md) | 26-30 | drafted |
 | Appendices A-G | — | not yet drafted |
 
 Every chapter follows `templates/chapter-template.md`. Every guided lab

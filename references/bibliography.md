@@ -122,11 +122,30 @@ silently folded into the seed list above.
   cited in Chapter 4 despite being about a different language runtime —
   the statistical argument is language-independent.
 
+## Additions for Chapters 26-30
+
+The Section 19 seed list already covers eBPF, `bpftrace`, and BCC
+(Chapters 27-28 cite it directly) but has no entry for the specific
+kernel dynamic-tracing mechanisms Chapter 26 needs, or for off-CPU
+analysis specifically (Chapter 29). These are flagged here for review
+rather than silently folded into the seed list above.
+
+- Linux tracepoints documentation: <https://docs.kernel.org/trace/tracepoints.html>
+- Linux kprobes documentation: <https://docs.kernel.org/trace/kprobes.html>
+- Linux uprobe-tracer documentation: <https://docs.kernel.org/trace/uprobetracer.html>
+- BPF CO-RE reference guide (Andrii Nakryiko): <https://nakryiko.com/posts/bpf-core-reference-guide/>.
+  Not a kernel.org primary source, but the most authoritative and
+  widely cited technical reference for CO-RE specifically, cited
+  directly in Chapter 27.
+- Brendan Gregg, "Off-CPU Analysis," <https://www.brendangregg.com/offcpuanalysis.html> —
+  the primary source for off-CPU flame graphs and off-CPU profiling
+  methodology generally, cited directly in Chapter 29.
+
 ## Per-chapter reference stubs
 
-`references/chapters/ch01-references.md` through `ch25-references.md`
+`references/chapters/ch01-references.md` through `ch30-references.md`
 point back into this file for the specific entries each drafted chapter
-actually cites in its Further Reading section. Chapters 26-30 will get
-their own stubs, and likely their own bibliography entries, as they are
-drafted — see BLUEPRINT.md Section 19's rule that "the final bibliography
-should add architecture-specific and chapter-specific sources."
+actually cites in its Further Reading section. All 30 chapters are now
+drafted, closing out BLUEPRINT.md Section 19's rule that "the final
+bibliography should add architecture-specific and chapter-specific
+sources."

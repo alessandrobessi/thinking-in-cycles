@@ -2,8 +2,9 @@
 
 Terms are grouped by concept level (see `concept-graph.md`), alphabetical
 within each group, then a **Supplementary vocabulary** section for teaching
-terms Chapters 1–25 use that BLUEPRINT.md Section 11 doesn't formally list at
-any level. Status as of this revision: Chapters 1–25 drafted.
+terms Chapters 1–30 use that BLUEPRINT.md Section 11 doesn't formally list at
+any level. Status as of this revision: Chapters 1–30 drafted — the full
+book is complete.
 
 ## Level 0 — Questions and Measurements
 
@@ -527,29 +528,221 @@ resources.
 **First introduced:** Chapter 23
 A physical CPU package, potentially containing many cores.
 
-## Levels 6–7
+## Level 6 — Dynamic Tracing
 
-Not yet formally introduced by any drafted chapter. Term lists live in
-`concept-graph.yaml`/`concept-graph.md`; definitions will be added as
-Chapters 26–30 are drafted.
+All seventeen Level 6 terms are introduced by Chapters 26-28.
 
-**Exception (informal use before formal treatment):** `on-CPU time` and
-`off-CPU time` (formally Level 7, Chapter 29) are used informally
-starting in Chapter 1 — see `concept-graph.md`'s "Known tensions"
-section.
+### attachment point
+**First introduced:** Chapter 27 (as "hook")
+The specific point in the kernel (or, via uprobes, in user space) an
+eBPF program attaches to and runs at — one of Chapter 26's tracepoints,
+kprobes, kretprobes, or uprobes, among other kernel subsystems.
+**See also:** eBPF program, tracepoint, kprobe
 
-### on-CPU time
-**Used informally in:** Chapter 1 · **Formal definition:** Chapter 29
-Time a thread spends actually executing on a CPU.
+### BCC
+**First introduced:** Chapter 28
+A toolkit providing a Python/Lua front end and a library of maintained,
+packaged eBPF tracing tools (`execsnoop`, `biolatency`, `runqlat`, and
+others) for common investigations, avoiding the need to write a new
+probe script for a question an existing tool already answers.
+**See also:** bpftrace
+
+### bpftrace
+**First introduced:** Chapter 28
+A small scripting language that compiles down to verified eBPF
+bytecode at invocation time, built for short, inspectable one-liner
+questions rather than a full libbpf application.
+**See also:** BCC, probe specification (supplementary, Chapter 28)
+
+### BTF
+**First introduced:** Chapter 27
+BPF Type Format: embedded type information describing kernel and user
+data structures precisely, the foundation CO-RE builds on.
+**See also:** CO-RE
+
+### CO-RE
+**First introduced:** Chapter 27
+"Compile Once, Run Everywhere" — using a target kernel's own BTF
+information to let one compiled eBPF program adapt to small differences
+in struct layout across kernel versions, without requiring a fresh
+compile per target.
+**See also:** BTF
+
+### eBPF program
+**First introduced:** Chapter 27
+A small, restricted piece of code, loaded into the kernel and run at a
+specific attachment point, that the verifier has proven terminates and
+only accesses memory it can prove is safe before it is ever allowed to
+execute.
+**See also:** verifier, attachment point, helper
+
+### event
+**First introduced:** Chapter 26
+A specific, nameable thing that happens during execution — a function
+being entered or returning, a system call being made — that dynamic
+tracing can attach measurement to directly.
+**See also:** tracepoint, kprobe
+
+### helper
+**First introduced:** Chapter 27
+One of a fixed, kernel-provided set of functions an eBPF program may
+call, for the specific operations a verified, sandboxed program is
+still permitted to perform.
+**See also:** eBPF program, verifier
+
+### histogram
+**First introduced:** Chapter 28
+An aggregation that buckets a value's distribution — such as a
+duration — rather than only summing or counting it.
+**See also:** aggregation (supplementary, Chapter 28)
+
+### kprobe
+**First introduced:** Chapter 26
+A dynamic probe attached to the entry of almost any kernel function by
+name, even one never designed to be probed — flexible, but fragile
+across kernel-version changes that rename, inline, or restructure the
+targeted function.
+**See also:** kretprobe, uprobe, tracepoint
+
+### kretprobe
+**First introduced:** Chapter 26
+The matching probe type for a kernel function's *return*, which paired
+with a kprobe's entry timestamp is what makes a function call's
+duration measurable at all.
+**See also:** kprobe
+
+### map
+**First introduced:** Chapter 27
+A kernel-resident data structure an eBPF program and user space can
+both access, used to aggregate state (counts, sums, histograms) across
+many event firings entirely inside the kernel.
+**See also:** per-CPU map (supplementary, Chapter 27), ring buffer
+
+### ring buffer
+**First introduced:** Chapter 27
+A map variant purpose-built for streaming individual events out to
+user space efficiently, rather than only aggregating them in place.
+**See also:** map
+
+### tracepoint
+**First introduced:** Chapter 26
+An event location the kernel's own developers deliberately built in and
+documented, with a stable name and defined arguments — the kernel
+equivalent of a designed API, more stable across versions than a kprobe.
+**See also:** kprobe, USDT
+
+### uprobe
+**First introduced:** Chapter 26
+The user-space equivalent of a kprobe: a dynamic probe attached to
+almost any function in a running binary or shared library.
+**See also:** kprobe, USDT
+
+### USDT
+**First introduced:** Chapter 26
+User-space statically-defined tracing: a deliberately placed, named,
+documented probe point an application's own authors built in on
+purpose — to uprobes roughly what a tracepoint is to a kprobe.
+**See also:** uprobe, tracepoint
+
+### verifier
+**First introduced:** Chapter 27
+The kernel component that statically analyzes an eBPF program before
+it loads, refusing anything it cannot prove terminates and only
+accesses memory it can prove is safe.
+**See also:** eBPF program
+
+## Level 7 — Whole-System Diagnosis
+
+All thirteen Level 7 terms are introduced. Several were used
+informally/operationally well before their formal chapter — see
+`concept-graph.md`'s "Resolved tensions" section.
+
+### bottleneck shift
+**Used informally in:** Chapter 5 · **Formal definition:** Chapter 30
+A confirmed bottleneck's removal revealing the next-most-limiting
+resource underneath it, rather than removing the workload's ceiling
+entirely — success, not an incomplete fix.
+**See also:** regression
+
+### causal claim
+**Used informally in:** Chapter 5 · **Formal definition:** Chapter 30
+A specific, falsifiable assertion that one particular change produced
+one particular measured effect, supported by a measurement chosen to
+distinguish that explanation from its plausible alternatives.
+
+### futex
+**First introduced:** Chapter 29 (as "futex wait")
+The Linux mechanism most user-space lock implementations (including
+`pthread_mutex`) use to put a thread to sleep efficiently while
+contended, rather than spinning and burning CPU while waiting.
+**See also:** lock contention
+
+### interference
+**Used informally in:** Chapter 22 · **Formal definition:** Chapter 30
+Unrelated work degrading a workload's performance by sharing a
+contended resource with it — Chapter 22's "noisy neighbor" lab is a
+specific, cross-process instance of this same concept.
+
+### I/O latency
+**First introduced:** Chapter 29 (via "block I/O")
+The round-trip time for a request to a storage or network device; the
+issuing thread is typically off-CPU for the entire wait.
+**See also:** off-CPU time, queueing delay
+
+### lock contention
+**First introduced:** Chapter 29
+Multiple threads wanting the same lock at overlapping times, with at
+least one necessarily spending time off-CPU as a direct result.
+**See also:** futex, off-CPU time
 
 ### off-CPU time
-**Used informally in:** Chapter 1 · **Formal definition:** Chapter 29
+**Used informally in:** Chapter 1, Chapter 21 · **Formal definition:** Chapter 29
 Time a thread spends not executing on a CPU for any reason — runnable and
 waiting, blocked, or sleeping.
+**See also:** on-CPU time, blocked stack (supplementary, Chapter 29)
+
+### on-CPU time
+**Used informally in:** Chapter 1, Chapter 21 · **Formal definition:** Chapter 29
+Time a thread spends actually executing on a CPU.
+**See also:** off-CPU time
+
+### queueing delay
+**First introduced:** Chapter 29
+Time spent waiting for a resource — a lock, a run queue slot, an I/O
+device — that is busy or contended, distinct from the time actually
+using that resource once available.
+**See also:** lock contention, I/O latency
+
+### regression
+**First introduced:** Chapter 30
+A measured, confirmed worsening from a change, checked for with the
+same before/after discipline (Chapter 15) that confirms an improvement.
+**See also:** bottleneck shift
+
+### scalability
+**First introduced:** Chapter 30
+How a workload's throughput or latency changes as some resource (most
+often thread or worker count) increases.
+
+### tail latency
+**First introduced:** Chapter 3
+The latency of the slowest fraction of requests (commonly p95, p99, or
+p999), which an average or median can hide entirely. Chapter 29's
+off-CPU model extends this concept to whole-system waiting without a
+second formal introduction.
+**See also:** latency, throughput
+
+### wake-up latency
+**First introduced:** Chapter 29
+The gap between a thread becoming logically able to run again (its
+dependency resolved, its I/O complete) and actually resuming
+execution — Chapter 21's run-queue waiting, named from the waiting
+thread's own perspective.
+**See also:** run queue, off-CPU time
 
 ## Supplementary vocabulary
 
-Plain teaching terms Chapters 1–25 introduce that Section 11 doesn't list
+Plain teaching terms Chapters 1–30 introduce that Section 11 doesn't list
 at any formal level. Tracked here so they're not silently invented; not
 part of `concept-graph.yaml`'s level structure.
 
@@ -996,3 +1189,73 @@ migrating it closer.
 
 **NUMA hit/miss statistics** — Counters reporting how often memory
 accesses were satisfied locally versus remotely.
+
+### Chapter 26
+
+**function entry/return** — The two moments a kprobe/kretprobe pair (or
+a uprobe pair) can attach to for one function, together making a call's
+duration measurable.
+
+**argument capture** — Reading the specific values present at the
+moment a probe fires (a function's arguments, a return value, a
+timestamp), turning "this event happened" into a usable measurement.
+
+**event rate** — How often a given probe actually fires per unit time
+in practice; the single biggest lever on how much overhead attaching
+that probe will cost.
+
+### Chapter 27
+
+**per-CPU map** — A map variant keeping a separate copy per CPU,
+avoiding the cross-core coherence cost a single shared counter updated
+from every CPU would incur.
+
+**user-space loader** — The ordinary program (compiled from `bpftrace`,
+BCC, or a hand-written libbpf application) that presents eBPF bytecode
+to the kernel, reads back map contents, and manages a program's
+lifecycle.
+
+### Chapter 28
+
+**probe specification** — The part of a `bpftrace`/BCC script naming
+the hook a piece of logic attaches to.
+
+**predicate** — An optional filter in a `bpftrace`/BCC script: run the
+attached logic only when some condition holds.
+
+**action** — The logic that runs when a probe fires and its predicate
+(if any) passes, most commonly updating an aggregation.
+
+**aggregation** — `bpftrace`'s built-in map-like construct handling the
+key/value bookkeeping a map provides underneath a short script.
+
+**stack aggregation** — An aggregation keyed by call stack instead of a
+process name or ID, turning "which code paths do this most" into the
+same count-grouped-by-key shape as any other aggregation.
+
+**interval output** — Printing an aggregation's current state on a
+fixed schedule, rather than only once at the end.
+
+### Chapter 29
+
+**blocked stack** — The call stack captured at the moment a thread
+stopped running, showing where in the code it stopped.
+
+**sleep** — A thread intentionally yielding the CPU for a bounded time,
+an off-CPU state with no external blocker.
+
+**block I/O** — A request to a block storage device (a disk read, for
+instance); the issuing thread is typically off-CPU for the entire
+round trip.
+
+**off-CPU flame graph** — Flame graph's population-of-stacks
+visualization (Chapter 14) applied to blocked stacks and their off-CPU
+durations instead of on-CPU sampled time. First informally named in
+Chapter 14's supplementary vocabulary; formally defined here.
+
+### Chapter 30
+
+No new supplementary vocabulary — this chapter synthesizes Chapters
+1-29 and formally completes five Level 7 terms already listed above
+(bottleneck shift, causal claim, interference, regression, scalability)
+rather than introducing new teaching vocabulary of its own.

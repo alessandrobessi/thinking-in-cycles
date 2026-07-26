@@ -19,16 +19,21 @@ editorial decision. This README covers what's actually implemented.
 
 ## Status
 
-**Parts I through V (Chapters 1-25) are drafted.** `cyclelab`'s
-`compute`, `branch`, `sequential-memory`, `random-memory`, `bandwidth`,
-and `false-sharing` modes are implemented; its other five modes are
+**All thirty chapters (Parts I through VI) are drafted — the book's
+manuscript is complete.** Only the appendices remain unwritten.
+`cyclelab`'s `compute`, `branch`, `sequential-memory`, `random-memory`,
+`bandwidth`, `false-sharing`, `lock-contention`, and `sleep` modes are
+implemented; its other three modes (`syscall`, `numa`, `mixed`) are
 recognized by the CLI but not yet built. Every mode reports process-wide
 voluntary/involuntary context-switch counts (POSIX `getrusage`, portable
-to Linux and macOS), used throughout Part V's scheduling chapters. Part
-III adds a small, dependency-free flame-graph toolchain
-(`labs/scripts/foldstacks.py`, `flamegraph_svg.py`,
-`capture_sample_profile.sh`) built on macOS's `sample`(1) utility. See
-[`ROADMAP.md`](ROADMAP.md) for the full phase-by-phase status.
+to Linux and macOS), used throughout Part V and VI's scheduling and
+off-CPU chapters. Part III adds a small, dependency-free flame-graph
+toolchain (`labs/scripts/foldstacks.py`, `flamegraph_svg.py`,
+`capture_sample_profile.sh`) built on macOS's `sample`(1) utility,
+reused in Part VI to capture real, tested off-CPU (blocked-in-mutex)
+stacks — something Linux's on-CPU-only `perf record` default cannot do
+without dedicated off-CPU tooling. See [`ROADMAP.md`](ROADMAP.md) for
+the full phase-by-phase status.
 
 ## Quickstart
 
@@ -49,7 +54,7 @@ ROADMAP.md                phase-by-phase progress against BLUEPRINT.md Section 2
 CONTRIBUTING.md           how to add a chapter, update registries, contribute code
 style-guide.md            voice, commands, numbers, architecture portability
 glossary.md               every term introduced so far, by concept level
-misconceptions.md         the misconception registry (M01-M37)
+misconceptions.md         the misconception registry (M01-M43)
 analogy-registry.md       canonical analogies and where they're used
 concept-graph.yaml/.md    machine- and human-readable concept dependency graph
 book/                     the manuscript itself, one directory per Part

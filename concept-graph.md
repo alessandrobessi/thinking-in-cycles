@@ -8,7 +8,7 @@ the machine-readable source of truth. Both derive from BLUEPRINT.md Section
 levels *< N*. No chapter may rely on a concept before its prerequisites have
 been introduced (BLUEPRINT.md Section 11, closing line).
 
-Status as of this revision: **Chapters 1–25 drafted, Chapters 26–30 pending.**
+Status as of this revision: **Chapters 1–30 drafted — the full book is complete.**
 
 ## Level 0 — Questions and Measurements
 
@@ -101,32 +101,42 @@ collectively.
 
 ## Level 6 — Dynamic Tracing
 
-event · tracepoint · kprobe · kretprobe · uprobe · USDT · eBPF program ·
-verifier · map · helper · attachment point · ring buffer · histogram ·
-BTF · CO-RE · BCC · bpftrace
+event²⁶ · tracepoint²⁶ · kprobe²⁶ · kretprobe²⁶ · uprobe²⁶ · USDT²⁶ ·
+eBPF program²⁷ · verifier²⁷ · map²⁷ · helper²⁷ · attachment point²⁷ ·
+ring buffer²⁷ · histogram²⁸ · BTF²⁷ · CO-RE²⁷ · BCC²⁸ · bpftrace²⁸
 
-Not yet introduced. First formal treatment: Part VI (Chapters 26–28).
+All seventeen Level 6 terms are now introduced (Chapters 26–28 complete
+the tracing/eBPF material in Part VI). "attachment point" is introduced
+via Chapter 27's surface term "hook" — BLUEPRINT.md's own Chapter 27
+"Introduces:" line uses "hook", while the Level 6 seed list uses
+"attachment point"; same concept.
 
 ## Level 7 — Whole-System Diagnosis
 
-on-CPU time¹\* · off-CPU time¹\* · wake-up latency · lock contention ·
-futex · I/O latency · queueing delay · interference · bottleneck shift⁵\* ·
-regression · scalability · tail latency³ · causal claim⁵\*
+on-CPU time²⁹\* · off-CPU time²⁹\* · wake-up latency²⁹ · lock contention²⁹ ·
+futex²⁹ · I/O latency²⁹ · queueing delay²⁹ · interference³⁰\* ·
+bottleneck shift³⁰\* · regression³⁰ · scalability³⁰ · tail latency³ · causal claim³⁰\*
 
-\* = used informally/operationally before its formal chapter (see "Known
-tensions" below); formal treatment for all Level 7 terms is Chapters 26–30.
+All thirteen Level 7 terms are now introduced. \* = used
+informally/operationally well before its formal chapter (see "Resolved
+tensions" below), then formally completed in the chapter marked. "futex"
+is introduced via "futex wait"; "I/O latency" via "block I/O"
+(BLUEPRINT.md's own Chapter 29 "Introduces:" line uses "block I/O", the
+Level 7 seed list uses "I/O latency"; same concept).
 
-## Known tensions between the Level 7 list and the early chapter outlines
+## Resolved tensions between the Level 7 list and the early chapter outlines
 
-BLUEPRINT.md's own per-chapter "Introduces:" lines put a handful of Level 7
-terms to work well before Part VI–VII formally builds them:
+BLUEPRINT.md's own per-chapter "Introduces:" lists put a handful of Level 7
+terms to work well before Part VI formally builds them. All are now
+formally completed, each in the chapter noted:
 
-| Term | Formal level | Used informally in | Why this is not an error |
+| Term | Formal chapter | Used informally in | Why this was not an error |
 |---|---|---|---|
-| on-CPU / off-CPU | 7 (Ch29) | Chapter 1 | Chapter 1's whole purpose is to break the "100%-CPU-or-nothing" assumption; it needs the *words* on-CPU/off-CPU as everyday vocabulary before Chapter 29 builds the full off-CPU/wake-up/futex model. |
-| tail latency | 7 | Chapter 3 (formal "Introduces" line) | Chapter 3's Section 11 outline explicitly lists `tail latency` as a *new* Ch3 concept, so its p50/p99 sense is treated as introduced there; Chapter 29's Level-7 sense extends it to whole-system waiting, not just queueing. |
-| bottleneck shift, causal claim | 7 | Chapter 5 (investigation loop) | The 10-step loop (Section 5) uses both terms operationally as loop steps; Chapter 30 is where they get full technical treatment as diagnosis concepts. |
-| counter | 3 | Chapter 10 (`perf stat`) | Chapter 10 is entirely about reading PMU counters via `perf stat`, well before Part III formally defines "counter" as a Level 3 profiling concept alongside sampling and tracing; Chapter 10 needs the word operationally and Chapter 11 is where counting is formally contrasted with sampling and tracing as three observation models. |
+| on-CPU / off-CPU | 29 | Chapter 1, Chapter 21 | Chapter 1's whole purpose is to break the "100%-CPU-or-nothing" assumption; it needs the *words* on-CPU/off-CPU as everyday vocabulary before Chapter 29 builds the full off-CPU/wake-up/futex model. |
+| tail latency | 3 (formal home; Level 7's whole-system sense extended, not re-introduced, in 29) | Chapter 3 (formal "Introduces" line) | Chapter 3's Section 11 outline explicitly lists `tail latency` as a *new* Ch3 concept, so its p50/p99 sense is treated as introduced there; Chapter 29's off-CPU model extends it to whole-system waiting, not just queueing, without a second formal introduction. |
+| interference | 30 | Chapter 22 (title, "noisy neighbor" lab) | Chapter 22's whole guided lab is built around interference between co-located workloads; Chapter 30's Core Intuition formally names and defines the concept, tying back to Chapter 22 explicitly. |
+| bottleneck shift, causal claim | 30 | Chapter 5 (investigation loop) | The 10-step loop (Section 5) uses both terms operationally as loop steps; Chapter 30's Core Intuition gives both a full formal definition, and the chapter's own Key Takeaway is itself a definition of a defensible causal claim. |
+| counter | 3 (Ch11) | Chapter 10 (`perf stat`) | Chapter 10 is entirely about reading PMU counters via `perf stat`, well before Part III formally defines "counter" as a Level 3 profiling concept alongside sampling and tracing; Chapter 10 needs the word operationally and Chapter 11 is where counting is formally contrasted with sampling and tracing as three observation models. |
 
 This mirrors BLUEPRINT.md's own teaching philosophy (Section 7.3: "a chapter
 may use previously established concepts freely but should introduce only one
@@ -137,7 +147,7 @@ treat entries with `also_appears_in` as intentional, not violations.
 
 ## Supplementary vocabulary (not in Section 11 at any level)
 
-Chapters 1–25 also introduce plain teaching vocabulary that Section 11 never
+Chapters 1–30 also introduce plain teaching vocabulary that Section 11 never
 lists at all. These are tracked in `glossary.md` but have no `level` in
 `concept-graph.yaml`:
 
@@ -166,25 +176,43 @@ lists at all. These are tracked in `glossary.md` but have no `level` in
 - **Chapter 23:** affinity mask, `taskset`, `sched_setaffinity`
 - **Chapter 24:** interconnect, node topology, memory-only node
 - **Chapter 25:** local allocation policy, interleave, bind, preferred node, automatic NUMA balancing, NUMA hit/miss statistics
+- **Chapter 26:** function entry/return, argument capture, event rate
+- **Chapter 27:** per-CPU map, user-space loader
+- **Chapter 28:** probe specification, predicate, action, aggregation, stack aggregation, interval output
+- **Chapter 29:** blocked stack, sleep, block I/O, off-CPU flame graph (first informally named in Chapter 14, formally defined here)
+- **Chapter 30:** (none — pure synthesis; see the Level 7 "Resolved tensions" table above for the five terms it formally completes)
 
 ## Narrative Graph (Section 12)
 
 The book follows one chain of 30 questions, each becoming the next chapter's
 opening question. See `concept-graph.yaml`'s `narrative_graph` list for the
-full machine-readable form (question text + chapter number). Questions 1–25
-are answered by the drafted chapters; 26–30 are pending. The chain is
-verified end-to-end for Chapters 1–25: each chapter's "Next Obvious
-Question" is the verbatim opening question of the chapter that follows,
-including the Chapter 5 → Chapter 6 handoff ("What work does the CPU
+full machine-readable form (question text + chapter number). All 30
+questions are answered by the drafted chapters — the chain is complete.
+The chain is verified end-to-end for all 30 chapters: each chapter's "Next
+Obvious Question" is the verbatim opening question of the chapter that
+follows, including the Chapter 5 → Chapter 6 handoff ("What work does the CPU
 actually execute?"), the Chapter 10 → Chapter 11 handoff ("When should
 we count, sample, or trace?"), the Chapter 15 → Chapter 16 handoff
 ("Why can memory access dominate code that performs little
 computation?"), the Chapter 20 → Chapter 21 handoff ("How does Linux
 decide where runnable work executes?"), and the Chapter 25 → Chapter 26
 handoff ("What can dynamic tracing observe that counters and sampling
-cannot?"). Two of BLUEPRINT.md's own per-chapter "Next question:"
-shorthand lines (Chapter 8's and Chapter 10's) do not match the
-following chapter's actual opening question verbatim; in both cases the
+cannot?"). Six of BLUEPRINT.md's own per-chapter "Next question:"
+shorthand lines (Chapter 8's, Chapter 10's, and — notably, every single
+one in Part VI: Chapter 26's, 27's, 28's, and 29's) do not match the
+following chapter's actual opening question verbatim; in every case the
 drafted chapter uses the next chapter's real opening question, not the
-shorthand paraphrase, per the rule established
-handling the Chapter 5 → 6 transition.
+shorthand paraphrase, per the rule established handling the Chapter 5 →
+6 transition. Concretely: Chapter 26's shorthand ("How can custom
+tracing logic execute safely in a running kernel?") differs from Chapter
+27's real opening ("How can eBPF safely run custom measurements inside
+the kernel?"); Chapter 27's shorthand ("How can an engineer use that
+model without writing a full libbpf application?") differs from Chapter
+28's real opening; Chapter 28's shorthand ("How do we explain time that
+CPU profiles cannot see?") differs from Chapter 29's real opening
+("Where does time go when a thread is not on a CPU?"); and Chapter 29's
+shorthand ("How do we combine workload design, counters, profiles,
+memory analysis, topology, and tracing into one investigation?") differs
+from Chapter 30's real opening ("How do all the layers combine into one
+defensible investigation?"). All four Part VI chapters use the real
+opening question of the chapter that follows, not the shorthand.

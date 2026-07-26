@@ -1,7 +1,6 @@
-# Minimal Quarto book scaffold. Not yet rendered as part of this phase --
-# see ROADMAP.md. Only Parts I-V's twenty-five drafted chapters are listed;
-# Part VI and the appendices will be added to `chapters:` as they're
-# drafted (BLUEPRINT.md Section 24's drafting order).
+# Minimal Quarto book scaffold. Not yet rendered -- see ROADMAP.md. All
+# thirty chapters across all six Parts are now listed; only the
+# appendices remain to be added to `chapters:` once drafted.
 
 project:
   type: book
@@ -48,7 +47,13 @@ book:
         - ../book/part-5-where-the-work-runs/chapter-23-cpu-affinity-smt-cpusets-and-isolation.md
         - ../book/part-5-where-the-work-runs/chapter-24-numa-distance-inside-one-machine.md
         - ../book/part-5-where-the-work-runs/chapter-25-first-touch-memory-placement-and-numa-diagnosis.md
-    # Part VI — Seeing the Invisible (Chapters 26-30): not yet drafted
+    - part: "Part VI — Seeing the Invisible"
+      chapters:
+        - ../book/part-6-seeing-the-invisible/chapter-26-events-tracepoints-kprobes-and-uprobes.md
+        - ../book/part-6-seeing-the-invisible/chapter-27-the-ebpf-mental-model.md
+        - ../book/part-6-seeing-the-invisible/chapter-28-bpftrace-and-bcc-questions-as-programs.md
+        - ../book/part-6-seeing-the-invisible/chapter-29-off-cpu-time-io-latency-and-contention.md
+        - ../book/part-6-seeing-the-invisible/chapter-30-the-complete-linux-performance-investigation.md
     # Appendices A-G: not yet drafted
 
 format:

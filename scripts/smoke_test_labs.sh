@@ -104,16 +104,34 @@ else
   echo "  exit code: OK (0)"
 fi
 
-echo "-- stub mode (sleep) --"
-"$CYCLELAB" sleep >/dev/null 2>/tmp/cyclelab_smoke_stub_stderr
+echo "-- lock-contention mode --"
+OUT="$("$CYCLELAB" lock-contention --duration=0.3 --threads=4 --hold-us=2 --quiet)"
+RC=$?
+if [ "$RC" -ne 0 ]; then
+  fail "cyclelab lock-contention exited $RC, expected 0"
+else
+  echo "  exit code: OK (0)"
+fi
+
+echo "-- sleep mode --"
+OUT="$("$CYCLELAB" sleep --duration=0.3 --threads=2 --sleep-us=1000 --quiet)"
+RC=$?
+if [ "$RC" -ne 0 ]; then
+  fail "cyclelab sleep exited $RC, expected 0"
+else
+  echo "  exit code: OK (0)"
+fi
+
+echo "-- stub mode (numa) --"
+"$CYCLELAB" numa >/dev/null 2>/tmp/cyclelab_smoke_stub_stderr
 RC=$?
 if [ "$RC" -ne 2 ]; then
-  fail "cyclelab sleep exited $RC, expected 2 (recognized-but-unimplemented)"
+  fail "cyclelab numa exited $RC, expected 2 (recognized-but-unimplemented)"
 else
   echo "  exit code: OK (2)"
 fi
 if ! grep -q "not yet implemented" /tmp/cyclelab_smoke_stub_stderr; then
-  fail "cyclelab sleep did not print the expected 'not yet implemented' message"
+  fail "cyclelab numa did not print the expected 'not yet implemented' message"
 else
   echo "  stderr message: OK"
 fi

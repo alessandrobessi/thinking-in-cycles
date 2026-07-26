@@ -3,7 +3,7 @@
 Seed table reproduced verbatim from BLUEPRINT.md Section 17, plus tracking
 columns for actual use. Per Section 17: analogies should be reused
 consistently and retired when they stop helping. Status as of this
-revision: Chapters 1–25 drafted.
+revision: Chapters 1–30 drafted — the full book is complete.
 
 | Concept | Canonical analogy | Constraint | First used in | Status |
 |---|---|---|---|---|
@@ -18,7 +18,7 @@ revision: Chapters 1–25 drafted.
 | Memory bandwidth | Lanes carrying bytes per second | Distinguish lane capacity from trip latency. | Chapter 19 | used |
 | CPU affinity | Assigning a worker to a workstation | Explain lost flexibility. | Chapter 23 | used |
 | NUMA | Multiple workshops with local storerooms connected by a corridor | Keep CPU placement and memory placement distinct. | Chapter 24 | used |
-| eBPF | Temporary sensors attached to defined points in a running machine | Sensors are constrained programs, not passive magic. | — | not yet used |
+| eBPF | Temporary sensors attached to defined points in a running machine | Sensors are constrained programs, not passive magic. | Chapter 27 | used |
 | Benchmark | Controlled scientific experiment | Use literally: hypothesis, controls, repetitions, uncertainty. | Chapters 2, 4, 5 | used |
 
 ## Notes on current use
@@ -30,10 +30,10 @@ revision: Chapters 1–25 drafted.
   starting in Chapter 2 (defining a workload and metric before measuring),
   reinforced in Chapter 4 (benchmarking hygiene) and Chapter 5 (the
   investigation loop's hypothesis/falsification framing).
-- No new analogies were introduced in Chapters 1–25 beyond the seed list;
+- No new analogies were introduced in Chapters 1–30 beyond the seed list;
   Chapter 1's incident narrative is told directly, without a standing
   analogy, since the blueprint's Section 17 list has no entry for
-  "on-CPU/off-CPU time accounting" yet.
+  "on-CPU/off-CPU time accounting."
 - **CPU pipeline** (assembly line) is used in Chapter 8's Worked Example,
   with the required constraint honored directly in the same paragraph
   ("Unlike a literal assembly line, ... out-of-order execution lets the
@@ -73,5 +73,13 @@ revision: Chapters 1–25 drafted.
   CPU-placement-vs-memory-placement constraint honored by an explicit
   cross-reference to Chapter 23's M10 in the same breath.
 
-All twelve of BLUEPRINT.md Section 17's seed analogies are now in active
-use as of Chapters 1–25 — none retired, none needing a substitute yet.
+- **eBPF** (temporary sensors attached to defined points in a running
+  machine) is used in Chapter 27's Core Intuition, with the
+  constrained-programs-not-passive-magic requirement honored directly:
+  "everything it can report was explicitly programmed in, checked for
+  safety before installation (the verifier), and limited to the
+  specific attachment point (the hook) it was built for."
+
+All thirteen of BLUEPRINT.md Section 17's seed analogies are now in
+active use as of Chapters 1–30 — none retired, none needing a
+substitute. This closes out the seed analogy list for the entire book.

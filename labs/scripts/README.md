@@ -74,3 +74,20 @@ text. Chapters 21-23's scripts are **portable** — built on `cyclelab`'s
 new cross-cutting `getrusage`-based context-switch reporting, they need
 no root, no `perf`, and no special hardware, and run identically on
 Linux and macOS.
+
+| Script | Chapter | What it does |
+|---|---|---|
+| `ch26_probe_availability.sh` | 26 | Reports this machine's real, tested dynamic-tracing availability: `dtrace` present but privilege-restricted under SIP, `bpftrace`/BCC absent (Linux-only). |
+| `ch28_manual_aggregation.sh` | 28 | Hand-rolls the same count-grouped-by-key and histogram shapes `bpftrace`/BCC compute in-kernel, entirely in user space from `cyclelab lock-contention`'s own JSON output. |
+| `ch29_offcpu_lock_contention.sh` | 29 | Captures `sample` profiles of `compute` (pure on-CPU) and `lock-contention` (heavily blocking) side by side, quantifying the fraction of sampled stack frames genuinely parked in a mutex wait; renders a real off-CPU-inclusive flame graph. |
+| `ch30_investigation_case_study.sh` | 30 | Walks the book's own 8-step investigation shape end to end: an invalid low-concurrency benchmark, a corrected sweep revealing saturation, lock contention confirmed via profiling, and a fix that scales further before hitting a memory-bandwidth ceiling. |
+
+Chapter 27 has no dedicated script: its lab is a written
+verifier-accept/reject prediction exercise, documented in the chapter
+text (eBPF itself has no meaning outside a real Linux kernel, so there
+is nothing to run on this reference machine). All four scripts above
+are **portable** except where their own output says otherwise
+(`ch26_probe_availability.sh` and `ch29_offcpu_lock_contention.sh` are
+macOS-specific in the exact tool they use — `dtrace`/`sample` — though
+both explain their Linux equivalents inline); none require root or
+special hardware.

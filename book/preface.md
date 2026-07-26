@@ -38,9 +38,9 @@ command-line workload generator with modes that expose different
 performance phenomena, so that each new chapter builds on a codebase
 you already understand instead of asking you to learn a new one. As of
 this edition, `cyclelab`'s `compute`, `branch`, `sequential-memory`,
-`random-memory`, `bandwidth`, and `false-sharing` modes are implemented;
-the rest are recognized by the tool but not yet built, and later parts of the book
-will build them as they're needed.
+`random-memory`, `bandwidth`, `false-sharing`, `lock-contention`, and
+`sleep` modes are implemented; `syscall`, `numa`, and `mixed` remain
+recognized by the tool but not yet built.
 
 By the end of this book, "the system is slow" should no longer feel like
 a mysterious complaint. It should feel like the beginning of a structured
@@ -48,6 +48,6 @@ investigation — one you know how to run yourself.
 
 ---
 
-*This is a pre-publication manuscript. As of this edition, Parts I
-through V (Chapters 1-25) are drafted; Part VI and the appendices are
-not yet written. See `ROADMAP.md` for current status.*
+*This is a pre-publication manuscript. As of this edition, all thirty
+chapters (Parts I through VI) are drafted; only the appendices remain
+unwritten. See `ROADMAP.md` for current status.*

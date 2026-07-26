@@ -15,9 +15,9 @@ example codebase per chapter.
 | `random-memory` | implemented |
 | `bandwidth` | implemented |
 | `false-sharing` | implemented |
-| `lock-contention` | not yet implemented |
+| `lock-contention` | implemented |
+| `sleep` | implemented |
 | `syscall` | not yet implemented |
-| `sleep` | not yet implemented |
 | `numa` | not yet implemented |
 | `mixed` | not yet implemented |
 
@@ -74,6 +74,14 @@ bandwidth-specific options:
 
 false-sharing-specific options:
   --padding=packed|padded   counter layout (default packed)
+
+lock-contention-specific options:
+  --hold-us=N               busy-work microseconds held per increment while
+                            holding the shared mutex (default 5.0)
+
+sleep-specific options:
+  --sleep-us=N              nanosleep duration per cycle, in microseconds
+                            (default 1000.0, i.e. 1ms)
 ```
 
 Examples:
@@ -89,7 +97,9 @@ Examples:
 ./bin/cyclelab bandwidth --working-set-size=128M --threads=8 --duration=1  # sustained GB/s
 ./bin/cyclelab false-sharing --padding=packed --threads=8 --duration=1
 ./bin/cyclelab false-sharing --padding=padded --threads=8 --duration=1  # compare against the above
-./bin/cyclelab sleep          # not yet implemented -> exit 2
+./bin/cyclelab lock-contention --threads=8 --hold-us=5 --duration=1  # serialization, not sharing
+./bin/cyclelab sleep --threads=4 --sleep-us=2000 --duration=1        # intentional off-CPU time
+./bin/cyclelab numa            # not yet implemented -> exit 2
 ```
 
 `--affinity` is best-effort: on Linux it uses `pthread_setaffinity_np`; on
@@ -194,21 +204,59 @@ logically distinct counter. On the reference machine for this book,
 `--padding=packed` at every thread count tested, growing to roughly 46%
 higher at 8 threads.
 
+## `lock-contention` mode
+
+Each of `--threads` worker threads repeatedly locks one shared
+`pthread_mutex`, busy-spins for `--hold-us` microseconds while holding
+it (a stand-in critical section that does real, measurable work rather
+than an instant increment), increments one shared counter, and unlocks.
+Unlike false-sharing (no logical dependency between threads, just an
+accidental shared cache line), lock-contention has a genuine
+serialization point: only one thread can be inside the critical section
+at a time, no matter how many CPUs are idle. On the reference machine
+for this book, at `--hold-us=5`, throughput barely changed between 1
+thread (~186,700 increments/s) and 10 threads (~173,300 increments/s)
+-- the mutex, not the CPU count, was the bottleneck. Captured with
+macOS's `sample`(1) during heavy contention, most waiting threads' stacks
+show `_pthread_mutex_firstfit_lock_wait` / `__psynch_mutexwait` -- a
+real, portable, directly observable "blocked on a lock" stack, since
+`sample` records every thread's stack on a wall-clock interval
+regardless of run state, unlike `perf record`'s on-CPU-only default.
+
+## `sleep` mode
+
+Each of `--threads` worker threads repeatedly calls `nanosleep()` for
+`--sleep-us` microseconds, then does one small increment of on-CPU work
+before sleeping again. It exists to give Chapters 21-22 and 29 a
+workload whose time is spent intentionally off-CPU rather than blocked
+on contention or preempted under load.
+
 ## Context-switch reporting (every mode)
 
 Every mode's `results` includes a process-wide
 `"context_switches": { "voluntary": N, "involuntary": N }`, read via the
 POSIX `getrusage(2)` `RUSAGE_SELF` fields `ru_nvcsw`/`ru_nivcsw` right
-after all worker threads finish. A voluntary switch is a thread giving
-up the CPU on its own (blocking on I/O, a lock, a sleep); an involuntary
-switch is the scheduler preempting a still-runnable thread. This works
-identically on Linux and macOS (unlike `RUSAGE_THREAD`, which is
-Linux-only) and is exactly what Chapters 21-22 use to make "runnable
-pressure" and scheduling interference directly measurable without
-`perf sched` or `pidstat` -- on the reference machine for this book,
-running `cyclelab compute` with an increasing thread-to-core ratio
-showed involuntary switches climbing from 6 (1 thread) to over 4,900 (20
-threads, double this machine's core count).
+after all worker threads finish. On Linux, a voluntary switch is a
+thread giving up the CPU on its own (blocking on I/O, a lock, a sleep);
+an involuntary switch is the scheduler preempting a still-runnable
+thread. This works identically on Linux and macOS (unlike
+`RUSAGE_THREAD`, which is Linux-only) and is exactly what Chapters 21-22
+use to make "runnable pressure" and scheduling interference directly
+measurable without `perf sched` or `pidstat` -- on the reference machine
+for this book, running `cyclelab compute` with an increasing
+thread-to-core ratio showed involuntary switches climbing from 6 (1
+thread) to over 4,900 (20 threads, double this machine's core count).
+
+**A real, tested limitation, not a bug:** on this book's macOS reference
+machine, `ru_nvcsw` was observed to be `0` in every mode and every
+configuration tested, including `sleep` mode's purely intentional
+`nanosleep()` calls -- confirmed with a minimal standalone `getrusage`
+test outside `cyclelab` entirely. Darwin's `getrusage` does not appear
+to distinguish voluntary from involuntary switches the way Linux's does;
+everything this reference machine reports lands in `ru_nivcsw`. Chapter
+29 documents this directly rather than presenting a voluntary/involuntary
+contrast this hardware cannot actually produce; on Linux, the same
+`cyclelab` binary should show the contrast the field names promise.
 
 ## Output schema (stable core, extended by later modes)
 
@@ -322,6 +370,45 @@ processed, not iterations):
       { "index": 0, "increments": 1536325576, "elapsed_s": 2.0001, "affinity_applied": false }
     ],
     "context_switches": { "voluntary": 0, "involuntary": 9 }
+  }
+}
+```
+
+`lock-contention` mode:
+
+```jsonc
+{
+  "mode": "lock-contention",
+  "config": { "duration_requested_s": 2.0, "increments_requested": null,
+              "threads": 10, "affinity": "none", "hold_us": 5.0 },
+  "results": {
+    "duration_actual_s": 2.000123,
+    "total_increments": 346622,
+    "shared_counter_final": 346622,
+    "throughput_increments_per_s": 173303.4,
+    "threads": [
+      { "index": 0, "increments": 17408, "elapsed_s": 2.0001, "affinity_applied": false }
+    ],
+    "context_switches": { "voluntary": 0, "involuntary": 178208 }
+  }
+}
+```
+
+`sleep` mode:
+
+```jsonc
+{
+  "mode": "sleep",
+  "config": { "duration_requested_s": 2.0, "cycles_requested": null,
+              "threads": 1, "affinity": "none", "sleep_us": 2000.0 },
+  "results": {
+    "duration_actual_s": 2.000123,
+    "total_cycles": 402,
+    "throughput_cycles_per_s": 401.34,
+    "threads": [
+      { "index": 0, "cycles": 402, "elapsed_s": 2.0001, "affinity_applied": false }
+    ],
+    "context_switches": { "voluntary": 0, "involuntary": 407 }
   }
 }
 ```

@@ -52,6 +52,11 @@ typedef struct {
                                  * CYCLELAB_CACHE_LINE_BYTES-sized slots to advance
                                  * per step */
     cyclelab_padding_t padding; /* false-sharing-specific, default PACKED */
+    double lock_hold_us;       /* lock-contention-specific, default 5.0: busy-work
+                                 * microseconds performed while holding the shared
+                                 * mutex, per increment */
+    double sleep_us;           /* sleep-specific, default 1000.0 (1ms): duration of
+                                 * each intentional nanosleep, per cycle */
 } cyclelab_options_t;
 
 void cli_defaults(cyclelab_options_t *opts);

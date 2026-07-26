@@ -36,6 +36,8 @@ void cli_defaults(cyclelab_options_t *opts) {
     opts->working_set_bytes = 1048576; /* 1 MiB */
     opts->mem_stride_slots = 1;
     opts->padding = CYCLELAB_PADDING_PACKED;
+    opts->lock_hold_us = 5.0;
+    opts->sleep_us = 1000.0;
 }
 
 void cli_print_usage(const char *prog) {
@@ -43,10 +45,10 @@ void cli_print_usage(const char *prog) {
         "usage: %s <mode> [options]\n"
         "\n"
         "modes:\n"
-        "  compute               implemented\n"
-        "  branch, sequential-memory, random-memory, bandwidth,\n"
-        "  false-sharing, lock-contention, syscall, sleep, numa, mixed\n"
-        "                        recognized, not yet implemented\n"
+        "  compute, branch, sequential-memory, random-memory, bandwidth,\n"
+        "  false-sharing, lock-contention, sleep\n"
+        "                        implemented\n"
+        "  syscall, numa, mixed  recognized, not yet implemented\n"
         "\n"
         "global options:\n"
         "  --duration=SEC        time-boxed run length (default 2.0)\n"
@@ -81,7 +83,15 @@ void cli_print_usage(const char *prog) {
         "                            last-level cache to measure real DRAM bandwidth)\n"
         "\n"
         "false-sharing-specific options:\n"
-        "  --padding=packed|padded   counter layout (default packed)\n",
+        "  --padding=packed|padded   counter layout (default packed)\n"
+        "\n"
+        "lock-contention-specific options:\n"
+        "  --hold-us=N               busy-work microseconds held per increment\n"
+        "                            while holding the shared mutex (default 5.0)\n"
+        "\n"
+        "sleep-specific options:\n"
+        "  --sleep-us=N              nanosleep duration per cycle, in microseconds\n"
+        "                            (default 1000.0, i.e. 1ms)\n",
         prog, CYCLELAB_MAX_CHAINS, CYCLELAB_CACHE_LINE_BYTES);
 }
 
@@ -292,6 +302,16 @@ int cli_parse(int argc, char **argv, cyclelab_options_t *opts,
             else if (strcmp(value, "padded") == 0) opts->padding = CYCLELAB_PADDING_PADDED;
             else {
                 fprintf(stderr, "%s: --padding expects 'packed' or 'padded'\n", prog);
+                *exit_now = 1; *exit_code = 64; return -1;
+            }
+        } else if (strcmp(key, "--hold-us") == 0 && value) {
+            if (parse_double(value, &opts->lock_hold_us) != 0 || opts->lock_hold_us < 0) {
+                fprintf(stderr, "%s: --hold-us expects a non-negative number of microseconds\n", prog);
+                *exit_now = 1; *exit_code = 64; return -1;
+            }
+        } else if (strcmp(key, "--sleep-us") == 0 && value) {
+            if (parse_double(value, &opts->sleep_us) != 0 || opts->sleep_us < 0) {
+                fprintf(stderr, "%s: --sleep-us expects a non-negative number of microseconds\n", prog);
                 *exit_now = 1; *exit_code = 64; return -1;
             }
         } else {

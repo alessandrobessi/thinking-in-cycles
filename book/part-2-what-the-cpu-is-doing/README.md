@@ -26,4 +26,4 @@ real output on this book's reference machine (macOS, where `perf`
 doesn't exist) — they're documented against `perf`'s stable, published
 interface and clearly marked schematic where shown.
 
-Next: Part III — Where the CPU Time Goes (Chapters 11-15, not yet drafted).
+Next: [Part III — Where the CPU Time Goes](../part-3-where-cpu-time-goes/README.md) (Chapters 11-15).

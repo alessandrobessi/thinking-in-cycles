@@ -41,5 +41,4 @@ narrow exception to the "no figures yet" policy from Parts I-II, since
 Chapter 14 is specifically about reading a visual artifact and a real,
 captured one was available to use instead of a schematic placeholder.
 
-Next: Part IV — Why Memory Changes Everything (Chapters 16-20, not yet
-drafted).
+Next: [Part IV — Why Memory Changes Everything](../part-4-why-memory-changes-everything/README.md) (Chapters 16-20).

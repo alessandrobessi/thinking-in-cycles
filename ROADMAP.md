@@ -126,12 +126,62 @@ progress against that order.
       written reasoning exercise, respectively, documented in the
       chapter text)
 
-## Phase 6 — Tracing and synthesis (not started)
+## Phase 6 — Tracing and synthesis (complete)
 
-- [ ] Chapters 26-30
-- [ ] BCC and `bpftrace` labs
-- [ ] Full service case study (Chapter 30)
-- [ ] Production-safety review
+- [x] Chapters 26-30 (Part VI — Seeing the Invisible) — **the full
+      30-chapter manuscript is now drafted.**
+- [x] Cross-cutting `cyclelab` additions: `lock-contention` mode
+      (threads contending one shared `pthread_mutex`, a genuinely
+      serializing, blocking workload) and `sleep` mode (threads that
+      intentionally `nanosleep()`) — both real, tested, built to give
+      Chapter 29's off-CPU lab something to actually measure.
+- [x] `scripts/doctor.sh` addition: a "dtrace" section, reporting this
+      SIP-enabled macOS reference machine's real, tested finding —
+      `dtrace` is present but refuses to list probes without elevated
+      privileges (`DTrace requires additional privileges`) — direct
+      evidence for Chapter 26's "dynamic tracing requires privilege"
+      caution, not a hypothetical.
+- [ ] BCC and `bpftrace` labs — **not testable** on this reference
+      machine: both are Linux-only and confirmed absent by
+      `scripts/doctor.sh`'s own "bpftrace / BCC" check. Chapters 26-28's
+      Linux commands are documented against each tool's stable
+      interface, not tested, following the same honest pattern already
+      used for `perf` throughout Parts II-IV. Chapter 28's guided lab
+      substitutes a real, tested, hand-rolled aggregation (count-grouped
+      -by-key and histogram, computed from `cyclelab`'s own JSON output)
+      demonstrating the same underlying concepts `bpftrace`/BCC compute
+      in-kernel.
+- [x] Full service case study (Chapter 30): a real, tested 8-step
+      investigation built from `cyclelab lock-contention` (Steps 1-4,
+      revealing serialization and lock waiting) and `cyclelab bandwidth`
+      (Step 5, the bottleneck moving to memory bandwidth after the lock
+      is removed) — Steps 6-7 (NUMA thread/memory placement) are a
+      documented, schematic continuation, since this reference machine
+      has no NUMA topology (Chapter 24).
+- [ ] Production-safety review — not applicable in the sense BLUEPRINT.md
+      intends (a review by a practitioner with production eBPF
+      experience); flagged for Phase 7's technical review instead.
+- Note: Chapter 29's off-CPU lab produced this phase's most genuinely
+  surprising real finding: macOS's `sample`(1) captures every thread's
+  stack on a wall-clock interval regardless of run state (unlike Linux
+  `perf record`'s on-CPU-only default), so a `lock-contention` capture
+  under heavy contention showed **77.8%** of sampled frames genuinely
+  blocked inside a mutex wait, versus **0.0%** for an equivalent
+  `compute`-mode capture — real, dramatic, reproducible off-CPU
+  evidence without any Linux-only tracing infrastructure. Separately,
+  this reference machine's `getrusage` was confirmed (via a minimal
+  standalone test, not just `cyclelab`) to report `ru_nvcsw`
+  (voluntary context switches) as exactly `0` in every mode and every
+  configuration tested, including purely intentional `nanosleep()`
+  calls — a genuine Darwin platform limitation, documented honestly in
+  `labs/cyclelab/README.md` and in Chapter 29 rather than papering over
+  it with invented numbers.
+- [x] Guided-lab scripts for Chapters 26, 28, 29, and 30
+      (`ch26_probe_availability.sh`, `ch28_manual_aggregation.sh`,
+      `ch29_offcpu_lock_contention.sh`, `ch30_investigation_case_study.sh`);
+      Chapter 27 has no dedicated script (its lab is a written
+      verifier-prediction reasoning exercise, documented in the chapter
+      text, consistent with the Chapter 20/25 pattern).
 
 ## Phase 7 — Editorial integration (not started)
 
@@ -146,8 +196,9 @@ progress against that order.
 
 ## Not yet started, no matter the phase
 
-- Quarto HTML/PDF/EPUB build (`publish/_quarto.yml` exists and lists only
-  Parts I-V; `scripts/prepare_manuscript_for_publish.py` is a stub)
+- Quarto HTML/PDF/EPUB build (`publish/_quarto.yml` now lists all six
+  Parts and all thirty chapters, but has not been rendered;
+  `scripts/prepare_manuscript_for_publish.py` is a stub)
 - CI wiring for any of the validators above
 - Figures: still mostly empty by design (see `figures/source/` and
   `figures/generated/` READMEs) — the one exception is Chapter 14's real

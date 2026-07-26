@@ -31,4 +31,4 @@ exception requiring Linux/`perf`/PCM for its higher rungs; its portable
 lab instead synthesizes Chapters 16-19's own results as that ladder's
 first, fully-tested rung.
 
-Next: Part V — Where the Work Runs (Chapters 21-25, not yet drafted).
+Next: [Part V — Where the Work Runs](../part-5-where-the-work-runs/README.md) (Chapters 21-25).

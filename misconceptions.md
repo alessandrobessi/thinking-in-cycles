@@ -93,7 +93,7 @@ the Section 16 seed didn't anticipate them.
 **Misconception:** Sampling profiles show all latency.
 **Correct intuition:** They primarily show on-CPU execution unless an off-CPU method is used.
 **Evidence that distinguishes:** A CPU profile's own off-CPU-adjacent frames (e.g. a thread blocked in `pthread_join`) show only that a thread was scheduled onto something, not why it was blocked or for how long relative to a request's actual latency; full off-CPU accounting needs the tools Chapter 29 introduces.
-**Used in chapters:** 12 (introduced); full off-CPU treatment Chapter 29
+**Used in chapters:** 12 (introduced); revisited 26; full off-CPU treatment and resolution Chapter 29
 
 ### M09
 **Misconception:** Pinning always improves performance.
@@ -121,12 +121,14 @@ the Section 16 seed didn't anticipate them.
 ### M13
 **Misconception:** eBPF has zero overhead.
 **Correct intuition:** Overhead depends on hook rate, work per event, stack capture, aggregation, and output.
-**Used in chapters:** not yet (Chapter 27)
+**Evidence that distinguishes:** Chapter 27's own overhead equation: every helper call, map update, and emitted event has a real cost, multiplied by the underlying hook's event rate (Chapter 26) — a program on a rarely-firing hook costs little; the same program on a hot path can be expensive.
+**Used in chapters:** 27
 
 ### M14
 **Misconception:** More tracing produces more truth.
 **Correct intuition:** Excess event volume can perturb the workload and bury the useful signal.
-**Used in chapters:** not yet (Chapter 26/28)
+**Evidence that distinguishes:** compare a narrowly scoped probe (one function, one specific predicate) against an unfiltered, everything-that-moves trace of the same workload — the unfiltered version costs more overhead, produces far more data to sift through, and answers the original question no better (Chapter 26); a predicate that narrows a `bpftrace` one-liner to the specific condition under investigation is usually the difference between an inspectable question and an accidentally expensive one (Chapter 28).
+**Used in chapters:** 26 (introduced); revisited 28
 
 ### M15
 **Misconception:** One benchmark run is evidence.
@@ -152,8 +154,8 @@ the Section 16 seed didn't anticipate them.
 ### M19
 **Misconception:** Context-switch counts alone diagnose scheduler overhead.
 **Correct intuition:** The impact depends on why switches occur, where the critical thread waits, and what locality is lost.
-**Evidence that distinguishes:** The same metric (involuntary switches) means something different depending on whether it's elevated from genuine contention or not — compare a benchmark alone versus under real interference (Chapter 22's own lab) to see the same count carry different implications.
-**Used in chapters:** 22
+**Evidence that distinguishes:** The same metric (involuntary switches) means something different depending on whether it's elevated from genuine contention or not — compare a benchmark alone versus under real interference (Chapter 22's own lab) to see the same count carry different implications. Chapter 29's lab sharpens this further: on this book's reference machine, involuntary switches climbed sharply under real lock contention while voluntary switches stayed at a confirmed-flat zero in every workload tested — a captured mutex-wait stack, not the switch count, is what actually proves the blocking.
+**Used in chapters:** 22 (introduced); revisited 29
 
 ### M20
 **Misconception:** A profiler's output is ground truth.
@@ -250,3 +252,39 @@ the Section 16 seed didn't anticipate them.
 **Correct intuition:** Utilization is an aggregate busy-time measure that says nothing about whether specific threads are waiting in the run queue behind others; a machine can be fully utilized while accumulating real, avoidable queueing delay for latency-sensitive work.
 **Evidence that distinguishes:** Chapter 21's own lab: throughput (a rough utilization proxy) stays flat from 10 to 40 threads on a 10-CPU machine while involuntary context switches nearly triple, showing real additional contention utilization alone never surfaces.
 **Used in chapters:** 21
+
+### M38 — proposed, pending review
+**Misconception:** eBPF is a background daemon.
+**Correct intuition:** An eBPF program is loaded into the kernel and executes synchronously, in the context of whatever triggered its hook — there is no separate always-on service process doing the measuring; user-space tools like `bpftrace` and BCC are loaders and readers, not the thing collecting the data.
+**Evidence that distinguishes:** Unload the user-space loader process (`bpftrace` exiting, for instance) and the attached program detaches too — there is no independent daemon left running the measurement in the background.
+**Used in chapters:** 27
+
+### M39 — proposed, pending review
+**Misconception:** eBPF can safely execute arbitrary kernel code.
+**Correct intuition:** The verifier specifically restricts eBPF programs to a provably bounded, provably memory-safe subset of what's possible; it cannot and does not run arbitrary kernel code, and a program that violates the verifier's constraints is rejected before it runs at all, not sandboxed at runtime.
+**Evidence that distinguishes:** Chapter 27's own guided lab: an unbounded loop and an unchecked pointer read are both rejected at load time, before a single instruction of either ever executes.
+**Used in chapters:** 27
+
+### M40 — proposed, pending review
+**Misconception:** CO-RE makes every program portable to every kernel.
+**Correct intuition:** CO-RE adapts a compiled program to differences in struct *layout* using BTF information; it cannot invent a helper, map type, or hook that an older target kernel simply does not have at all.
+**Evidence that distinguishes:** A CO-RE program built assuming a recent kernel feature still fails to load on a kernel that predates that feature — portability adjustments notwithstanding, missing features stay missing.
+**Used in chapters:** 27
+
+### M41 — proposed, pending review
+**Misconception:** Maps are ordinary user-space hash maps.
+**Correct intuition:** A map is a kernel-resident data structure, defined and sized at load time, accessed through a narrow, verified API from inside the eBPF program and a separate system-call interface from user space — not something a user-space program can resize or iterate however it likes.
+**Evidence that distinguishes:** Per-CPU maps exist specifically to avoid a cost (cross-core coherence traffic, Chapter 18's false-sharing territory) an ordinary shared hash table would incur under concurrent update — a distinction that only makes sense for a kernel-resident structure, not an in-process one.
+**Used in chapters:** 27
+
+### M42 — proposed, pending review
+**Misconception:** Off-CPU time is automatically waste.
+**Correct intuition:** A thread waiting is frequently correct, intentional, or imposed by a dependency entirely outside the program's control — off-CPU time is information about where time went and why, not an automatic verdict.
+**Evidence that distinguishes:** Compare an off-CPU duration against a plausible minimum for whatever it's waiting on — a network round trip has a physical floor; a lock held for exactly as long as its critical section's real work has a floor too — time far beyond that floor is where contention or a genuine problem, not necessity, is the likely explanation.
+**Used in chapters:** 29
+
+### M43 — proposed, pending review
+**Misconception:** Aggregation (counting, grouping, histograms) requires eBPF or a kernel-level tracer.
+**Correct intuition:** Counting events grouped by a key, and bucketing values into a histogram, are general data-reduction operations computable anywhere data exists; what eBPF specifically contributes is aggregating at the event itself, inside the kernel, avoiding a per-event user-space round trip — a real efficiency advantage, not a claim that the underlying arithmetic is otherwise impossible.
+**Evidence that distinguishes:** Chapter 28's own guided lab computes the same count-grouped-by-key and histogram shapes entirely in user space, after the fact, from `cyclelab`'s own JSON output — real aggregation, no kernel tracer involved.
+**Used in chapters:** 28

@@ -6,7 +6,9 @@
 #include "modes/branch.h"
 #include "modes/compute.h"
 #include "modes/false_sharing.h"
+#include "modes/lock_contention.h"
 #include "modes/memory.h"
+#include "modes/sleep_mode.h"
 #include "modes/stub.h"
 
 int main(int argc, char **argv) {
@@ -42,6 +44,16 @@ int main(int argc, char **argv) {
         cyclelab_hostinfo_t host;
         sysinfo_collect(&host);
         return bandwidth_run(&opts, &host);
+    }
+    if (strcmp(opts.mode, "lock-contention") == 0) {
+        cyclelab_hostinfo_t host;
+        sysinfo_collect(&host);
+        return lock_contention_run(&opts, &host);
+    }
+    if (strcmp(opts.mode, "sleep") == 0) {
+        cyclelab_hostinfo_t host;
+        sysinfo_collect(&host);
+        return sleep_run(&opts, &host);
     }
 
     /* Every other name cli_parse() accepted is a known-but-unimplemented

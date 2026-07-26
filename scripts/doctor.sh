@@ -214,6 +214,25 @@ else
   status_line SKIP "not applicable on $OS_NAME"
 fi
 
+# --------------------------------------------------------------- dtrace -
+
+section "dtrace"
+if [ "$IS_LINUX" -eq 1 ]; then
+  status_line SKIP "not applicable on $OS_NAME (dtrace is BSD/Solaris/macOS-only; see bpftrace/BCC below for Linux dynamic tracing)"
+elif have dtrace; then
+  DTRACE_PROBE_COUNT=$(dtrace -l 2>/tmp/cyclelab_doctor_dtrace_stderr | wc -l | tr -d ' ')
+  if [ "${DTRACE_PROBE_COUNT:-0}" -gt 1 ]; then
+    status_line OK "dtrace: $DTRACE_PROBE_COUNT probes listed without elevated privileges (Chapter 26's closest analog to kprobes/uprobes on this machine)"
+  elif grep -q "additional privileges\|System Integrity Protection" /tmp/cyclelab_doctor_dtrace_stderr 2>/dev/null; then
+    status_line WARN "dtrace present but requires elevated privileges on this SIP-enabled macOS system; Chapters 26/28's labs use this as real, tested evidence of the 'privileged' portability tag, not as a working substitute for bpftrace"
+  else
+    status_line WARN "dtrace present but listed no probes for an unexpected reason; see $DTRACE_PROBE_COUNT and /tmp/cyclelab_doctor_dtrace_stderr"
+  fi
+  rm -f /tmp/cyclelab_doctor_dtrace_stderr
+else
+  status_line MISSING "dtrace not found"
+fi
+
 # ------------------------------------------------------- bpftrace / BCC -
 
 section "bpftrace / BCC"

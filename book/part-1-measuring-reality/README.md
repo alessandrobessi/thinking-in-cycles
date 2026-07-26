@@ -20,4 +20,4 @@ All five guided labs are **portable** (BLUEPRINT.md Section 13.2): no
 root, no `perf`, no special hardware. They use `labs/cyclelab`'s
 `compute` mode and the helper scripts in `labs/scripts/`.
 
-Next: Part II — What the CPU Is Doing (Chapters 6-10, not yet drafted).
+Next: [Part II — What the CPU Is Doing](../part-2-what-the-cpu-is-doing/README.md) (Chapters 6-10).

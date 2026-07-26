@@ -33,4 +33,4 @@ teaching aid, with Chapter 25's lab replaced by a structured
 prediction/reasoning exercise in place of a measurement this hardware
 cannot produce.
 
-Next: Part VI — Seeing the Invisible (Chapters 26-30, not yet drafted).
+Next: [Part VI — Seeing the Invisible](../part-6-seeing-the-invisible/README.md) (Chapters 26-30).
