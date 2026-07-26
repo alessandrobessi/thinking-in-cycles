@@ -34,9 +34,8 @@ reused in Part VI to capture real, tested off-CPU (blocked-in-mutex)
 stacks — something Linux's on-CPU-only `perf record` default cannot do
 without dedicated off-CPU tooling. The manuscript renders cleanly to
 HTML, PDF, and EPUB (`python3 scripts/prepare_manuscript_for_publish.py`),
-and `.github/workflows/ci.yml` is ready to run on push once this repo
-has a git remote. See [`ROADMAP.md`](ROADMAP.md) for
-the full phase-by-phase status.
+and `.github/workflows/ci.yml` runs on every push. See
+[`ROADMAP.md`](ROADMAP.md) for the full phase-by-phase status.
 
 ## Quickstart
 

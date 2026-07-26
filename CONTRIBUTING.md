@@ -105,7 +105,8 @@ Each exits 0 with no ERROR-level findings, non-zero otherwise; WARNING-
 level findings are informational (documented, legitimate deviations, not
 bugs) and don't fail the exit code. `.github/workflows/ci.yml` runs the
 same three validators (as `make validate`) plus `make lab-cyclelab` and
-`make smoke` on Linux and macOS, but this repository currently has no
-git remote configured, so nothing triggers it yet — running everything
-locally before a change is, for now, the only enforcement mechanism
-alongside manual review against the Definition of Done checklist.
+`make smoke` on Linux and macOS on every push and pull request against
+<https://github.com/alessandrobessi/thinking-in-cycles> — run
+everything locally before opening a change anyway, since CI catching a
+problem after the fact is a safety net, not a substitute for manual
+review against the Definition of Done checklist.
