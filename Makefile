@@ -3,13 +3,14 @@
 
 .DEFAULT_GOAL := help
 
-.PHONY: help doctor lab-cyclelab cyclelab-debug cyclelab-release smoke clean
+.PHONY: help doctor lab-cyclelab cyclelab-debug cyclelab-release smoke validate clean
 
 help: ## list available targets
 	@echo "Targets:"
 	@echo "  make doctor          report this machine's lab-environment capabilities"
 	@echo "  make lab-cyclelab    build cyclelab (debug + release)"
 	@echo "  make smoke           build cyclelab and run a minimal functional check"
+	@echo "  make validate        run the manuscript validators (concept graph, chapter metadata, links)"
 	@echo "  make clean           remove build artifacts"
 
 doctor: ## run the environment doctor
@@ -25,6 +26,11 @@ cyclelab-release:
 
 smoke: lab-cyclelab ## build cyclelab and smoke-test the compute mode
 	@bash scripts/smoke_test_labs.sh
+
+validate: ## run all three manuscript validators
+	python3 scripts/validate_concept_graph.py
+	python3 scripts/validate_chapter_metadata.py
+	python3 scripts/validate_links.py
 
 clean: ## remove build artifacts
 	$(MAKE) -C labs/cyclelab clean

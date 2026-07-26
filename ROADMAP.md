@@ -183,23 +183,87 @@ progress against that order.
       verifier-prediction reasoning exercise, documented in the chapter
       text, consistent with the Chapter 20/25 pattern).
 
-## Phase 7 — Editorial integration (not started)
+## Phase 7 — Editorial integration (mostly complete; technical review outstanding)
 
-- [ ] Dependency validation (`scripts/validate_concept_graph.py` — currently a stub)
-- [ ] Chapter metadata validation (`scripts/validate_chapter_metadata.py` — currently a stub)
-- [ ] Link validation (`scripts/validate_links.py` — currently a stub)
-- [ ] Analogy consistency pass
-- [ ] Command testing across all chapters
-- [ ] Bibliography completion
+- [x] Dependency validation (`scripts/validate_concept_graph.py`) — real,
+      implemented. Checks: every chapter's `**Prerequisites:**` line cites
+      only earlier chapters; the 30-question narrative chain matches
+      verbatim end to end; every concept-graph.yaml term with a non-null
+      `introduced_in_chapter` agrees with glossary.md's own tag; every
+      `M<N>` misconception reference in any chapter resolves to a real
+      heading in `misconceptions.md`, which itself has no duplicate or
+      gapped ID. Run against the finished book: **0 errors**, 1 warning
+      (Chapter 16's Prerequisites line cites "Part II"/"Part III" instead
+      of "(Chapter N)" — accurate content, just a different citation
+      style, not a defect).
+- [x] Chapter metadata validation (`scripts/validate_chapter_metadata.py`)
+      — real, implemented. Checks: filename numbering matches each
+      chapter's own H1; each `part-N-*` directory holds exactly its five
+      contiguous chapters in order; exactly one Opening Question, Guided
+      Lab, Key Takeaway, and Next Obvious Question section per chapter;
+      the Opening Question is a single sentence ending in "?"; the Guided
+      Lab states a portability tag and a fallback path; image references
+      have non-empty alt text. Found and fixed two real, pre-existing
+      Definition-of-Done gaps: Chapter 1's Guided Lab never labeled its
+      already-present fallback path with the standard `**Fallback
+      path:**` tag (added), and Chapter 25 referenced misconception M10
+      without the required `## Common Misconceptions` section existing
+      at all (added, covering M10 and M11 revisited). Final run: **0
+      errors**, 7 warnings (chapters that fold "Worked Example" into
+      their Incident/Story section, or use blueprint-specified
+      alternative headings like Chapter 28's "Tool choice policy" in
+      place of "Tool View" — legitimate, pre-existing structural
+      choices, not defects).
+- [x] Link validation (`scripts/validate_links.py`) — real, implemented.
+      Checks every relative Markdown link and every repo-relative path
+      mentioned anywhere across `book/`, `templates/`, `references/`,
+      and the top-level registries. Verified against a deliberately
+      broken link (confirmed it's caught) before trusting a clean run.
+      Final run: **0 errors** across 78 files.
+- [x] Shell syntax check across every chapter's fenced `bash`/`sh` code
+      block (46 total) plus all 26 `labs/scripts/*.sh`/`scripts/*.sh`
+      files, via `bash -n`. Found and fixed one real issue: Chapter 25
+      had a literal `numastat -p <pid>` inside a fenced code block,
+      where the unescaped `<` is invalid shell redirection syntax —
+      changed to `numastat -p "$PID"` with an inline comment. Final
+      sweep: **0 syntax errors**.
+- [x] Analogy consistency pass — audited all thirteen seed analogies
+      directly against their citing chapter's actual text (not just
+      against this registry's own prior claims). Found two real gaps:
+      Chapter 3's registry entry claimed the "Latency vs throughput"
+      seed analogy (vehicles/roads) was used, but the chapter's Worked
+      Example only ever used the checkout-line analogy (which does cover
+      the same ground) — corrected the registry to record this honestly
+      as **substituted** per BLUEPRINT.md Section 17's own "retired when
+      they stop helping" allowance, rather than leave a false "used"
+      claim. Chapter 2's registry entry claimed the "Benchmark as
+      controlled scientific experiment" analogy started there, but the
+      chapter never actually used the words "experiment"/"hypothesis" —
+      fixed by adding two sentences to Chapter 2's Practical Implications
+      that state this directly, tying its "define the operation and
+      metric first" content to that standing analogy's first step.
+- [x] Bibliography completion — cross-checked every chapter's Further
+      Reading URL against `references/bibliography.md` (0 chapters cite
+      a URL absent from the bibliography); checked for duplicate URLs
+      within the bibliography itself (none, 26/26 unique); confirmed all
+      30 per-chapter reference stubs exist.
 - [ ] Technical review (perf practitioner, eBPF practitioner, CPU/memory
-      specialist, audience-representative engineer)
+      specialist, audience-representative engineer) — **cannot be
+      completed autonomously.** This requires human domain-expert
+      reviewers reading the finished manuscript; nothing above
+      substitutes for it. Remains genuinely outstanding.
+- Note: `python3 scripts/validate_concept_graph.py`,
+  `validate_chapter_metadata.py`, and `validate_links.py` are now real
+  tools, not stubs — run all three via `make validate`. They are not
+  wired into CI (see "Not yet started" below).
 
 ## Not yet started, no matter the phase
 
 - Quarto HTML/PDF/EPUB build (`publish/_quarto.yml` now lists all six
   Parts and all thirty chapters, but has not been rendered;
   `scripts/prepare_manuscript_for_publish.py` is a stub)
-- CI wiring for any of the validators above
+- CI wiring for the three validators (all three are real and runnable
+  locally via `make validate`; none run automatically yet)
 - Figures: still mostly empty by design (see `figures/source/` and
   `figures/generated/` READMEs) — the one exception is Chapter 14's real
   captured flame graph, added because that chapter is specifically about

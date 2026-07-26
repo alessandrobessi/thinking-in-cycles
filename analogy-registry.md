@@ -7,7 +7,7 @@ revision: Chapters 1–30 drafted — the full book is complete.
 
 | Concept | Canonical analogy | Constraint | First used in | Status |
 |---|---|---|---|---|
-| Latency vs throughput | Travel time for one vehicle vs vehicles per hour | Do not imply roads perfectly model queues. | Chapter 3 | used |
+| Latency vs throughput | Travel time for one vehicle vs vehicles per hour | Do not imply roads perfectly model queues. | Chapter 3 | substituted |
 | Saturation | Checkout line whose queue grows after cashiers reach capacity | Pair with measured latency curves. | Chapter 3 | used |
 | CPU pipeline | Multi-stage assembly line with out-of-order readiness | Clarify that CPU execution is more dynamic than a literal conveyor belt. | Chapter 8 | used |
 | Sampling | Periodically photographing a factory floor | Emphasize statistical representation, not complete history. | Chapter 11 | used |
@@ -23,13 +23,31 @@ revision: Chapters 1–30 drafted — the full book is complete.
 
 ## Notes on current use
 
-- **Latency vs throughput** and **Saturation** are both used in Chapter 3,
-  built directly on top of the blueprint's own supermarket-checkout core
-  example for that chapter.
+- **Saturation** (checkout line whose queue grows after cashiers reach
+  capacity) is used in Chapter 3's Worked Example essentially verbatim
+  against the seed analogy, paired directly with the chapter's own
+  latency-curve discussion (its required constraint).
+- **Latency vs throughput**'s seed analogy (vehicles/roads) was **not**
+  used — Chapter 3's Worked Example teaches the same latency/throughput
+  distinction entirely through the checkout-line analogy instead (one
+  customer's wait = latency; cashiers' combined rate = throughput),
+  which already does this work cleanly without needing a second,
+  redundant analogy alongside it. Per Section 17's own "retired when
+  they stop helping" allowance, this is recorded honestly as
+  **substituted**, not silently marked "used" for an analogy whose
+  specific imagery (vehicles, roads) never actually appears in the
+  chapter. Caught during the Phase 7 analogy-consistency pass, which
+  found this row's "used" status had been asserted without checking
+  the chapter text against the seed analogy's own specific imagery.
 - **Benchmark as controlled scientific experiment** is used literally
-  starting in Chapter 2 (defining a workload and metric before measuring),
-  reinforced in Chapter 4 (benchmarking hygiene) and Chapter 5 (the
-  investigation loop's hypothesis/falsification framing).
+  starting in Chapter 2 — added during the Phase 7 analogy-consistency
+  pass, which found the chapter originally never used the words
+  "experiment"/"hypothesis" despite the registry claiming it did;
+  Chapter 2's Practical Implications now states directly that defining
+  the operation and metric before measuring is "that experiment's
+  first, non-negotiable requirement," with Chapter 4 (repetition,
+  control, uncertainty) and Chapter 5 (hypothesis/falsification)
+  building out the rest of the same standing analogy.
 - No new analogies were introduced in Chapters 1–30 beyond the seed list;
   Chapter 1's incident narrative is told directly, without a standing
   analogy, since the blueprint's Section 17 list has no entry for
@@ -80,6 +98,10 @@ revision: Chapters 1–30 drafted — the full book is complete.
   safety before installation (the verifier), and limited to the
   specific attachment point (the hook) it was built for."
 
-All thirteen of BLUEPRINT.md Section 17's seed analogies are now in
-active use as of Chapters 1–30 — none retired, none needing a
-substitute. This closes out the seed analogy list for the entire book.
+Twelve of BLUEPRINT.md Section 17's thirteen seed analogies are in
+active use as of Chapters 1–30, each verified directly against its
+citing chapter's actual text during the Phase 7 analogy-consistency
+pass (not just checked against this registry's own prior claims). The
+"Latency vs throughput" analogy is the one exception: substituted by
+Chapter 3's checkout-line analogy rather than used as specified. This
+closes out the seed analogy list for the entire book.

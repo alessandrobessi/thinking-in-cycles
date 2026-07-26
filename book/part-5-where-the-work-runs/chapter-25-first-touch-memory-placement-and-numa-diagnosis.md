@@ -104,7 +104,7 @@ whose access pattern changes faster than migration can track it.
   numactl --cpunodebind=0 --membind=0 ./labs/cyclelab/bin/cyclelab compute --duration=2 --threads=4
   numactl --cpunodebind=1 --membind=0 ./labs/cyclelab/bin/cyclelab compute --duration=2 --threads=4
   numactl --interleave=all ./labs/cyclelab/bin/cyclelab bandwidth --duration=2 --threads=8
-  numastat -p <pid>
+  numastat -p "$PID"   # substitute the target process's PID
   ```
 
   The first two commands are designed to be compared directly: same
@@ -154,6 +154,26 @@ consistent with Chapter 24's confirmed single-node status; there is no
 further portable substitute for genuinely multi-node hardware here.
 
 **Cleanup:** none.
+
+## Common Misconceptions
+
+**CPU affinity also binds memory (M10, revisited).** This chapter's own
+opening story is the sharpest possible version of this misconception's
+consequence: pinning worker threads to specific sockets (Chapter 23)
+does nothing at all to fix a first-touch mismatch, because CPU affinity
+and memory placement are separate policies enforced by separate
+mechanisms — `taskset`/`sched_setaffinity` control the former,
+`numactl`/memory-policy calls control the latter. A team that pins CPUs
+and stops there, believing the placement problem is solved, has fixed
+half of a two-part problem and left the other half — which memory node
+actually holds the data — completely untouched.
+
+**NUMA matters only at enormous scale (M11, revisited).** The
+setup-thread/worker-pool pattern this chapter opens with needs only two
+sockets to produce a real, measurable remote-memory penalty for half a
+worker pool — it is not a problem that only appears on machines with
+many nodes. Any multi-node system, however small, has exactly the same
+local/remote distinction Chapter 24 introduced.
 
 ## Practical Implications
 

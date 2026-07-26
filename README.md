@@ -64,7 +64,7 @@ labs/mini-service/        planned second recurring example (not built yet)
 figures/                  diagram sources and generated assets (mostly empty; one real flame graph)
 references/               bibliography and per-chapter reference stubs
 templates/                chapter, lab, and performance-report templates
-scripts/                  doctor.sh (real) + validator stubs + smoke test (real)
+scripts/                  doctor.sh, three validators, and smoke test (all real); one publish stub
 publish/                  Quarto book scaffold (not yet rendered)
 ```
 

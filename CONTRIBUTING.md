@@ -91,8 +91,19 @@ These must remain true through every revision (BLUEPRINT.md Section 23)
 Small, reviewable changes preferred over large ones. If a change touches
 a chapter, its registry updates (glossary/misconceptions/analogy-registry
 and, if applicable, `concept-graph.yaml`) belong in the same change, not a
-follow-up. Validators referenced above
-(`scripts/validate_concept_graph.py`, `scripts/validate_chapter_metadata.py`,
-`scripts/validate_links.py`) are currently stubs that always exit 0 — they
-don't yet catch mistakes, so manual review against the Definition of Done
-checklist is the only enforcement mechanism until they're implemented.
+follow-up. The three validators referenced above are implemented and
+real: run them before opening a change that touches a chapter or a
+registry.
+
+```bash
+python3 scripts/validate_concept_graph.py    # prerequisites, glossary sync, misconception IDs, narrative chain
+python3 scripts/validate_chapter_metadata.py # filenames, part/chapter order, required sections, DoD checks
+python3 scripts/validate_links.py            # internal links and referenced lab paths
+```
+
+Each exits 0 with no ERROR-level findings, non-zero otherwise; WARNING-
+level findings are informational (documented, legitimate deviations, not
+bugs) and don't fail the exit code. They are not wired into CI yet — see
+`ROADMAP.md`'s Phase 7 entry — so running them locally before a change
+is, for now, the only enforcement mechanism alongside manual review
+against the Definition of Done checklist.

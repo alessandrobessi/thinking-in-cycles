@@ -199,6 +199,14 @@ always "faster for what workload, judged by what metric" — not because
 the claim is being doubted, but because it's genuinely incomplete without
 an answer.
 
+A benchmark is a controlled scientific experiment, and this chapter's
+step — writing down the operation and metric before measuring anything —
+is that experiment's first, non-negotiable requirement: stating what
+you're actually testing. Chapter 4 builds out the rest of that same
+experiment (repetition, control, uncertainty); this chapter is where the
+question itself gets defined precisely enough to be worth running at
+all.
+
 ## Key Takeaway
 
 **A performance result is meaningful only when the workload, metric, and

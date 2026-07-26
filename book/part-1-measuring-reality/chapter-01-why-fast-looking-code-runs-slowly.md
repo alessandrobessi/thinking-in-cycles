@@ -171,6 +171,12 @@ exists, and a future chapter will come back to it.
 This runs `cyclelab compute --duration=2 --threads=2` under `time` and
 prints wall/user/sys time.
 
+**Fallback path:** Command 2 above *is* this chapter's fallback path —
+since `mixed` mode isn't built yet, `cyclelab compute` under `time` is
+what actually demonstrates the time-accounting split this chapter's
+story depends on, and it needs nothing `mixed` mode would have needed
+either (no root, no special hardware).
+
 **Expected qualitative result:** with 2 threads each kept fully busy for 2
 seconds, wall time should land close to 2 seconds, while user time should
 land close to *twice* that — roughly 4 seconds — because two CPUs' worth
