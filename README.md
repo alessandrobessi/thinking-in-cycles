@@ -19,8 +19,8 @@ editorial decision. This README covers what's actually implemented.
 
 ## Status
 
-**All thirty chapters (Parts I through VI) are drafted — the book's
-manuscript is complete.** Only the appendices remain unwritten.
+**The book's manuscript is complete: all thirty chapters (Parts I
+through VI) plus Appendices A-G are drafted.**
 `cyclelab`'s `compute`, `branch`, `sequential-memory`, `random-memory`,
 `bandwidth`, `false-sharing`, `lock-contention`, and `sleep` modes are
 implemented; its other three modes (`syscall`, `numa`, `mixed`) are

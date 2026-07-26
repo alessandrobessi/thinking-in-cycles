@@ -15,7 +15,7 @@ everything here follows.
 | [Part IV — Why Memory Changes Everything](part-4-why-memory-changes-everything/README.md) | 16-20 | drafted |
 | [Part V — Where the Work Runs](part-5-where-the-work-runs/README.md) | 21-25 | drafted |
 | [Part VI — Seeing the Invisible](part-6-seeing-the-invisible/README.md) | 26-30 | drafted |
-| Appendices A-G | — | not yet drafted |
+| [Appendices A-G](appendices/README.md) | — | drafted |
 
 Every chapter follows `templates/chapter-template.md`. Every guided lab
 is tagged with a portability level from BLUEPRINT.md Section 13.2

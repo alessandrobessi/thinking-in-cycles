@@ -254,8 +254,41 @@ progress against that order.
       substitutes for it. Remains genuinely outstanding.
 - Note: `python3 scripts/validate_concept_graph.py`,
   `validate_chapter_metadata.py`, and `validate_links.py` are now real
-  tools, not stubs — run all three via `make validate`. They are not
-  wired into CI (see "Not yet started" below).
+  tools, not stubs — run all three via `make validate`.
+
+## Appendices A-G (complete)
+
+Not part of BLUEPRINT.md Section 24's seven drafting phases (which
+cover only the 30 numbered chapters), but requested and completed
+alongside CI wiring and the Quarto render below.
+
+- [x] All seven appendices drafted as reference material (BLUEPRINT.md
+      Section 22's own framing: bullet-scoped, no chapter template,
+      cross-referencing the chapters they extend rather than repeating
+      them): Appendix A (trustworthy lab machine), B (`perf` command
+      map), C (hardware event portability), D (runtime-specific
+      profiling notes), E (containers and cgroups), F (statistical
+      reasoning for benchmarks), G (production safety).
+- [x] Appendix F is genuinely real, not schematic: built around two
+      fresh `cyclelab compute` comparisons (twelve repetitions each,
+      captured for this appendix specifically) — a real, large effect
+      (`--chains=1` vs. `--chains=2`, Cohen's *d* ≈ 1.96, non-overlapping
+      bootstrap confidence intervals) contrasted with a real "no
+      effect" case (the same config run as two separate sessions,
+      heavily overlapping intervals) — giving Chapter 4's own
+      benchmarking-hygiene vocabulary (medians, confidence intervals,
+      effect size) concrete numbers instead of illustrative
+      placeholders.
+- [x] Appendix C's hybrid-CPU section uses this reference machine's own
+      real topology (`sysctl -n hw.perflevel0.physicalcpu` /
+      `hw.perflevel1.physicalcpu`: 4 performance + 6 efficiency cores)
+      as real, confirmed data, not a hypothetical example.
+- [x] All three validators re-run clean against the appendices:
+      `validate_links.py` now checks 85 files (was 78), still 0 errors.
+      `validate_concept_graph.py`/`validate_chapter_metadata.py` don't
+      scan appendices (they target `book/part-*/chapter-*.md`
+      specifically, since appendices aren't chapters and have no
+      Prerequisites/New-concepts/Opening-Question structure to check).
 
 ## Not yet started, no matter the phase
 
