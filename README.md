@@ -2,8 +2,6 @@
 
 ### A Mental Model for Linux Performance
 
-<img src="figures/generated/cover.png" alt="Thinking in Cycles cover art" width="360">
-
 *Thinking in Cycles* is a practical, intuition-first guide to Linux
 performance engineering. It builds a cumulative model of how workloads
 become processes and threads, how Linux schedules them, how CPUs execute
@@ -22,7 +20,8 @@ editorial decision. This README covers what's actually implemented.
 ## Status
 
 **The book's manuscript is complete: all thirty chapters (Parts I
-through VI) plus Appendices A-G are drafted.**
+through VI) plus Appendices A-G are drafted, and published at
+<https://alessandrobessi.github.io/thinking-in-cycles/>.**
 `cyclelab`'s `compute`, `branch`, `sequential-memory`, `random-memory`,
 `bandwidth`, `false-sharing`, `lock-contention`, and `sleep` modes are
 implemented; its other three modes (`syscall`, `numa`, `mixed`) are

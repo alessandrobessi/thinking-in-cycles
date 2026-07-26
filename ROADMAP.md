@@ -340,6 +340,26 @@ appendices + preface + index).
   (needs `quarto` on `PATH`; add `--skip-validation` to skip the
   registry/link checks for a faster local iteration loop, or
   `--format html`/`--format typst`/`--format epub` for just one format).
+- [x] Cover image renders as part of the manuscript itself, not just
+      referenced from outside it: `_quarto.yml`'s `book.cover-image`
+      key makes Quarto place `figures/generated/cover.png` directly on
+      the book's own HTML title page (confirmed in the rendered output:
+      `<img ... class="quarto-cover-image">` right under the book's H1)
+      and embed it as the EPUB's actual cover image. It is deliberately
+      **not** duplicated in the top-level `README.md` — the cover
+      belongs to the book, not the project's GitHub landing page.
+- [x] Published to GitHub Pages:
+      <https://alessandrobessi.github.io/thinking-in-cycles/>, via
+      `.github/workflows/pages.yml` (separate from `ci.yml` so a
+      validation failure and a publish failure stay distinguishable).
+      Installs Quarto via the official `quarto-dev/quarto-actions`,
+      renders the HTML format only (PDF/EPUB stay local-build-only for
+      now), and deploys `publish/_book` with
+      `actions/upload-pages-artifact` + `actions/deploy-pages`. Pages
+      itself was already configured on the repository with
+      `build_type: workflow` (confirmed via `gh api
+      repos/.../pages`) before this workflow was added, so no manual
+      GitHub Settings step was needed.
 
 ## Git remote and CI (live)
 
