@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-"""validate_links.py -- checks internal links and referenced lab paths
-(BLUEPRINT.md Section 21, "Validation Rules"):
+"""validate_links.py -- checks internal links and referenced lab paths,
+per this project's own validation rules:
 
   - "internal links": every Markdown relative link `[text](path)` (i.e.
     not http(s):// or mailto:) under book/, templates/, references/, and

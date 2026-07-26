@@ -1,14 +1,14 @@
 # Misconception Registry
 
-Seed table reproduced verbatim from BLUEPRINT.md Section 16, then expanded
-into full entries per BLUEPRINT.md Section 9's "Common Misconceptions"
-requirement (why it's wrong / correct intuition / distinguishing evidence)
-and tracked by which chapter actually uses each one. M21–M23 are new
-entries proposed while drafting Chapters 2, 3, and 5, where none of the
-seed M01–M20 fit well — each is marked **proposed — pending review** since
-the Section 16 seed didn't anticipate them.
+Seed table from this project's founding design notes, expanded into full
+entries per the "Common Misconceptions" requirement (why it's wrong /
+correct intuition / distinguishing evidence) and tracked by which
+chapter actually uses each one. M21–M23 are new entries proposed while
+drafting Chapters 2, 3, and 5, where none of the seed M01–M20 fit well
+— each is marked **proposed — pending review** since the seed didn't
+anticipate them.
 
-## Seed table (BLUEPRINT.md Section 16, verbatim)
+## Seed table (verbatim from the founding design notes)
 
 | ID | Misconception | Correct intuition |
 |---|---|---|

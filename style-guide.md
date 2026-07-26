@@ -1,8 +1,7 @@
 # Style Guide
 
-Source of truth: BLUEPRINT.md Section 18. This file is a standalone copy so
-contributors don't need to open the full blueprint for day-to-day writing;
-if the two ever disagree, BLUEPRINT.md wins.
+This file is the standalone source of truth for day-to-day writing
+conventions on this project.
 
 ## Voice
 
@@ -54,4 +53,3 @@ universal CPU concept.
 - `templates/lab-template.md` — structural template every guided lab follows.
 - `misconceptions.md`, `analogy-registry.md`, `glossary.md` — registries to
   update whenever a chapter introduces a new instance of any of these.
-- BLUEPRINT.md Section 25 — "Definition of Done for a Chapter" checklist.

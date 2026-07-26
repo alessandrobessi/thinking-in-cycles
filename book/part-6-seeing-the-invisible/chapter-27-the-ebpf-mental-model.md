@@ -1,4 +1,4 @@
-# Chapter 27 — The eBPF Mental Model
+# The eBPF Mental Model
 
 **Part:** Part VI — Seeing the Invisible
 **Concept level:** 6

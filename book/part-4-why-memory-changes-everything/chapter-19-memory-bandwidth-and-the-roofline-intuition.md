@@ -1,4 +1,4 @@
-# Chapter 19 — Memory Bandwidth and the Roofline Intuition
+# Memory Bandwidth and the Roofline Intuition
 
 **Part:** Part IV — Why Memory Changes Everything
 **Concept level:** 4

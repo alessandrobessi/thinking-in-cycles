@@ -1,4 +1,4 @@
-# Chapter 18 — Cache Coherence and False Sharing
+# Cache Coherence and False Sharing
 
 **Part:** Part IV — Why Memory Changes Everything
 **Concept level:** 4

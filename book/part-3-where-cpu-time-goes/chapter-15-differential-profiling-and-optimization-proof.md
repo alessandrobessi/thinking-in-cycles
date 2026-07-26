@@ -1,4 +1,4 @@
-# Chapter 15 — Differential Profiling and Optimization Proof
+# Differential Profiling and Optimization Proof
 
 **Part:** Part III — Where the CPU Time Goes
 **Concept level:** 3

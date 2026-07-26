@@ -1,4 +1,4 @@
-# Chapter 9 — Branch Prediction, Speculation, and Dependencies
+# Branch Prediction, Speculation, and Dependencies
 
 **Part:** Part II — What the CPU Is Doing
 **Concept level:** 2

@@ -1,10 +1,10 @@
 # Appendices
 
 **Status: drafted.** Reference material, not chapters — no Opening
-Question/Guided Lab/Key Takeaway template (BLUEPRINT.md Section 22 gives
-each a short bullet-list scope rather than Section 9's chapter
-template). Each appendix cross-references the chapters it extends
-rather than repeating their content.
+Question/Guided Lab/Key Takeaway template (each appendix gets a short
+bullet-list scope rather than the full chapter template). Each appendix
+cross-references the chapters it extends rather than repeating their
+content.
 
 | Appendix | Title |
 |---|---|

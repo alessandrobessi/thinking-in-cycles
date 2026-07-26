@@ -1,4 +1,4 @@
-# Chapter 2 — Performance Is a Question, Not a Number
+# Performance Is a Question, Not a Number
 
 **Part:** Part I — Measuring Reality
 **Concept level:** 0

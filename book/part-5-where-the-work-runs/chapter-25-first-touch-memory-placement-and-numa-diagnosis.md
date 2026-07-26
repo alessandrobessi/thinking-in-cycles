@@ -1,4 +1,4 @@
-# Chapter 25 — First-Touch, Memory Placement, and NUMA Diagnosis
+# First-Touch, Memory Placement, and NUMA Diagnosis
 
 **Part:** Part V — Where the Work Runs
 **Concept level:** 5

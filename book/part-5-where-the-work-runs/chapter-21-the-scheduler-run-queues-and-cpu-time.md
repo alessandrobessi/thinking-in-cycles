@@ -1,4 +1,4 @@
-# Chapter 21 — The Scheduler, Run Queues, and CPU Time
+# The Scheduler, Run Queues, and CPU Time
 
 **Part:** Part V — Where the Work Runs
 **Concept level:** 1 (Linux Execution — deliberately returned to now that Parts II-IV have built the CPU and memory model these mechanics execute within)

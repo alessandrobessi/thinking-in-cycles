@@ -1,4 +1,4 @@
-# Chapter 30 — The Complete Linux Performance Investigation
+# The Complete Linux Performance Investigation
 
 **Part:** Part VI — Seeing the Invisible
 **Concept level:** synthesis (draws on Levels 0-7)

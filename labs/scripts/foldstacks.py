@@ -3,7 +3,7 @@
 one line per unique call path, "frame1;frame2;frame3 count" -- the same
 textual format Brendan Gregg's stackcollapse-perf.pl produces from
 `perf script` output on Linux. This is the "fold" step of the
-capture -> fold -> render pipeline BLUEPRINT.md Chapter 14 requires be
+capture -> fold -> render pipeline Chapter 14 requires be
 kept explicit; flamegraph_svg.py in this directory renders the result.
 
 Using the same output format as the standard Linux toolchain means a

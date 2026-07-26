@@ -1,4 +1,4 @@
-# Chapter 13 — Stacks, Symbols, and Unwinding
+# Stacks, Symbols, and Unwinding
 
 **Part:** Part III — Where the CPU Time Goes
 **Concept level:** 3
@@ -107,8 +107,8 @@ lines intact wherever debug information is present, but can leave the
 reconstructed call chain stopping short, missing ancestor frames the
 unwinder had no reliable way to find.
 
-**Policy worth stating directly, matching BLUEPRINT.md's own position:
-this book does not recommend building with frame pointers universally.**
+**Policy worth stating directly: this book does not recommend building
+with frame pointers universally.**
 Omitting them is a real, sometimes meaningful optimization (freeing a
 register, avoiding the overhead of maintaining the chain on every call);
 keeping them is what makes cheap, reliable stack unwinding possible for

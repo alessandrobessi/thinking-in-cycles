@@ -1,4 +1,4 @@
-# Chapter 23 — CPU Affinity, SMT, cpusets, and Isolation
+# CPU Affinity, SMT, cpusets, and Isolation
 
 **Part:** Part V — Where the Work Runs
 **Concept level:** 5 (Topology and Placement — begins now, building on the scheduling mechanics of Chapters 21-22)

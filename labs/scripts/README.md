@@ -2,8 +2,8 @@
 
 Small helper scripts that back the Guided Lab section of each drafted
 chapter. Each script is self-contained, checks its own prerequisites, and
-prints an interpretation note rather than a bare number (BLUEPRINT.md
-Section 9: "never require the reader to reproduce an exact numeric value").
+prints an interpretation note rather than a bare number (this project's
+own rule: "never require the reader to reproduce an exact numeric value").
 
 All scripts that use `cyclelab` expect it to already be built:
 
@@ -52,7 +52,7 @@ exercise over Chapters 16-19's own results, documented in the chapter
 text (its `perf mem`/`perf c2c`/PCM commands are Linux/hardware-specific
 and not testable on this project's macOS reference machine).
 
-Every script above is **portable** (BLUEPRINT.md Section 13.2): no root,
+Every script above is **portable**: no root,
 no `perf`, no special hardware — except that the Chapter 11-15 scripts
 specifically require macOS's built-in `sample`(1) utility, since this
 project's reference machine has no `perf`. They run on Linux and macOS;

@@ -1,4 +1,4 @@
-# Chapter 10 — `perf stat`: Turning Counters into a Hypothesis
+# `perf stat`: Turning Counters into a Hypothesis
 
 **Part:** Part II — What the CPU Is Doing
 **Concept level:** 2-3 (bridges into Level 3 "counter" from Section 11; full Level 3 treatment begins Part III)

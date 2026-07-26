@@ -2,8 +2,8 @@
 #
 # Chapter 3 guided lab: drive a small HTTP server at increasing concurrency
 # and observe the throughput/latency knee where added concurrency mostly
-# creates waiting. BLUEPRINT.md's "mini-service" recurring example
-# (Section 8) isn't built yet, so this uses python3's built-in HTTP server
+# creates waiting. This project's own "mini-service" recurring example
+# isn't built yet, so this uses python3's built-in HTTP server
 # as a documented stand-in -- see labs/mini-service/README.md.
 set -uo pipefail
 

@@ -1,20 +1,22 @@
 #!/usr/bin/env python3
 """validate_chapter_metadata.py -- checks chapter structure and metadata
-(BLUEPRINT.md Section 21, "Validation Rules", and Section 25, "Definition
-of Done for a Chapter"):
+against this project's own validation rules and Definition of Done for a
+chapter:
 
-  - chapter numbering and filenames: `chapter-NN-slug.md`'s NN matches the
-    file's own "# Chapter NN --" heading.
+  - filenames: match `chapter-NN-slug.md`, and the file has a non-empty
+    "# Title" H1 (chapter numbering lives in the filename/directory
+    structure only -- the H1 itself is just the reader-facing title, no
+    "Chapter N --" prefix, so there's nothing to cross-check it against).
   - part and chapter order: each `part-N-*` directory holds exactly the
-    five contiguous chapters that Part N owns (BLUEPRINT.md's fixed
+    five contiguous chapters that Part N owns (this project's fixed
     5-chapters-per-Part structure), in order.
   - every chapter has exactly one "## Key Takeaway" and one
     "## The Next Obvious Question" section, and exactly one
     "## Opening Question" and one "## Guided Lab" section.
   - the Opening Question is a single sentence ending in "?".
-  - the Guided Lab section states a portability tag (BLUEPRINT.md Section
-    13.2: portable / hardware-dependent / privileged / bare-metal
-    recommended) and a fallback path.
+  - the Guided Lab section states a portability tag (portable /
+    hardware-dependent / privileged / bare-metal recommended) and a
+    fallback path.
   - figures (markdown image references) have non-empty alt text.
 
 ERROR-level findings are the four unconditional structural requirements
@@ -38,7 +40,7 @@ from pathlib import Path
 
 CHAPTER_FILE_RE = re.compile(r"^chapter-(\d+)-.*\.md$")
 PART_DIR_RE = re.compile(r"^part-(\d+)-")
-H1_RE = re.compile(r"^#\s+Chapter\s+(\d+)\s+—")
+H1_RE = re.compile(r"^#\s+(.+?)\s*$", re.MULTILINE)
 SECTION_HEADING_RE = re.compile(r"^##\s+(.+?)\s*$", re.MULTILINE)
 IMAGE_RE = re.compile(r"!\[([^\]]*)\]\(([^)]+)\)")
 
@@ -90,15 +92,14 @@ def check_filename_and_numbering(path: Path, text: str, errors):
         errors.append(f"{path}: filename does not match 'chapter-NN-slug.md'")
         return None
     file_n = int(fm.group(1))
-    h1 = H1_RE.search(text)
-    if not h1:
-        errors.append(f"{path}: no '# Chapter N — Title' H1 heading found")
+    h1 = H1_RE.match(text)
+    if not h1 or not h1.group(1).strip():
+        errors.append(f"{path}: no non-empty '# Title' H1 heading found")
         return file_n
-    h1_n = int(h1.group(1))
-    if file_n != h1_n:
+    if h1.group(1).strip().lower().startswith("chapter "):
         errors.append(
-            f"{path}: filename number ({file_n}) does not match H1 heading "
-            f"number ({h1_n})"
+            f"{path}: H1 title still starts with 'Chapter' ({h1.group(1)!r}) "
+            f"-- titles should be the plain chapter title, no 'Chapter N --' prefix"
         )
     return file_n
 

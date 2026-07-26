@@ -1,4 +1,4 @@
-# Chapter 8 — The Pipeline: Front End, Back End, and Stalls
+# The Pipeline: Front End, Back End, and Stalls
 
 **Part:** Part II — What the CPU Is Doing
 **Concept level:** 2

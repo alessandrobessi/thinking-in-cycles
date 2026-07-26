@@ -1,4 +1,4 @@
-# Chapter 26 — Events, Tracepoints, Kprobes, and Uprobes
+# Events, Tracepoints, Kprobes, and Uprobes
 
 **Part:** Part VI — Seeing the Invisible
 **Concept level:** 6

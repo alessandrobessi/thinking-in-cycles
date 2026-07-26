@@ -1,4 +1,4 @@
-# Chapter 28 — `bpftrace` and BCC: Questions as Programs
+# `bpftrace` and BCC: Questions as Programs
 
 **Part:** Part VI — Seeing the Invisible
 **Concept level:** 6

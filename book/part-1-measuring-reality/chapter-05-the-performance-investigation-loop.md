@@ -1,4 +1,4 @@
-# Chapter 5 — The Performance Investigation Loop
+# The Performance Investigation Loop
 
 **Part:** Part I — Measuring Reality
 **Concept level:** 0 (informally previews Level 7 "bottleneck shift" and "causal claim," formalized in Chapter 30)
@@ -233,9 +233,9 @@ accumulating tuning ideas.**
 
 ## Further Reading
 
-- BLUEPRINT.md Section 5 — this chapter's ten-step loop is the book's
-  canonical statement of the process, reused without modification in
-  every later chapter's Guided Lab and in the Chapter 30 case study.
+- This chapter's ten-step loop is the book's canonical statement of the
+  investigation process, reused without modification in every later
+  chapter's Guided Lab and in the Chapter 30 case study.
 - `templates/performance-report-template.md` — the report structure this
   loop's documentation step (10) produces.
 

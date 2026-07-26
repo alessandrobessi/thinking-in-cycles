@@ -1,10 +1,9 @@
 #!/usr/bin/env bash
 #
-# Minimal functional smoke test for labs/cyclelab. Unlike the
-# scripts/validate_*.py stubs, this one is real: it builds cyclelab and
+# Minimal functional smoke test for labs/cyclelab: builds cyclelab and
 # checks that the implemented modes actually run and produce well-formed
-# output. BLUEPRINT.md Section 21 ("What CI must not do"): this checks
-# correctness and that commands terminate, never a performance threshold.
+# output. This project's own rule for CI: checks correctness and that
+# commands terminate, never a performance threshold.
 set -uo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"

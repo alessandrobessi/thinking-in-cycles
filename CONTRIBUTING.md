@@ -1,15 +1,16 @@
 # Contributing
 
-This project follows BLUEPRINT.md closely. If anything here and
-BLUEPRINT.md disagree, BLUEPRINT.md wins — update this file to match it,
-not the other way around.
+This project follows a single founding design document closely, kept
+locally and not part of this tracked repo. If anything here disagrees
+with it, the design document wins — update this file to match it, not
+the other way around.
 
 ## Before writing a chapter
 
-Read, in order: `templates/chapter-template.md` (the required structure),
-`style-guide.md` (voice, commands, numbers, architecture portability), and
-BLUEPRINT.md Section 25 ("Definition of Done for a Chapter"). A chapter
-isn't done until it satisfies every item in that checklist, including:
+Read, in order: `templates/chapter-template.md` (the required structure)
+and `style-guide.md` (voice, commands, numbers, architecture
+portability). A chapter isn't done until it satisfies every item in the
+Definition of Done checklist, including:
 
 - opening question answerable in one sentence;
 - prerequisites respected (check `concept-graph.md` for what's already
@@ -18,8 +19,8 @@ isn't done until it satisfies every item in that checklist, including:
 - the reader predicts something before measuring;
 - every command has actually been run and tested, or is clearly marked
   schematic;
-- the guided lab has a portability tag (BLUEPRINT.md Section 13.2:
-  portable / hardware-dependent / privileged / bare-metal recommended)
+- the guided lab has a portability tag (portable / hardware-dependent /
+  privileged / bare-metal recommended)
   and a fallback path for when the primary tool or hardware isn't
   available;
 - expected lab outcomes are qualitative, never a specific number to
@@ -29,9 +30,9 @@ isn't done until it satisfies every item in that checklist, including:
   new one, clearly marked "proposed — pending review," if none does);
 - the key takeaway is exactly one bolded sentence;
 - "The Next Obvious Question" is the verbatim opening question of the
-  chapter that follows (verify this against the next chapter, not just
-  against BLUEPRINT.md's shorthand "Next question:" line, since the two
-  can differ in wording).
+  chapter that follows (verify this against the next chapter directly,
+  not against any shorthand paraphrase, since the two can differ in
+  wording).
 
 ## Updating the registries
 
@@ -66,7 +67,7 @@ registry in the same change:
 
 ## Source policy
 
-Per BLUEPRINT.md Section 19: technical claims must be anchored in primary
+Technical claims must be anchored in primary
 sources (kernel docs, `perf`/BCC/`bpftrace`/libbpf upstream docs, vendor
 optimization manuals, original papers). Blog posts may motivate an
 incident or teaching idea but not stand alone as the source for a
@@ -77,8 +78,8 @@ only — see `style-guide.md`'s "Architecture portability" section).
 
 ## Editorial invariants
 
-These must remain true through every revision (BLUEPRINT.md Section 23)
-— the ones most likely to be violated by a well-intentioned edit:
+These must remain true through every revision — the ones most likely to
+be violated by a well-intentioned edit:
 
 - every specialized tool appears only after the phenomenon it measures;
 - every optimization is presented as conditional, never as folklore;

@@ -19,7 +19,7 @@ if [ ! -x "$CYCLELAB" ]; then
   exit 1
 fi
 if ! command -v sample >/dev/null 2>&1; then
-  echo "'sample' not found -- this lab is macOS-specific (BLUEPRINT.md Section 13.2)." >&2
+  echo "'sample' not found -- this lab is macOS-specific." >&2
   echo "On Linux, use: perf record -F 99 -g -- \$CYCLELAB compute --duration=3" >&2
   echo "and an off-CPU-specific tool (e.g. offcputime-bpfcc) for the blocked side." >&2
   exit 1

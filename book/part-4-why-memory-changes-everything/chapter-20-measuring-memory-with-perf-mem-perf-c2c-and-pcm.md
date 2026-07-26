@@ -1,4 +1,4 @@
-# Chapter 20 — Measuring Memory with `perf mem`, `perf c2c`, and PCM
+# Measuring Memory with `perf mem`, `perf c2c`, and PCM
 
 **Part:** Part IV — Why Memory Changes Everything
 **Concept level:** 4

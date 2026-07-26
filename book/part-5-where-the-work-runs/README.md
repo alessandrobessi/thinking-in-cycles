@@ -27,7 +27,7 @@ noisy-neighbor experiments possible without `perf sched` or `pidstat`.
 Chapters 24-25 are **bare-metal recommended** / hardware-dependent:
 this book's reference machine (Apple M4, macOS, arm64) has no NUMA
 topology at all — confirmed directly by `scripts/doctor.sh`'s own NUMA
-check — so both chapters follow BLUEPRINT.md Section 13.2's explicit
+check — so both chapters follow this book's own explicit portability
 allowance to use clearly-marked schematic multi-socket data as a
 teaching aid, with Chapter 25's lab replaced by a structured
 prediction/reasoning exercise in place of a measurement this hardware

@@ -12,10 +12,7 @@ a collection of commands, it teaches readers to define a workload, form a
 hypothesis, select the least invasive measurement, interpret the
 evidence, and prove whether an optimization actually helped.
 
-See [`BLUEPRINT.md`](BLUEPRINT.md) for the full founding design document
-this project follows — mission, teaching philosophy, chapter-by-chapter
-outline, concept dependency graph, style guide, and every other
-editorial decision. This README covers what's actually implemented.
+This README covers what's actually implemented.
 
 ## Status
 
@@ -35,8 +32,7 @@ reused in Part VI to capture real, tested off-CPU (blocked-in-mutex)
 stacks — something Linux's on-CPU-only `perf record` default cannot do
 without dedicated off-CPU tooling. The manuscript renders cleanly to
 HTML, PDF, and EPUB (`python3 scripts/prepare_manuscript_for_publish.py`),
-and `.github/workflows/ci.yml` runs on every push. See
-[`ROADMAP.md`](ROADMAP.md) for the full phase-by-phase status.
+and `.github/workflows/ci.yml` runs on every push.
 
 ## Quickstart
 
@@ -52,35 +48,36 @@ Then read [`book/README.md`](book/README.md), starting with
 ## Repository map
 
 ```text
-BLUEPRINT.md              founding design document (source of truth)
-ROADMAP.md                phase-by-phase progress against BLUEPRINT.md Section 24
 CONTRIBUTING.md           how to add a chapter, update registries, contribute code
 style-guide.md            voice, commands, numbers, architecture portability
 glossary.md               every term introduced so far, by concept level
 misconceptions.md         the misconception registry (M01-M43)
 analogy-registry.md       canonical analogies and where they're used
 concept-graph.yaml/.md    machine- and human-readable concept dependency graph
-_quarto.yml, index.md     Quarto book config and title page (repo root -- see below)
 book/                     the manuscript itself, one directory per Part
 labs/cyclelab/            the recurring C lab tool (see its own README)
 labs/scripts/             helper scripts backing each chapter's guided lab
 labs/mini-service/        planned second recurring example (not built yet)
-figures/                  diagram sources and generated assets (mostly empty; one real flame graph)
+figures/                  diagram sources and generated assets (mostly empty; one real flame graph, one cover)
 references/               bibliography and per-chapter reference stubs
 templates/                chapter, lab, and performance-report templates
 scripts/                  doctor.sh, three validators, smoke test, and the Quarto publish script (all real)
+publish/                  Quarto project: _quarto.yml, index.md, preface.md, about-the-author.md
+publish/chapters/         generated, stripped copies of book/ staged for Quarto (gitignored, regenerated on every run)
 publish/_book/            rendered HTML/PDF/EPUB output (gitignored, not committed)
 ```
 
-`_quarto.yml` lives at the repo root, not in `publish/`, because Quarto
-book projects cannot render chapter content reached via `../`
-parent-directory paths (confirmed directly — see `ROADMAP.md`'s Quarto
-entry). `publish/` still holds the actual build output
-(`project.output-dir: publish/_book`), matching BLUEPRINT.md Section
-20's intent that it be "where the built book lives."
+Every chapter under `book/part-*/chapter-*.md` carries authoring
+front matter (Part/Concept level/Prerequisites/New concepts) that keeps
+the registries in sync while drafting but isn't meant for readers.
+`scripts/prepare_manuscript_for_publish.py` strips that block down to
+just the title, drops the redundant `chapter-` filename prefix (chapter
+order is already carried by directory/file position), and writes the
+result to `publish/chapters/` before Quarto renders it — book/ itself
+is never modified.
 
 ```bash
-python3 scripts/prepare_manuscript_for_publish.py   # renders HTML + PDF + EPUB into publish/_book/
+python3 scripts/prepare_manuscript_for_publish.py   # stages publish/chapters/, then renders HTML + PDF + EPUB into publish/_book/
 ```
 
 ## License

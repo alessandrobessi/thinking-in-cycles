@@ -1,0 +1,77 @@
+project:
+  type: book
+
+book:
+  title: "Thinking in Cycles"
+  subtitle: "A Mental Model for Linux Performance"
+  author: "Alessandro Bessi"
+  cover-image: ../figures/generated/cover.png
+  chapters:
+    - index.md
+    - preface.md
+    - about-the-author.md
+    - part: "Part I — Measuring Reality"
+      chapters:
+        - chapters/part-1-measuring-reality/01-why-fast-looking-code-runs-slowly.md
+        - chapters/part-1-measuring-reality/02-performance-is-a-question-not-a-number.md
+        - chapters/part-1-measuring-reality/03-latency-throughput-utilization-saturation.md
+        - chapters/part-1-measuring-reality/04-noise-variance-and-honest-benchmarks.md
+        - chapters/part-1-measuring-reality/05-the-performance-investigation-loop.md
+    - part: "Part II — What the CPU Is Doing"
+      chapters:
+        - chapters/part-2-what-the-cpu-is-doing/06-from-source-code-to-retired-instructions.md
+        - chapters/part-2-what-the-cpu-is-doing/07-cycles-instructions-ipc-and-cpi.md
+        - chapters/part-2-what-the-cpu-is-doing/08-the-pipeline-front-end-back-end-and-stalls.md
+        - chapters/part-2-what-the-cpu-is-doing/09-branch-prediction-speculation-and-dependencies.md
+        - chapters/part-2-what-the-cpu-is-doing/10-perf-stat-turning-counters-into-a-hypothesis.md
+    - part: "Part III — Where the CPU Time Goes"
+      chapters:
+        - chapters/part-3-where-cpu-time-goes/11-counting-sampling-and-tracing.md
+        - chapters/part-3-where-cpu-time-goes/12-perf-record-perf-report-and-perf-annotate.md
+        - chapters/part-3-where-cpu-time-goes/13-stacks-symbols-and-unwinding.md
+        - chapters/part-3-where-cpu-time-goes/14-flame-graphs-reading-the-shape-of-work.md
+        - chapters/part-3-where-cpu-time-goes/15-differential-profiling-and-optimization-proof.md
+    - part: "Part IV — Why Memory Changes Everything"
+      chapters:
+        - chapters/part-4-why-memory-changes-everything/16-the-memory-hierarchy-and-locality.md
+        - chapters/part-4-why-memory-changes-everything/17-working-sets-cache-misses-and-prefetching.md
+        - chapters/part-4-why-memory-changes-everything/18-cache-coherence-and-false-sharing.md
+        - chapters/part-4-why-memory-changes-everything/19-memory-bandwidth-and-the-roofline-intuition.md
+        - chapters/part-4-why-memory-changes-everything/20-measuring-memory-with-perf-mem-perf-c2c-and-pcm.md
+    - part: "Part V — Where the Work Runs"
+      chapters:
+        - chapters/part-5-where-the-work-runs/21-the-scheduler-run-queues-and-cpu-time.md
+        - chapters/part-5-where-the-work-runs/22-context-switches-migrations-and-interference.md
+        - chapters/part-5-where-the-work-runs/23-cpu-affinity-smt-cpusets-and-isolation.md
+        - chapters/part-5-where-the-work-runs/24-numa-distance-inside-one-machine.md
+        - chapters/part-5-where-the-work-runs/25-first-touch-memory-placement-and-numa-diagnosis.md
+    - part: "Part VI — Seeing the Invisible"
+      chapters:
+        - chapters/part-6-seeing-the-invisible/26-events-tracepoints-kprobes-and-uprobes.md
+        - chapters/part-6-seeing-the-invisible/27-the-ebpf-mental-model.md
+        - chapters/part-6-seeing-the-invisible/28-bpftrace-and-bcc-questions-as-programs.md
+        - chapters/part-6-seeing-the-invisible/29-off-cpu-time-io-latency-and-contention.md
+        - chapters/part-6-seeing-the-invisible/30-the-complete-linux-performance-investigation.md
+    - part: "Appendices"
+      chapters:
+        - chapters/appendices/appendix-a-building-a-trustworthy-lab-machine.md
+        - chapters/appendices/appendix-b-perf-command-map.md
+        - chapters/appendices/appendix-c-hardware-event-portability.md
+        - chapters/appendices/appendix-d-runtime-specific-profiling-notes.md
+        - chapters/appendices/appendix-e-containers-and-cgroups.md
+        - chapters/appendices/appendix-f-statistical-reasoning-for-benchmarks.md
+        - chapters/appendices/appendix-g-production-safety.md
+
+format:
+  html:
+    theme: cosmo
+    toc: true
+    number-sections: false
+    code-copy: true
+  typst:
+    toc: true
+    number-sections: false
+  epub:
+    toc: true
+    number-sections: false
+    cover-image: ../figures/generated/cover.png

@@ -71,6 +71,6 @@ echo "reliable to walk past compute_run without frame pointers to follow."
 echo
 echo "Do not expect identical behavior on every OS/toolchain: how much a"
 echo "missing frame pointer actually breaks unwinding depends on the"
-echo "platform's unwind-table support (BLUEPRINT.md's own policy: do not"
+echo "platform's unwind-table support (this project's own policy: do not"
 echo "mandate frame pointers universally -- the tradeoff is real and"
 echo "platform-dependent, not a one-size-fits-all rule)."

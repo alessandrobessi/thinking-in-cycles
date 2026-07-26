@@ -1,7 +1,7 @@
 # figures/source
 
 Editable diagram sources (e.g. Mermaid, SVG, or vector-drawing project
-files) for the book's diagrams, per BLUEPRINT.md Section 7.6: "no
+files) for the book's diagrams, per this project's own rule: "no
 decorative diagrams... every diagram must answer one explicit question."
 
 **Still mostly empty.** Chapters 1-13 and 15 are prose-only by deliberate

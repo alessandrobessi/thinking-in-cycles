@@ -3,7 +3,7 @@
 # Chapter 26 guided lab: what does this machine actually offer for
 # event-driven, per-call-site tracing (tracepoints/kprobes/kretprobes/
 # uprobes/USDT)? Reports real, tested availability rather than assuming
-# Linux's tools exist everywhere (BLUEPRINT.md Section 13.2).
+# Linux's tools exist everywhere.
 set -uo pipefail
 
 echo "Chapter 26 lab: what can this machine actually attach a probe to?"

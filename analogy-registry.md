@@ -1,9 +1,9 @@
 # Analogy Registry
 
-Seed table reproduced verbatim from BLUEPRINT.md Section 17, plus tracking
-columns for actual use. Per Section 17: analogies should be reused
-consistently and retired when they stop helping. Status as of this
-revision: Chapters 1–30 drafted — the full book is complete.
+Seed table from this project's founding design notes, plus tracking
+columns for actual use. Analogies should be reused consistently and
+retired when they stop helping. Status as of this revision: Chapters
+1–30 drafted — the full book is complete.
 
 | Concept | Canonical analogy | Constraint | First used in | Status |
 |---|---|---|---|---|
@@ -98,9 +98,9 @@ revision: Chapters 1–30 drafted — the full book is complete.
   safety before installation (the verifier), and limited to the
   specific attachment point (the hook) it was built for."
 
-Twelve of BLUEPRINT.md Section 17's thirteen seed analogies are in
+Twelve of this project's thirteen seed analogies are in
 active use as of Chapters 1–30, each verified directly against its
-citing chapter's actual text during the Phase 7 analogy-consistency
+citing chapter's actual text during an analogy-consistency
 pass (not just checked against this registry's own prior claims). The
 "Latency vs throughput" analogy is the one exception: substituted by
 Chapter 3's checkout-line analogy rather than used as specified. This

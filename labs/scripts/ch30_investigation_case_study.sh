@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #
 # Chapter 30 guided lab: a real, tested walk through this book's own
-# 8-step investigation shape (BLUEPRINT.md Chapter 30's case study),
+# 8-step investigation shape (Chapter 30's case study),
 # using cyclelab workloads standing in for "the service." Steps 1-5 and
 # 8 are real, measured data from this book's reference machine. Steps 6
 # and 7 (NUMA thread/memory placement) have no hardware to measure on

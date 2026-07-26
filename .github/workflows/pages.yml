@@ -25,13 +25,18 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.x"
+
+      - name: Install PyYAML
+        run: pip install pyyaml
+
       - name: Set up Quarto
         uses: quarto-dev/quarto-actions/setup@v2
 
-      - name: Render HTML
-        uses: quarto-dev/quarto-actions/render@v2
-        with:
-          to: html
+      - name: Stage chapters and render HTML
+        run: python3 scripts/prepare_manuscript_for_publish.py --format html
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3

@@ -1,13 +1,12 @@
 # Bibliography
 
-Seed list reproduced from BLUEPRINT.md Section 19 ("Initial technical
-source backbone"), organized by category, plus a small set of additions
-needed for Chapters 1-5's more conceptual material (the seed list is
-perf/BPF/NUMA-heavy and doesn't cover benchmarking methodology or
-queueing intuition on its own). Per Section 19's rules: technical claims
-must be anchored in primary sources, and every hardware-specific event
-description must be checked against the relevant architecture
-documentation as those chapters are drafted.
+Seed list from this project's founding source backbone, organized by
+category, plus a small set of additions needed for Chapters 1-5's more
+conceptual material (the seed list is perf/BPF/NUMA-heavy and doesn't
+cover benchmarking methodology or queueing intuition on its own).
+Technical claims must be anchored in primary sources, and every
+hardware-specific event description must be checked against the
+relevant architecture documentation as those chapters are drafted.
 
 ## `perf` and profiling tools
 
@@ -146,6 +145,6 @@ rather than silently folded into the seed list above.
 `references/chapters/ch01-references.md` through `ch30-references.md`
 point back into this file for the specific entries each drafted chapter
 actually cites in its Further Reading section. All 30 chapters are now
-drafted, closing out BLUEPRINT.md Section 19's rule that "the final
+drafted, closing out this project's own rule that "the final
 bibliography should add architecture-specific and chapter-specific
 sources."

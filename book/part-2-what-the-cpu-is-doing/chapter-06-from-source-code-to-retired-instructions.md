@@ -1,4 +1,4 @@
-# Chapter 6 — From Source Code to Retired Instructions
+# From Source Code to Retired Instructions
 
 **Part:** Part II — What the CPU Is Doing
 **Concept level:** 2 (Level 0-1 concepts from Part I assumed; formally begins the CPU-work concept level)

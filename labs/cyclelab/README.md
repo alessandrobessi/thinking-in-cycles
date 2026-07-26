@@ -1,7 +1,7 @@
 # cyclelab
 
 `cyclelab` is the recurring command-line workload generator for *Thinking in
-Cycles* (BLUEPRINT.md Section 8). It exposes different performance
+Cycles*. It exposes different performance
 phenomena through simple, configurable modes rather than requiring a new
 example codebase per chapter.
 
@@ -105,8 +105,9 @@ Examples:
 `--affinity` is best-effort: on Linux it uses `pthread_setaffinity_np`; on
 macOS (and any other non-Linux target) there is no portable, unprivileged
 hard-affinity API, so cyclelab prints a warning to stderr and continues
-without pinning rather than failing (BLUEPRINT.md Section 8: "gracefully
-reports unavailable features"). Pass `--quiet` to suppress the warning.
+without pinning rather than failing (this project's own rule:
+"gracefully reports unavailable features"). Pass `--quiet` to suppress
+the warning.
 
 ## `compute` mode
 
@@ -116,8 +117,8 @@ accumulator (`--op=int`, `--op=float`, or both interleaved via
 `--op=mixed`), seeded from `--seed` and the thread index. The loop-carried
 dependency, plus `volatile` accumulators and printing every thread's final
 checksum, exists specifically so the compiler cannot fold the work away
-(BLUEPRINT.md Section 8: "prints work completed and a checksum to prevent
-dead-code elimination").
+(this project's own rule: "prints work completed and a checksum to
+prevent dead-code elimination").
 
 A run is time-boxed by `--duration` (checked every 1024 iterations to keep
 timing overhead negligible) unless `--iterations` is given, which runs

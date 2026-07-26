@@ -5,8 +5,8 @@
 **Estimated time:** [X minutes]
 **Requirements:** [tools / binaries / permissions needed]
 
-This template follows BLUEPRINT.md Section 9 ("Guided Lab") and Section 14
-(Benchmarking Hygiene Checklist). A lab is complete only when a reader with
+This template follows this project's own "Guided Lab" structure and
+Benchmarking Hygiene Checklist. A lab is complete only when a reader with
 none of the described hardware or permissions can still follow the Fallback
 Path and learn something true.
 

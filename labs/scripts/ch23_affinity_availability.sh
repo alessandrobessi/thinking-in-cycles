@@ -55,7 +55,7 @@ echo
 echo "Interpretation: step 1 is this book's honest, tested answer for this"
 echo "machine -- cyclelab's --affinity flag reports pinning as unsupported"
 echo "and continues rather than failing or silently pretending to pin"
-echo "(BLUEPRINT.md Section 8). Step 3's spread is whatever the scheduler's"
+echo "(this project's own rule). Step 3's spread is whatever the scheduler's"
 echo "own placement decisions contribute to variance when you cannot"
 echo "override them -- on a heterogeneous machine (step 2), part of that"
 echo "spread can come from threads landing on performance vs. efficiency"

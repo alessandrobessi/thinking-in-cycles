@@ -2,7 +2,7 @@
 #
 # Chapter 2 guided lab: run the same program at three input sizes and two
 # operation mixes, to show that "faster" depends on the workload you pick.
-# Requires python3 for JSON parsing (BLUEPRINT.md Section 7.7 explicitly
+# Requires python3 for JSON parsing (this project's own rule explicitly
 # allows "optional Python for result processing").
 set -uo pipefail
 

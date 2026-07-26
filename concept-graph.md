@@ -1,12 +1,11 @@
 # Concept Dependency Graph
 
 Human-readable mirror of [`concept-graph.yaml`](concept-graph.yaml), which is
-the machine-readable source of truth. Both derive from BLUEPRINT.md Section
-11 (Concept Dependency Graph) and Section 12 (Narrative Graph).
+the machine-readable source of truth.
 
 **Dependency rule:** a concept at level *N* may assume all concepts at
 levels *< N*. No chapter may rely on a concept before its prerequisites have
-been introduced (BLUEPRINT.md Section 11, closing line).
+been introduced.
 
 Status as of this revision: **Chapters 1–30 drafted — the full book is complete.**
 
@@ -107,9 +106,9 @@ ring buffer²⁷ · histogram²⁸ · BTF²⁷ · CO-RE²⁷ · BCC²⁸ · bpft
 
 All seventeen Level 6 terms are now introduced (Chapters 26–28 complete
 the tracing/eBPF material in Part VI). "attachment point" is introduced
-via Chapter 27's surface term "hook" — BLUEPRINT.md's own Chapter 27
-"Introduces:" line uses "hook", while the Level 6 seed list uses
-"attachment point"; same concept.
+via Chapter 27's surface term "hook" — Chapter 27's own prose uses
+"hook", while the Level 6 seed list uses "attachment point"; same
+concept.
 
 ## Level 7 — Whole-System Diagnosis
 
@@ -120,15 +119,14 @@ bottleneck shift³⁰\* · regression³⁰ · scalability³⁰ · tail latency³
 All thirteen Level 7 terms are now introduced. \* = used
 informally/operationally well before its formal chapter (see "Resolved
 tensions" below), then formally completed in the chapter marked. "futex"
-is introduced via "futex wait"; "I/O latency" via "block I/O"
-(BLUEPRINT.md's own Chapter 29 "Introduces:" line uses "block I/O", the
-Level 7 seed list uses "I/O latency"; same concept).
+is introduced via "futex wait"; "I/O latency" via "block I/O" (Chapter
+29's own prose uses "block I/O", the Level 7 seed list uses "I/O
+latency"; same concept).
 
 ## Resolved tensions between the Level 7 list and the early chapter outlines
 
-BLUEPRINT.md's own per-chapter "Introduces:" lists put a handful of Level 7
-terms to work well before Part VI formally builds them. All are now
-formally completed, each in the chapter noted:
+A handful of Level 7 terms are put to work well before Part VI formally
+builds them. All are now formally completed, each in the chapter noted:
 
 | Term | Formal chapter | Used informally in | Why this was not an error |
 |---|---|---|---|
@@ -138,8 +136,8 @@ formally completed, each in the chapter noted:
 | bottleneck shift, causal claim | 30 | Chapter 5 (investigation loop) | The 10-step loop (Section 5) uses both terms operationally as loop steps; Chapter 30's Core Intuition gives both a full formal definition, and the chapter's own Key Takeaway is itself a definition of a defensible causal claim. |
 | counter | 3 (Ch11) | Chapter 10 (`perf stat`) | Chapter 10 is entirely about reading PMU counters via `perf stat`, well before Part III formally defines "counter" as a Level 3 profiling concept alongside sampling and tracing; Chapter 10 needs the word operationally and Chapter 11 is where counting is formally contrasted with sampling and tracing as three observation models. |
 
-This mirrors BLUEPRINT.md's own teaching philosophy (Section 7.3: "a chapter
-may use previously established concepts freely but should introduce only one
+This mirrors this project's own teaching philosophy ("a chapter may use
+previously established concepts freely but should introduce only one
 load-bearing idea") — these are cases where a plain-language sense of a term
 is genuinely needed early, and its precise, mechanism-level sense is built
 later. `validate_concept_graph.py` (currently a stub, see `scripts/`) should
@@ -197,7 +195,7 @@ we count, sample, or trace?"), the Chapter 15 → Chapter 16 handoff
 computation?"), the Chapter 20 → Chapter 21 handoff ("How does Linux
 decide where runnable work executes?"), and the Chapter 25 → Chapter 26
 handoff ("What can dynamic tracing observe that counters and sampling
-cannot?"). Six of BLUEPRINT.md's own per-chapter "Next question:"
+cannot?"). Six of this project's own early per-chapter "Next question:"
 shorthand lines (Chapter 8's, Chapter 10's, and — notably, every single
 one in Part VI: Chapter 26's, 27's, 28's, and 29's) do not match the
 following chapter's actual opening question verbatim; in every case the

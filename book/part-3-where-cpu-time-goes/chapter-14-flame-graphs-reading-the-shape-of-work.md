@@ -1,4 +1,4 @@
-# Chapter 14 — Flame Graphs: Reading the Shape of Work
+# Flame Graphs: Reading the Shape of Work
 
 **Part:** Part III — Where the CPU Time Goes
 **Concept level:** 3

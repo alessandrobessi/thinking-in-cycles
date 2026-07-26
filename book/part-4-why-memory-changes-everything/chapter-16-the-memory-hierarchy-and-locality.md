@@ -1,4 +1,4 @@
-# Chapter 16 — The Memory Hierarchy and Locality
+# The Memory Hierarchy and Locality
 
 **Part:** Part IV — Why Memory Changes Everything
 **Concept level:** 4 (Level 0-3 concepts from Parts I-III assumed)

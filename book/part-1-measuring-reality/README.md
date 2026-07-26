@@ -16,7 +16,7 @@ and the investigation loop reused throughout the rest of the book
 | 4 | [Noise, Variance, and Honest Benchmarks](chapter-04-noise-variance-and-honest-benchmarks.md) | How do we know a measured difference is real? |
 | 5 | [The Performance Investigation Loop](chapter-05-the-performance-investigation-loop.md) | What investigation process prevents random tuning? |
 
-All five guided labs are **portable** (BLUEPRINT.md Section 13.2): no
+All five guided labs are **portable**: no
 root, no `perf`, no special hardware. They use `labs/cyclelab`'s
 `compute` mode and the helper scripts in `labs/scripts/`.
 

@@ -26,8 +26,8 @@ if [ ! -x "$CYCLELAB" ]; then
   exit 1
 fi
 if ! command -v sample >/dev/null 2>&1; then
-  echo "'sample' not found. This capture script is macOS-specific (BLUEPRINT.md" >&2
-  echo "Section 13.2: hardware/OS-dependent). On Linux, use:" >&2
+  echo "'sample' not found. This capture script is macOS-specific" >&2
+  echo "(hardware/OS-dependent). On Linux, use:" >&2
   echo "  perf record -F 99 -g -- $CYCLELAB $*" >&2
   echo "  perf script > out.perf && stackcollapse-perf.pl out.perf > out.folded" >&2
   exit 1

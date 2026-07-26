@@ -2,8 +2,7 @@
 
 This directory holds the manuscript itself. See the repository root
 `README.md` for the project as a whole (lab tooling, registries, build
-instructions) and `BLUEPRINT.md` for the founding design document
-everything here follows.
+instructions).
 
 ## Reading order
 
@@ -18,8 +17,8 @@ everything here follows.
 | [Appendices A-G](appendices/README.md) | — | drafted |
 
 Every chapter follows `templates/chapter-template.md`. Every guided lab
-is tagged with a portability level from BLUEPRINT.md Section 13.2
-(portable / hardware-dependent / privileged / bare-metal recommended).
+is tagged with a portability level (portable / hardware-dependent /
+privileged / bare-metal recommended).
 
 ## Front matter
 

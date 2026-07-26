@@ -1,4 +1,4 @@
-# Chapter 1 — Why Fast-Looking Code Runs Slowly
+# Why Fast-Looking Code Runs Slowly
 
 **Part:** Part I — Measuring Reality
 **Concept level:** 0 (informally previews Level 7 on-CPU/off-CPU vocabulary; see `concept-graph.md`)

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """validate_concept_graph.py -- checks chapters against the concept graph
-and misconception registry (BLUEPRINT.md Section 21, "Validation Rules"):
+and misconception registry, per this project's own validation rules:
 
   - "concept prerequisites": every "(Chapter N)" reference in a chapter's
     **Prerequisites:** line must name a chapter strictly earlier than the
@@ -21,8 +21,8 @@ comment says this schema "encodes level-ordering only, not a per-term
 dependency DAG" -- Level 1 (scheduling) concepts are legitimately
 introduced in Chapters 21-22, well after Level 2-4 chapters, because the
 book's *narrative* order and its *concept-level* order are deliberately
-different (see BLUEPRINT.md Section 24's drafting-by-concept-dependency
-rule vs. Section 12's narrative graph). The per-chapter Prerequisites
+different (drafting proceeds by concept dependency, not by narrative
+order). The per-chapter Prerequisites
 check above is the tractable, chapter-accurate version of "concept
 prerequisites" this script actually implements.
 

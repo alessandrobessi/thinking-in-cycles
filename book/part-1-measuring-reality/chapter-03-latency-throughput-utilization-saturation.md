@@ -1,4 +1,4 @@
-# Chapter 3 — Latency, Throughput, Utilization, and Saturation
+# Latency, Throughput, Utilization, and Saturation
 
 **Part:** Part I — Measuring Reality
 **Concept level:** 0
@@ -117,7 +117,7 @@ adding latency, exactly as it did for the API in this chapter's story.
   can become the bottleneck at very high concurrency — a confounder this
   chapter's lab is too small in scale to hit, but worth remembering.
 - Portability: this chapter's lab uses `python3 -m http.server` and
-  `curl`, both commonly available; no `mini-service` (BLUEPRINT.md's
+  `curl`, both commonly available; no `mini-service` (this project's
   planned second recurring example) exists yet — see
   `labs/mini-service/README.md`.
 - Common failure mode: reading "throughput went up" alone as "things got

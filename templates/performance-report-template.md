@@ -1,9 +1,9 @@
 # Performance Report: [Title]
 
-This template follows BLUEPRINT.md Section 30 ("Final report template"),
-Section 14 (Benchmarking Hygiene Checklist), and Section 7.5 (measurement
-provenance). A report using this template should let a skeptical reader
-tell the difference between what was observed, what it means, and what is
+This template follows this project's own "Final report template,"
+Benchmarking Hygiene Checklist, and measurement-provenance conventions.
+A report using this template should let a skeptical reader tell the
+difference between what was observed, what it means, and what is
 recommended.
 
 ## Workload and Success Metric

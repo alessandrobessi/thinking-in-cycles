@@ -1,4 +1,4 @@
-# Chapter 29 — Off-CPU Time, I/O Latency, and Contention
+# Off-CPU Time, I/O Latency, and Contention
 
 **Part:** Part VI — Seeing the Invisible
 **Concept level:** 7

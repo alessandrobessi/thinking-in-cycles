@@ -1,20 +1,18 @@
 # Machine-readable concept dependency graph for "Thinking in Cycles".
-# Source of truth for term lists: BLUEPRINT.md Section 11 (Concept Dependency
-# Graph) and Section 12 (Narrative Graph). Levels are ordered: a chapter may
-# assume any concept whose level is lower than (or equal to and already
-# introduced within) its own.
+# Levels are ordered: a chapter may assume any concept whose level is
+# lower than (or equal to and already introduced within) its own.
 #
 # `introduced_in_chapter: null` means the concept has not yet been formally
 # taught by any drafted chapter (Chapters 1-30, as of this revision -- the
 # full book is now drafted).
 # `also_appears_in` records informal/operational use before formal
-# introduction, which BLUEPRINT.md itself does in a few places (see the
-# "known tensions" note at the bottom and concept-graph.md for discussion).
+# introduction, which this project's own early chapters do in a few
+# places (see the "known tensions" note at the bottom and concept-graph.md
+# for discussion).
 #
 # This schema deliberately encodes level-ordering only, not a per-term
-# dependency DAG -- BLUEPRINT.md Section 11 does not specify finer-grained
-# edges than "no chapter may rely on a concept before its prerequisites have
-# been introduced" at the level granularity.
+# dependency DAG -- no chapter may rely on a concept before its
+# prerequisites have been introduced, at the level granularity.
 
 version: 1
 
@@ -212,7 +210,7 @@ levels:
       - { name: helper, introduced_in_chapter: 27 }
       - name: attachment point
         introduced_in_chapter: 27
-        note: "Introduced via 'hook', the surface term BLUEPRINT.md's own Chapter 27 Introduces line uses; same concept as the Level 6 seed list's 'attachment point'."
+        note: "Introduced via 'hook', the surface term Chapter 27's own prose uses; same concept as the Level 6 seed list's 'attachment point'."
       - { name: ring buffer, introduced_in_chapter: 27 }
       - { name: histogram, introduced_in_chapter: 28 }
       - { name: BTF, introduced_in_chapter: 27 }
@@ -237,7 +235,7 @@ levels:
         note: "Introduced as 'futex wait', the specific mechanism pthread_mutex uses."
       - name: I/O latency
         introduced_in_chapter: 29
-        note: "Introduced via 'block I/O' and its latency (a synchronous read waiting on storage); BLUEPRINT.md's own Ch29 Introduces line uses 'block I/O', the Level 7 seed list uses 'I/O latency' -- same concept."
+        note: "Introduced via 'block I/O' and its latency (a synchronous read waiting on storage); Chapter 29's own prose uses 'block I/O', the Level 7 seed list uses 'I/O latency' -- same concept."
       - { name: queueing delay, introduced_in_chapter: 29 }
       - name: interference
         introduced_in_chapter: 30
@@ -251,7 +249,7 @@ levels:
       - { name: scalability, introduced_in_chapter: 30 }
       - name: tail latency
         introduced_in_chapter: 3
-        note: "BLUEPRINT.md lists 'tail latency' at both Level 0/3-adjacent Ch3 Introduces and formal Level 7. Treated as introduced in Ch3 (matches the Section 11 per-chapter outline), with Level 7 representing its full whole-system treatment in Part VII."
+        note: "'tail latency' appears at both Level 0/3-adjacent Ch3 Introduces and formal Level 7. Treated as introduced in Ch3, with Level 7 representing its full whole-system treatment in Part VII."
       - name: causal claim
         introduced_in_chapter: 30
         also_appears_in: [5]
@@ -260,11 +258,11 @@ levels:
 rules:
   - "No chapter may rely on a concept before its prerequisites have been introduced (Section 11)."
   - "Dependency is level-ordered: a concept at level N may assume all concepts at levels < N."
-  - "Chapters 1-30 are now fully drafted. All of Levels 2-7 have every concept formally introduced. Level 0's 'metric' and 'measurement overhead' and Level 1's 'process', 'thread', 'user time', 'system time', 'wall time' remain introduced_in_chapter: null by deliberate choice carried forward from earlier phases -- BLUEPRINT.md's own Chapter 1-5 outlines use these terms informally throughout Part I without a single chapter claiming to formally define them, and no later chapter does either; see concept-graph.md for the full discussion."
+  - "Chapters 1-30 are now fully drafted. All of Levels 2-7 have every concept formally introduced. Level 0's 'metric' and 'measurement overhead' and Level 1's 'process', 'thread', 'user time', 'system time', 'wall time' remain introduced_in_chapter: null by deliberate choice carried forward from earlier phases -- Chapters 1-5 use these terms informally throughout Part I without a single chapter claiming to formally define them, and no later chapter does either; see concept-graph.md for the full discussion."
 
 narrative_graph:
-  # BLUEPRINT.md Section 12 -- one chain of 30 questions, each tagged with
-  # its chapter. All 30 are drafted -- the full book is complete.
+  # One chain of 30 questions, each tagged with its chapter. All 30 are
+  # drafted -- the full book is complete.
   - { n: 1, question: "Why can a program feel slow when no obvious resource is fully used?", chapter: 1 }
   - { n: 2, question: "What exactly does \"faster\" mean for this workload?", chapter: 2 }
   - { n: 3, question: "How do latency, throughput, utilization, and saturation differ?", chapter: 3 }

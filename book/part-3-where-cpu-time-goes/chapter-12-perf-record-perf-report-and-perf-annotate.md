@@ -1,4 +1,4 @@
-# Chapter 12 — `perf record`, `perf report`, and `perf annotate`
+# `perf record`, `perf report`, and `perf annotate`
 
 **Part:** Part III — Where the CPU Time Goes
 **Concept level:** 3

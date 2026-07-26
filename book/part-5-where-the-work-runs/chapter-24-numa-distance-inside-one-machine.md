@@ -1,4 +1,4 @@
-# Chapter 24 — NUMA: Distance Inside One Machine
+# NUMA: Distance Inside One Machine
 
 **Part:** Part V — Where the Work Runs
 **Concept level:** 5
@@ -147,7 +147,7 @@ arm64) showed:
 
 **Interpretation:** this is a real, honest answer, not a limitation to
 work around — this specific machine has no NUMA topology to inspect,
-and BLUEPRINT.md's own policy for exactly this situation is explicit:
+and this book's own policy for exactly this situation is explicit:
 on a single-node machine, treat multi-socket example data (like the
 schematic distance matrix in Tool View) as a teaching aid, not as
 performance evidence collected from this machine. If you have access to

@@ -1,4 +1,4 @@
-# Chapter 11 — Counting, Sampling, and Tracing
+# Counting, Sampling, and Tracing
 
 **Part:** Part III — Where the CPU Time Goes
 **Concept level:** 3 (Level 2 concepts from Part II assumed)

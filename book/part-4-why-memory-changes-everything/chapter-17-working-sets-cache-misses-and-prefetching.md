@@ -1,4 +1,4 @@
-# Chapter 17 — Working Sets, Cache Misses, and Prefetching
+# Working Sets, Cache Misses, and Prefetching
 
 **Part:** Part IV — Why Memory Changes Everything
 **Concept level:** 4

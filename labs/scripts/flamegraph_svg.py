@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """A minimal, dependency-free flame graph renderer: folded-stack text in,
 a static SVG out. This is the "render" step of the capture -> fold ->
-render pipeline BLUEPRINT.md Chapter 14 requires be kept explicit.
+render pipeline Chapter 14 requires be kept explicit.
 
 Input format (one line per unique call path, deepest frame last):
 
@@ -16,8 +16,8 @@ on Linux if someone wanted to compare.
 
 Layout convention matches the standard CPU flame graph: the root sits at
 the bottom, deeper stack frames stack upward, and each frame's width is
-proportional to its share of total samples -- NOT a timeline (Section 17
-of BLUEPRINT.md: never call it a timeline).
+proportional to its share of total samples -- NOT a timeline (never
+call it a timeline).
 
 Differential mode (--diff-against=BASELINE.folded) colors each frame by
 whether its share of samples grew (red), shrank (blue), or stayed about
@@ -96,9 +96,9 @@ def color_for(node, diff_mode):
             return "#cfcfcf"  # within 5%: grey, treat as unchanged
         return "#d9534f" if delta > 0 else "#5b9bd5"
     # Non-differential: a warm, deterministic palette keyed by name hash
-    # (BLUEPRINT.md Section 14: "the hottest color is [not] the hottest
-    # function" -- color here is only ever a visual distinguisher between
-    # adjacent frames, never a magnitude encoding).
+    # ("the hottest color is [not] the hottest function" -- color here is
+    # only ever a visual distinguisher between adjacent frames, never a
+    # magnitude encoding).
     h = sum(ord(c) for c in node.name) % 5
     return ["#e8985e", "#e6b566", "#eecb8e", "#e3a86a", "#efc48a"][h]
 

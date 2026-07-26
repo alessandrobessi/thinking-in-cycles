@@ -1,5 +1,4 @@
 # Top-level developer entry points for "Thinking in Cycles".
-# See ROADMAP.md for what's implemented vs. pending.
 
 .DEFAULT_GOAL := help
 

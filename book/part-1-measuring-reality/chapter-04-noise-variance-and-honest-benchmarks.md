@@ -1,4 +1,4 @@
-# Chapter 4 — Noise, Variance, and Honest Benchmarks
+# Noise, Variance, and Honest Benchmarks
 
 **Part:** Part I — Measuring Reality
 **Concept level:** 0

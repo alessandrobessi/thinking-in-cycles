@@ -1,4 +1,4 @@
-# Chapter 22 — Context Switches, Migrations, and Interference
+# Context Switches, Migrations, and Interference
 
 **Part:** Part V — Where the Work Runs
 **Concept level:** 1

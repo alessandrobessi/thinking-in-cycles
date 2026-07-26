@@ -33,8 +33,8 @@ specific stall reason, a specific uncore counter (Chapter 20) — but the
 event code itself is meaningless without checking the exact
 microarchitecture's own event list first (Appendix A: "every
 hardware-specific event description must be checked against the
-relevant architecture documentation," per BLUEPRINT.md Section 19's own
-source-policy rule). A raw event that means one thing on one CPU
+relevant architecture documentation," this project's own source-policy
+rule). A raw event that means one thing on one CPU
 generation can mean something entirely different, or nothing at all, on
 the next.
 

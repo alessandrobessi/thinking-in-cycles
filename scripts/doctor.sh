@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 #
-# Environment doctor for "Thinking in Cycles" (BLUEPRINT.md Section 13.3).
+# Environment doctor for "Thinking in Cycles".
 # Reports what this machine can and cannot support for the book's labs.
 # Never exits non-zero: a missing tool or unsupported feature is reported
-# as a WARN/SKIP/MISSING line, not a build failure (BLUEPRINT.md Section 21:
-# "CI must not fail a build because a benchmark did not reach a performance
-# threshold" -- the same "warnings, not silent failures" principle applies
-# to environment capability, not just performance thresholds).
+# as a WARN/SKIP/MISSING line, not a build failure ("CI must not fail a
+# build because a benchmark did not reach a performance threshold" --
+# the same "warnings, not silent failures" principle applies to
+# environment capability, not just performance thresholds).
 #
 # Deliberately NOT `set -e`: a check that fails partway through must still
 # emit a status line, not abort the whole script.
@@ -330,7 +330,7 @@ section "Summary"
 printf '  %s ok   %s warn   %s skip   %s missing\n' \
   "$COUNT_OK" "$COUNT_WARN" "$COUNT_SKIP" "$COUNT_MISSING"
 if [ "$COUNT_MISSING" -gt 0 ] || [ "$COUNT_WARN" -gt 0 ]; then
-  printf '\nThis is informational: doctor never fails the build (BLUEPRINT.md Section 21).\n'
+  printf '\nThis is informational: doctor never fails the build.\n'
   printf 'Missing/warned items only limit which labs you can run end-to-end.\n'
 fi
 

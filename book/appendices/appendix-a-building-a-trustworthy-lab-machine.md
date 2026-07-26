@@ -1,8 +1,8 @@
 # Appendix A — Building a Trustworthy Lab Machine
 
 **Status:** reference material, not a chapter. No Opening Question,
-Guided Lab, or Key Takeaway — see BLUEPRINT.md Section 22. Cross-refers
-to chapters throughout rather than repeating their content.
+Guided Lab, or Key Takeaway. Cross-refers to chapters throughout rather
+than repeating their content.
 
 This appendix collects, in one place, the machine-level decisions that
 determine whether any measurement taken elsewhere in this book can be
@@ -14,7 +14,7 @@ chapter.
 
 ## Bare metal versus VM
 
-BLUEPRINT.md Section 13.2 (quoted throughout this book wherever a lab
+This book's own portability policy (quoted throughout wherever a lab
 is tagged) is blunt about virtualization's cost to measurement fidelity:
 PMU events may be hidden, incomplete, or virtualized; cycle counts may
 behave differently under a hypervisor's own scheduling; steal time and

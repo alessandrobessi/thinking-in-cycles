@@ -1,4 +1,4 @@
-# Chapter 7 — Cycles, Instructions, IPC, and CPI
+# Cycles, Instructions, IPC, and CPI
 
 **Part:** Part II — What the CPU Is Doing
 **Concept level:** 2

@@ -2,7 +2,7 @@
 
 Terms are grouped by concept level (see `concept-graph.md`), alphabetical
 within each group, then a **Supplementary vocabulary** section for teaching
-terms Chapters 1–30 use that BLUEPRINT.md Section 11 doesn't formally list at
+terms Chapters 1–30 use that the formal concept graph doesn't list at
 any level. Status as of this revision: Chapters 1–30 drafted — the full
 book is complete.
 

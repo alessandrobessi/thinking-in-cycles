@@ -12,11 +12,20 @@ __pycache__/
 .venv/
 venv/
 
-# Quarto / publish output
+# Quarto / publish output (scripts/prepare_manuscript_for_publish.py
+# regenerates publish/chapters/ from book/ on every run; quarto render
+# produces everything else). None of this is committed.
+publish/chapters/
+publish/figures/
+publish/_book/
 _book/
 .quarto/
 publish/_site/
 publish/.quarto/
+
+# Internal planning documents -- kept locally, not part of the tracked repo.
+BLUEPRINT.md
+ROADMAP.md
 
 # macOS
 .DS_Store
