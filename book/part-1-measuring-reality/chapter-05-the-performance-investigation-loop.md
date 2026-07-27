@@ -189,16 +189,24 @@ commands directly, read `results.total_iterations` and
 
 ## Common Misconceptions
 
-**M23 (proposed) — "Changing several things at once and observing an
-improvement proves which change mattered."** This is wrong because
-without isolating one change at a time and testing a falsifiable
-hypothesis, an improvement after a multi-part change cannot be attributed
-to any specific part of it — one part could even be masking a regression
-in another. The evidence that distinguishes the two: revert changes one
-at a time (or apply them one at a time from baseline) and re-measure; if
-the ranking of "which single change explains the improvement" comes out
-undefined or contradictory, the original multi-change comparison wasn't
-diagnostic in the first place.
+### *"Changing several things at once and observing an improvement proves which change mattered." (M23)*
+
+**Why it's wrong:** Without isolating one change at a time and testing a
+falsifiable hypothesis, an improvement after a multi-part change cannot
+be attributed to any specific part of it — one part could even be
+masking a regression in another.
+
+**Correct intuition:** Revert changes one at a time (or apply them one
+at a time from baseline) and re-measure; if the ranking of "which single
+change explains the improvement" comes out undefined or contradictory,
+the original multi-change comparison wasn't diagnostic in the first
+place.
+
+**Analogy:** If you change the recipe, the oven temperature, and the pan
+all at once and the cake comes out better, you've learned that
+*something* in that combination helped — not which ingredient, which
+temperature, or which pan actually mattered, and one change could even
+be compensating for a mistake in another.
 
 ## Practical Implications
 

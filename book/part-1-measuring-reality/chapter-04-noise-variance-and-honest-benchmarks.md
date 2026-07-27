@@ -188,22 +188,39 @@ run's raw JSON.
 
 ## Common Misconceptions
 
-**M15 — "One benchmark run is evidence."** This is wrong because a single
-run is an anecdote unless the effect is overwhelming and the environment
-is tightly controlled — ordinary run-to-run variance can easily produce a
-"6% faster" result between two runs of the *identical, unchanged* program.
-The evidence that distinguishes the two: run the same configuration
-repeatedly, interleaved with its comparison; if repeat runs of the *same*
-configuration spread nearly as much as the two configurations differ, a
-single run proves nothing.
+### *"One benchmark run is evidence." (M15)*
 
-**M20 (touched on) — "A profiler's output (or, here, a benchmark
-harness's output) is ground truth."** Even a correctly-written benchmark
-script is a measurement system with its own scope and blind spots — this
-chapter's own harness only compares throughput, only on one machine, only
-under one background-load condition, and says nothing about latency
-variance, thermal history, or any confounder this chapter didn't think to
-control for.
+**Why it's wrong:** A single run is an anecdote unless the effect is
+overwhelming and the environment is tightly controlled — ordinary
+run-to-run variance can easily produce a "6% faster" result between two
+runs of the *identical, unchanged* program.
+
+**Correct intuition:** Run the same configuration repeatedly, interleaved
+with its comparison; if repeat runs of the *same* configuration spread
+nearly as much as the two configurations differ, a single run proves
+nothing.
+
+**Analogy:** Flipping a coin once and getting heads doesn't prove the
+coin is biased toward heads — you'd need to see the spread across many
+flips before a single result means anything at all.
+
+### *"A benchmark harness's output is ground truth." (M20, touched on)*
+
+**Why it's wrong:** Even a correctly-written benchmark script is a
+measurement system with its own scope and blind spots — this chapter's
+own harness only compares throughput, only on one machine, only under
+one background-load condition, and says nothing about latency variance,
+thermal history, or any confounder this chapter didn't think to control
+for.
+
+**Correct intuition:** Treat a benchmark's output as one witness's
+account, not a verdict — ask what it could not have seen before trusting
+what it did.
+
+**Analogy:** A single security camera pointed at a doorway can tell you
+exactly who walked through it, but says nothing about what happened
+around the corner — trusting it as the whole story means mistaking one
+angle for the complete picture.
 
 ## Practical Implications
 

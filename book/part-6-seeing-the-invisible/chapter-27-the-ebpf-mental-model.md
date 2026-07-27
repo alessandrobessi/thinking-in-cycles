@@ -225,45 +225,87 @@ item 1 above; **documented, not tested, on this reference machine.**
 
 ## Common Misconceptions
 
-**eBPF is a background daemon.** This is wrong because it inverts where
-the logic actually runs: an eBPF program is loaded into the kernel and
-executes synchronously, in the context of whatever triggered its hook —
-there is no separate always-on service process doing the measuring.
-User-space tools like `bpftrace` and BCC are loaders and readers, not
-the thing collecting the data. The correct intuition: the kernel itself
-runs the verified program, directly at the hook, every time it fires;
-user space's job is to load it once and read the results.
+### *"eBPF is a background daemon." (M38)*
 
-**eBPF can safely execute arbitrary kernel code.** This is wrong in the
-opposite direction — it overstates what eBPF permits, not what it
+**Why it's wrong:** It inverts where the logic actually runs: an eBPF
+program is loaded into the kernel and executes synchronously, in the
+context of whatever triggered its hook — there is no separate always-on
+service process doing the measuring. User-space tools like `bpftrace`
+and BCC are loaders and readers, not the thing collecting the data.
+
+**Correct intuition:** The kernel itself runs the verified program,
+directly at the hook, every time it fires; user space's job is to load
+it once and read the results.
+
+**Analogy:** A smoke detector doesn't run on a schedule from some
+central office — it's wired directly into the room and fires the
+instant it senses smoke. There's no daemon patrolling the building; the
+sensor itself is triggered by the event.
+
+### *"eBPF can safely execute arbitrary kernel code." (M39)*
+
+**Why it's wrong:** This overstates what eBPF permits, not what it
 requires. The verifier specifically restricts eBPF programs to a
 provably bounded, provably memory-safe subset of what's possible; it
 cannot and does not run arbitrary kernel code, and a program that
 attempts to violate the verifier's constraints is rejected before it
 runs at all, not sandboxed at runtime.
 
-**eBPF is always zero-overhead (M13).** Every helper call, map update,
-and emitted event has a real cost, and that cost is multiplied by
-whatever the hook's actual event rate turns out to be — the same
-overhead equation Chapter 26 already established for kprobes applies
-here too, because eBPF sits on top of exactly those hooks, not
-somewhere the cost disappears.
+**Correct intuition:** Safety comes from refusing to load anything
+unproven, not from containing something dangerous after the fact.
 
-**CO-RE makes every program portable to every kernel.** CO-RE adapts a
-compiled program to differences in struct *layout* using BTF
-information; it cannot invent a helper, map type, or hook that an older
-target kernel simply does not have at all. A CO-RE program built
-assuming a recent kernel feature will still fail to load on a kernel
-that predates that feature, portability adjustments notwithstanding.
+**Analogy:** A building inspector doesn't let a contractor build
+whatever they want and then demolish anything unsafe afterward — the
+blueprint gets rejected before a single nail is hammered if it doesn't
+meet code.
 
-**Maps are ordinary user-space hash maps.** A map is a kernel-resident
-data structure, defined and sized at load time, accessed through a
-narrow, verified API from inside the eBPF program and through a
-separate system-call interface from user space — it is not the same
-thing as an in-process hash table a user-space program could resize or
-iterate however it likes; per-CPU maps in particular exist specifically
-to avoid a cost (cross-core coherence traffic, Chapter 18) that an
+### *"CO-RE makes every program portable to every kernel." (M40)*
+
+**Why it's wrong:** CO-RE adapts a compiled program to differences in
+struct *layout* using BTF information; it cannot invent a helper, map
+type, or hook that an older target kernel simply does not have at all.
+
+**Correct intuition:** A CO-RE program built assuming a recent kernel
+feature will still fail to load on a kernel that predates that feature,
+portability adjustments notwithstanding.
+
+**Analogy:** A universal power adapter lets your laptop's plug fit a
+foreign outlet's shape, but it can't produce electricity in a building
+that has no power at all — it adapts the connector, not the underlying
+capability.
+
+### *"Maps are ordinary user-space hash maps." (M41)*
+
+**Why it's wrong:** A map is a kernel-resident data structure, defined
+and sized at load time, accessed through a narrow, verified API from
+inside the eBPF program and through a separate system-call interface
+from user space — it is not the same thing as an in-process hash table
+a user-space program could resize or iterate however it likes.
+
+**Correct intuition:** Per-CPU maps in particular exist specifically to
+avoid a cost (cross-core coherence traffic, Chapter 18) that an
 ordinary shared hash map would incur under concurrent update.
+
+**Analogy:** A shared filing cabinet bolted to the office wall, with a
+strict sign-out procedure for every drawer, behaves very differently
+from a notebook you keep at your own desk and scribble in freely — one
+has rules and structure built in from the start, the other doesn't.
+
+### *"eBPF is always zero-overhead." (M13)*
+
+**Why it's wrong:** Every helper call, map update, and emitted event
+has a real cost, and that cost is multiplied by whatever the hook's
+actual event rate turns out to be — the same overhead equation Chapter
+26 already established for kprobes applies here too, because eBPF sits
+on top of exactly those hooks, not somewhere the cost disappears.
+
+**Correct intuition:** Budget for overhead as rate times per-event work,
+the same equation as any other probe, before deploying broadly.
+
+**Analogy:** A security camera that's "just recording" still uses
+power, storage, and bandwidth for every frame — being unobtrusive isn't
+the same as being free, and a camera on a busy street costs more to run
+than one pointed at an empty hallway.
 
 ## Practical Implications
 

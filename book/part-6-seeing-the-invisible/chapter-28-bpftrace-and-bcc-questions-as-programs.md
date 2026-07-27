@@ -202,25 +202,42 @@ this book has already built and tested through Chapter 27.
 
 ## Common Misconceptions
 
-**More tracing produces more truth (M14, revisited).** A `bpftrace`
-one-liner with no predicate at all — tracing every call to a
-high-frequency function, unfiltered — reintroduces exactly Chapter 26's
-overhead and signal-to-noise caution, just with a shorter syntax for
-writing it. A predicate that narrows the probe to the specific condition
-under investigation is usually the difference between a useful,
-inspectable one-liner and an accidentally expensive, noisy one.
+### *"More tracing produces more truth." (M14, revisited)*
 
-**Aggregation, counting, and histograms require eBPF or a kernel-level
-tracer (M43).** This overstates what's actually special about eBPF's
-version of aggregation. Counting events grouped by a key, and bucketing
-values into a histogram, are general data-reduction operations that can
-be computed anywhere data exists — including, as this chapter's own
-Guided Lab demonstrates, entirely in user space, after the fact, from
-ordinary JSON output. What eBPF specifically contributes is aggregating
+**Why it's wrong:** A `bpftrace` one-liner with no predicate at all —
+tracing every call to a high-frequency function, unfiltered —
+reintroduces exactly Chapter 26's overhead and signal-to-noise caution,
+just with a shorter syntax for writing it.
+
+**Correct intuition:** A predicate that narrows the probe to the
+specific condition under investigation is usually the difference
+between a useful, inspectable one-liner and an accidentally expensive,
+noisy one.
+
+**Analogy:** A search engine that returned every page on the internet
+for every query wouldn't be more helpful than one that filters — the
+narrowing is what makes the answer useful, not a limitation to work
+around.
+
+### *"Aggregation, counting, and histograms require eBPF or a kernel-level tracer." (M43)*
+
+**Why it's wrong:** This overstates what's actually special about
+eBPF's version of aggregation. Counting events grouped by a key, and
+bucketing values into a histogram, are general data-reduction operations
+that can be computed anywhere data exists — including, as this
+chapter's own Guided Lab demonstrates, entirely in user space, after the
+fact, from ordinary JSON output.
+
+**Correct intuition:** What eBPF specifically contributes is aggregating
 *at the event itself, inside the kernel*, avoiding a per-event
 user-space round trip (Chapter 27's Worked Example) — a real efficiency
 and completeness advantage, but not a claim that the underlying
 arithmetic of "count grouped by key" is otherwise impossible.
+
+**Analogy:** A store can tally its daily sales by counting receipts by
+hand at closing time, or by having the register keep a running total
+all day — both produce the same tally. The register is faster and more
+convenient, but hand-counting was never actually impossible.
 
 ## Practical Implications
 

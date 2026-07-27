@@ -176,31 +176,43 @@ run the six `cyclelab compute --chains=...` commands directly and read
 
 ## Common Misconceptions
 
-There is no blueprint-seeded misconception registry entry that fits this
-chapter precisely; the closest is a specific case of M04 (Chapter 7):
-**"A pipeline stall means the CPU is broken or misconfigured."** This is
-wrong because stalls are a normal, expected consequence of dependency
-chains and memory waits inherent to the *workload*, not a hardware fault —
-a CPU with zero stalls ever would only be possible for a workload with
-unlimited independent work, which essentially never occurs in practice.
-The evidence that distinguishes the two: the same CPU, running the exact
-same instruction mix, shows dramatically different stall behavior
-depending purely on how independent the work is (this chapter's lab) —
-nothing about the hardware changed between `--chains=1` and
-`--chains=16`.
+### *"A pipeline stall means the CPU is broken or misconfigured." (a specific case of M04)*
 
-**"Adding more CPU cores or threads fixes a dependency-chain-limited
-workload."** This is wrong because a single dependency chain running on
-one thread is bound by that thread's own available instruction-level
-parallelism, not by how many other cores exist on the machine — more
-cores help independent *tasks* running in parallel, not one sequential
-chain of dependent operations within a single thread. The evidence that
-distinguishes the two: run `cyclelab compute --chains=1` with
+**Why it's wrong:** Stalls are a normal, expected consequence of
+dependency chains and memory waits inherent to the *workload*, not a
+hardware fault — a CPU with zero stalls ever would only be possible for
+a workload with unlimited independent work, which essentially never
+occurs in practice.
+
+**Correct intuition:** The same CPU, running the exact same instruction
+mix, shows dramatically different stall behavior depending purely on how
+independent the work is (this chapter's lab) — nothing about the
+hardware changed between `--chains=1` and `--chains=16`.
+
+**Analogy:** A single cashier isn't "broken" when a line forms — the
+line is a normal consequence of customers arriving faster than one
+register can serve them, not evidence the register is malfunctioning.
+
+### *"Adding more CPU cores or threads fixes a dependency-chain-limited workload."*
+
+**Why it's wrong:** A single dependency chain running on one thread is
+bound by that thread's own available instruction-level parallelism, not
+by how many other cores exist on the machine — more cores help
+independent *tasks* running in parallel, not one sequential chain of
+dependent operations within a single thread.
+
+**Correct intuition:** Run `cyclelab compute --chains=1` with
 `--threads=1` and again with a much higher `--threads` count on a
 multi-core machine; per-thread throughput for that single dependency
 chain does not improve, because the bottleneck was never a shortage of
 cores — Chapter 21 returns to this distinction directly once threads and
-scheduling are the chapter's subject rather than a single core's pipeline.
+scheduling are the chapter's subject rather than a single core's
+pipeline.
+
+**Analogy:** Hiring nine more people to help bake one cake doesn't speed
+up the part where it has to sit in the oven for forty minutes — some
+steps are strictly sequential, and adding more hands only helps the
+steps that can actually happen in parallel.
 
 ## Practical Implications
 

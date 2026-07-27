@@ -223,24 +223,37 @@ the direct confirmation, not the underlying evidence.
 
 ## Common Misconceptions
 
-**M20 (revisited) — "A profiler's output is ground truth."** `perf stat`
-is a measurement system with its own scope, overhead, and permission
-requirements, same as any tool covered so far — a multiplexed counter's
-scaled estimate is exactly the kind of number this misconception (first
-named in Chapter 4) warns against trusting at face value. The evidence
-that distinguishes the two: check `perf stat`'s own output for scaling
+### *"A profiler's output is ground truth." (M20, revisited)*
+
+**Why it's wrong:** `perf stat` is a measurement system with its own
+scope, overhead, and permission requirements, same as any tool covered
+so far — a multiplexed counter's scaled estimate is exactly the kind of
+number this misconception (first named in Chapter 4) warns against
+trusting at face value.
+
+**Correct intuition:** Check `perf stat`'s own output for scaling
 percentages when requesting many events at once, and treat heavily
 scaled numbers with proportionally less confidence.
 
-A new, chapter-specific misconception is worth naming directly: **"More
-requested events always means a more complete picture."** This is wrong
-because the PMU has a limited number of physical counter registers, and
-requesting more events than fit forces multiplexing, degrading the
-precision of *every* requested event rather than adding a free extra
-dimension. The evidence that distinguishes the two: compare a small,
-targeted event list's output against a large, unfocused one on the same
-command, and check `perf stat`'s reported scaling percentages in the
-second case.
+**Analogy:** A bathroom scale that's visibly wobbling on an uneven floor
+still shows a number — the display looking confident doesn't mean the
+reading is trustworthy.
+
+### *"More requested events always means a more complete picture."*
+
+**Why it's wrong:** The PMU has a limited number of physical counter
+registers, and requesting more events than fit forces multiplexing,
+degrading the precision of *every* requested event rather than adding a
+free extra dimension.
+
+**Correct intuition:** Compare a small, targeted event list's output
+against a large, unfocused one on the same command, and check `perf
+stat`'s reported scaling percentages in the second case.
+
+**Analogy:** Asking one witness to watch ten different doors at once
+gets you a rough, divided-attention guess about all ten, not ten
+reliable reports — sometimes fewer questions, each fully attended to,
+beats asking for everything at once.
 
 ## Practical Implications
 

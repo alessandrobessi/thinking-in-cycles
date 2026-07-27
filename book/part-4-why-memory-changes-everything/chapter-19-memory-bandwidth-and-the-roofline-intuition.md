@@ -179,18 +179,22 @@ pattern.
 
 ## Common Misconceptions
 
-There is no blueprint-seeded misconception registry entry specific to
-this chapter; a new one (M35, proposed) is worth naming directly, extending M02 (Chapter 1)
-into memory-bandwidth territory: **"Flat CPU utilization during a
-bandwidth-saturated workload means nothing is wrong."** This is wrong
-because a core can be technically "busy" (not idle, not asleep) while
-making very little forward progress, stalled waiting for data the
-memory system can't deliver any faster — utilization measures busy time,
-not useful throughput, exactly Chapter 1's original caution, now applied
-to a specific, common real cause. The evidence that distinguishes the
-two: this chapter's own lab — adding threads past the saturation point
-does not increase completed work, even though every added thread is
-technically running.
+### *"Flat CPU utilization during a bandwidth-saturated workload means nothing is wrong." (M35, extends M02)*
+
+**Why it's wrong:** A core can be technically "busy" (not idle, not
+asleep) while making very little forward progress, stalled waiting for
+data the memory system can't deliver any faster — utilization measures
+busy time, not useful throughput, exactly Chapter 1's original caution,
+now applied to a specific, common real cause.
+
+**Correct intuition:** This chapter's own lab — adding threads past the
+saturation point does not increase completed work, even though every
+added thread is technically running.
+
+**Analogy:** A dozen trucks idling in line outside a single loading dock
+all show up as "in use, not parked" on a fleet tracker, but the dock
+itself is what limits how fast cargo actually moves — adding a
+thirteenth truck to the line doesn't get more freight delivered.
 
 ## Practical Implications
 

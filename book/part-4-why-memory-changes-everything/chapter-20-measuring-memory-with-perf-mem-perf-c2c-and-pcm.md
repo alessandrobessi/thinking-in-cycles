@@ -170,18 +170,23 @@ path — no rung-3-or-higher tool is required to complete it.
 
 ## Common Misconceptions
 
-There is no blueprint-seeded misconception registry entry specific to
-this chapter; a new one (M36, proposed) is worth naming directly, closing out this Part:
-**"A single memory-related counter or tool can report 'the memory
-bottleneck.'"** This is wrong because memory behavior spans latency,
-bandwidth, coherence, and topology (Part V's subject next), each
-requiring a different measurement, and no single number aggregates all
-of them meaningfully — this chapter's whole ladder structure exists
-because the real answer is always a chain of partial, scoped
-observations, not one report. The evidence that distinguishes the two:
-this chapter's own exercise — four genuinely different Part IV findings
-(latency, stride, coherence, bandwidth), none reducible to a shared
-single metric.
+### *"A single memory-related counter or tool can report 'the memory bottleneck.'" (M36)*
+
+**Why it's wrong:** Memory behavior spans latency, bandwidth, coherence,
+and topology (Part V's subject next), each requiring a different
+measurement, and no single number aggregates all of them meaningfully —
+this chapter's whole ladder structure exists because the real answer is
+always a chain of partial, scoped observations, not one report.
+
+**Correct intuition:** This chapter's own exercise — four genuinely
+different Part IV findings (latency, stride, coherence, bandwidth), none
+reducible to a shared single metric.
+
+**Analogy:** A single number on a medical chart — say, body
+temperature — can't tell a doctor "what's wrong" with a patient; it
+takes several different, purpose-built measurements (blood pressure,
+heart rate, bloodwork) together before a diagnosis is possible, and
+memory behavior is no different.
 
 ## Practical Implications
 

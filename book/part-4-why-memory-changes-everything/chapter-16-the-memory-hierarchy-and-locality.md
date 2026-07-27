@@ -171,17 +171,22 @@ read `results.ns_per_access` from each run's raw JSON by eye.
 
 ## Common Misconceptions
 
-There is no blueprint-seeded misconception registry entry specific to
-this chapter; a new one (M33, proposed) is worth naming directly: **"A working set that fits
-in cache is automatically fast."** This is wrong because fitting in
-cache is necessary but not sufficient — an access pattern that defeats
-locality (this chapter's opening story) can still perform poorly even
-within a cache level's capacity, and Chapter 17 shows this directly. The
-evidence that distinguishes the two: this chapter's own lab already
-hints at it — the jump from 128K to 256K happens at a specific
-*capacity* boundary, but nothing in this chapter's measurement yet
-separates "does it fit" from "is it accessed well," a distinction
-Chapter 17 makes explicit.
+### *"A working set that fits in cache is automatically fast." (M33)*
+
+**Why it's wrong:** Fitting in cache is necessary but not sufficient —
+an access pattern that defeats locality (this chapter's opening story)
+can still perform poorly even within a cache level's capacity, and
+Chapter 17 shows this directly.
+
+**Correct intuition:** This chapter's own lab already hints at it — the
+jump from 128K to 256K happens at a specific *capacity* boundary, but
+nothing in this chapter's measurement yet separates "does it fit" from
+"is it accessed well," a distinction Chapter 17 makes explicit.
+
+**Analogy:** A messy desk and a tidy desk can hold exactly the same
+number of papers, but finding one specific document takes very
+different amounts of time on each — fitting on the desk and being easy
+to find are two different properties.
 
 ## Practical Implications
 

@@ -52,10 +52,17 @@ Never require the reader to reproduce an exact numeric value.
 
 ## Common Misconceptions
 
-For each:
-- why it is wrong;
-- the correct intuition;
-- what evidence would distinguish the alternatives.
+### *"[The misconception, stated the way a reader would actually believe it.]"*
+
+**Why it's wrong:** [...]
+
+**Correct intuition:** [...]
+
+**Analogy:** [A fresh, concrete, physical-world analogy specific to this
+misconception -- not the chapter's own standing analogy, if it has one.]
+
+[Repeat this block for each misconception covered. Mirror each as one
+entry in misconceptions.md, including its M-number for cross-reference.]
 
 ## Practical Implications
 

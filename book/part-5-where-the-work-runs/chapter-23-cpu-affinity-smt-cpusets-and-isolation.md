@@ -170,20 +170,35 @@ View section's `taskset` experiments directly instead.
 
 ## Common Misconceptions
 
-**M09 — "Pinning always improves performance."** This is wrong because
-affinity trades scheduler freedom for placement control, and removing
-that freedom can increase queueing when a pinned thread count exceeds
-the pinned CPU set's capacity — this chapter's opening story directly.
-The evidence that distinguishes the two: compare a workload's
-performance pinned versus unpinned *at its actual thread count*, not
-assumed from a different workload's earlier success with pinning.
+### *"Pinning always improves performance." (M09)*
 
-**M10 — "CPU affinity also binds memory."** This is wrong because CPU
-and memory placement are separate policies on NUMA systems — pinning a
-thread to a CPU says nothing about where its memory physically lives.
-The evidence that distinguishes the two: Chapter 24 and 25's NUMA
-placement tools operate independently of CPU affinity tools, precisely
-because the two are orthogonal.
+**Why it's wrong:** Affinity trades scheduler freedom for placement
+control, and removing that freedom can increase queueing when a pinned
+thread count exceeds the pinned CPU set's capacity — this chapter's
+opening story directly.
+
+**Correct intuition:** Compare a workload's performance pinned versus
+unpinned *at its actual thread count*, not assumed from a different
+workload's earlier success with pinning.
+
+**Analogy:** Assigning every employee a permanently fixed desk sounds
+like it should make an office more efficient, but if you assign twelve
+people to a room with eight desks, you've just created a line for
+chairs that free seating never would have had.
+
+### *"CPU affinity also binds memory." (M10)*
+
+**Why it's wrong:** CPU and memory placement are separate policies on
+NUMA systems — pinning a thread to a CPU says nothing about where its
+memory physically lives.
+
+**Correct intuition:** Chapter 24 and 25's NUMA placement tools operate
+independently of CPU affinity tools, precisely because the two are
+orthogonal.
+
+**Analogy:** Assigning a worker to a specific workstation doesn't
+automatically move their filing cabinet there too — someone still has
+to decide, separately, where the actual files live.
 
 ## Practical Implications
 

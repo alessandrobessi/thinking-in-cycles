@@ -178,24 +178,40 @@ for the same source.
 
 ## Common Misconceptions
 
-**M03 — "Fewer instructions always means faster code."** This is wrong
-because instruction count is only one factor; stalls, vector width,
-memory behavior, and clock frequency also determine how long a sequence
-of instructions actually takes to retire — a chapter this book returns
-to directly in Chapter 7. The evidence that distinguishes the two:
-compare two functions' instruction counts *and* their measured elapsed
-time under the same conditions; a function with more instructions can
-still finish faster if its instructions are cheaper or better pipelined.
+### *"Fewer instructions always means faster code." (M03)*
 
-A second, more specific misconception belongs here too, directly from
-this chapter's incident: **"Visually denser source code means less CPU
-work."** This is wrong because a compiler at a reasonable optimization
-level is already applying most of the same transformations a programmer
-might attempt by hand-simplifying source — the compiled instruction
-stream, not the source text's density, is what determines CPU work. The
-evidence that distinguishes the two: disassemble both versions of a
-"simplified" function, as in this chapter's Guided Lab, and check whether
-the machine code actually changed.
+**Why it's wrong:** Instruction count is only one factor; stalls, vector
+width, memory behavior, and clock frequency also determine how long a
+sequence of instructions actually takes to retire — a chapter this book
+returns to directly in Chapter 7.
+
+**Correct intuition:** Compare two functions' instruction counts *and*
+their measured elapsed time under the same conditions; a function with
+more instructions can still finish faster if its instructions are
+cheaper or better pipelined.
+
+**Analogy:** A ten-item to-do list of quick errands can finish faster
+than a three-item list that includes "wait in line at the DMV" — the
+number of items on the list says nothing about how long each one
+actually takes.
+
+### *"Visually denser source code means less CPU work."*
+
+**Why it's wrong:** A compiler at a reasonable optimization level is
+already applying most of the same transformations a programmer might
+attempt by hand-simplifying source — the compiled instruction stream,
+not the source text's density, is what determines CPU work.
+
+**Correct intuition:** Disassemble both versions of a "simplified"
+function, as in this chapter's Guided Lab, and check whether the machine
+code actually changed — often it hasn't, because the compiler already
+got there first.
+
+**Analogy:** Rewriting a recipe in shorter sentences doesn't change how
+long the dish takes to cook — the words on the page and the actual
+cooking process are two different things, and a good chef (the
+compiler) was already ignoring your prose style and going straight to
+the technique.
 
 ## Practical Implications
 

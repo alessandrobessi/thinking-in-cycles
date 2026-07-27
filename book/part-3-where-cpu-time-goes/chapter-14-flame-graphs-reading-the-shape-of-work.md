@@ -195,35 +195,64 @@ schematic stand-in.
 
 ## Common Misconceptions
 
-**M06 — "A flame graph is a timeline."** This is wrong because a flame
-graph aggregates stack samples by call path; horizontal position comes
-from sibling sort order (typically alphabetical), not chronology. The
-evidence that distinguishes the two: this chapter's own figure has two
-towers side by side from two threads that ran concurrently for the
-entire capture window — neither one "happened first."
+### *"A flame graph is a timeline." (M06)*
 
-**M07 — "The widest frame is the function to optimize."** This is wrong
-because width can represent a wrapper passing cost through to a child,
-not necessarily the frame's own expensive code. The evidence that
-distinguishes the two: `thread_start` and `_pthread_start` in this
+**Why it's wrong:** A flame graph aggregates stack samples by call path;
+horizontal position comes from sibling sort order (typically
+alphabetical), not chronology.
+
+**Correct intuition:** This chapter's own figure has two towers side by
+side from two threads that ran concurrently for the entire capture
+window — neither one "happened first."
+
+**Analogy:** A population map showing which cities have the most
+residents doesn't tell you which city was founded first — the two
+questions (how much, and when) just aren't the same axis.
+
+### *"The widest frame is the function to optimize." (M07)*
+
+**Why it's wrong:** Width can represent a wrapper passing cost through
+to a child, not necessarily the frame's own expensive code.
+
+**Correct intuition:** `thread_start` and `_pthread_start` in this
 chapter's figure are exactly as wide as `compute_worker` beneath them,
 yet do essentially none of the actual work themselves.
 
-**M31 (proposed) — "A flame graph's height or color encodes cost."**
-This is wrong because only width encodes magnitude; height is stack
-depth, and color (outside a differential flame graph) is only a visual
-distinguisher between neighbors. The evidence that distinguishes the
-two: two equally-wide frames at the same depth can render in visibly
-different colors purely from how their names hash into the palette.
+**Analogy:** A shipping company's warehouse "touches" 100% of every
+package that moves through it, but that doesn't mean the warehouse
+itself is where your package spent all its time — most of that width
+passed straight through to whatever's actually doing the work
+downstream.
 
-**M32 (proposed) — "A narrow frame can't matter to tail latency."**
-This is wrong because a CPU flame graph only shows on-CPU sampled
+### *"A flame graph's height or color encodes cost." (M31)*
+
+**Why it's wrong:** Only width encodes magnitude; height is stack
+depth, and color (outside a differential flame graph) is only a visual
+distinguisher between neighbors.
+
+**Correct intuition:** Two equally-wide frames at the same depth can
+render in visibly different colors purely from how their names hash
+into the palette.
+
+**Analogy:** On a bar chart, only the bar's length tells you the value —
+if someone colored the bars randomly for visual variety, you wouldn't
+read meaning into which bars are red versus blue.
+
+### *"A narrow frame can't matter to tail latency." (M32)*
+
+**Why it's wrong:** A CPU flame graph only shows on-CPU sampled
 execution (M08); the rare, high-impact event from Chapter 11's opening
 story would show up, at best, as a barely-visible sliver here — or not
-at all, if it's off-CPU entirely. The evidence that distinguishes the
-two: this chapter's own thin `timing_now_seconds` sliver is real and
-small; a tail-latency-dominating off-CPU event would be smaller still,
-or invisible, in this exact kind of graph.
+at all, if it's off-CPU entirely.
+
+**Correct intuition:** This chapter's own thin `timing_now_seconds`
+sliver is real and small; a tail-latency-dominating off-CPU event would
+be smaller still, or invisible, in this exact kind of graph.
+
+**Analogy:** A tiny crack in a dam might occupy almost none of the
+dam's surface area in a photograph, but that photograph tells you
+nothing about which cracks are actually about to fail — size in the
+picture and importance to the outcome are unrelated.
 
 ## Practical Implications
 

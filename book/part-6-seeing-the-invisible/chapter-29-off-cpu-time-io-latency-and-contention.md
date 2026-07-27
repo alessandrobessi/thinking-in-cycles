@@ -208,45 +208,68 @@ sudo offcputime-bpfcc -f 30 > offcpu.folded       # off-CPU (this chapter)
 
 ## Common Misconceptions
 
-**Off-CPU time is automatically waste (M42).** This is the mandatory
-caution for this entire chapter, elevated to a full misconception
-because it's exactly the wrong lesson to take from everything above: a
-thread waiting is frequently correct, intentional, or imposed by a
-dependency entirely outside the program's control. A thread sleeping on
-purpose (this chapter's fourth Worked Example) is off-CPU by design, not
-by failure; a thread waiting on a genuinely necessary I/O round trip is
-bounded by the storage or network, not by anything the profiled code did
-wrong. The correct intuition: off-CPU time is *information* — where the
-time went, and why — not an automatic verdict. The evidence that
-distinguishes waste from necessity: compare the off-CPU duration against
-what the operation being waited on could plausibly take at minimum (a
-network round trip has a physical floor; a lock held for exactly as long
-as necessary has a floor set by the critical section's own real work) —
-time far beyond that floor is where contention, not necessity, is the
-likely explanation.
+### *"Off-CPU time is automatically waste." (M42)*
 
-**Sampling profiles show all latency (M08, fully resolved here).**
-Chapters 12 and 26 each surfaced a piece of this; this chapter completes
-it: a profiler that only samples on-CPU state can, by construction,
-never show off-CPU time at all, no matter how long it runs or how
-carefully its output is read — the two 0.0%/77.8% numbers in this
-chapter's own lab exist only because the sampler used here happens to
-also capture blocked threads, which is a property of the specific tool
-(`sample`), not something true of sampling profilers in general.
+**Why it's wrong:** This is the mandatory caution for this entire
+chapter, elevated to a full misconception because it's exactly the
+wrong lesson to take from everything above: a thread waiting is
+frequently correct, intentional, or imposed by a dependency entirely
+outside the program's control. A thread sleeping on purpose (this
+chapter's fourth Worked Example) is off-CPU by design, not by failure;
+a thread waiting on a genuinely necessary I/O round trip is bounded by
+the storage or network, not by anything the profiled code did wrong.
 
-**Context-switch counts alone diagnose scheduler overhead (M19,
-revisited).** This chapter's own lab surfaces a sharper version of the
-same caution from a different direction: on this reference machine,
-`ru_nivcsw` climbed from roughly 600 (compute, no blocking) to roughly
-5,800-6,200 (lock-contention, heavy blocking) — a real, large jump — but
-`ru_nvcsw` stayed at exactly 0 in both cases, a confirmed limitation of
-this machine's `getrusage` implementation (documented in
+**Correct intuition:** Off-CPU time is *information* — where the time
+went, and why — not an automatic verdict. Compare the off-CPU duration
+against what the operation being waited on could plausibly take at
+minimum (a network round trip has a physical floor; a lock held for
+exactly as long as necessary has a floor set by the critical section's
+own real work) — time far beyond that floor is where contention, not
+necessity, is the likely explanation.
+
+**Analogy:** A doctor's patient sitting in the waiting room isn't
+automatically evidence something's wrong — some of that time is a
+necessary wait for a scheduled appointment slot, and only a wait far
+longer than any appointment should take signals an actual problem.
+
+### *"Sampling profiles show all latency." (M08, fully resolved here)*
+
+**Why it's wrong:** Chapters 12 and 26 each surfaced a piece of this;
+this chapter completes it: a profiler that only samples on-CPU state
+can, by construction, never show off-CPU time at all, no matter how
+long it runs or how carefully its output is read.
+
+**Correct intuition:** The two 0.0%/77.8% numbers in this chapter's own
+lab exist only because the sampler used here happens to also capture
+blocked threads, which is a property of the specific tool (`sample`),
+not something true of sampling profilers in general.
+
+**Analogy:** A fitness tracker that only counts steps will report a
+"perfectly idle" day for someone who spent eight hours lifting weights
+without moving their feet — the tool's blind spot, not the person's
+actual activity, is what's missing from the report.
+
+### *"Context-switch counts alone diagnose scheduler overhead." (M19, revisited)*
+
+**Why it's wrong:** This chapter's own lab surfaces a sharper version
+of the same caution from a different direction: on this reference
+machine, `ru_nivcsw` climbed from roughly 600 (compute, no blocking) to
+roughly 5,800-6,200 (lock-contention, heavy blocking) — a real, large
+jump — but `ru_nvcsw` stayed at exactly 0 in both cases, a confirmed
+limitation of this machine's `getrusage` implementation (documented in
 `labs/cyclelab/README.md`), not evidence that lock-contention wasn't
-genuinely causing threads to block. The count alone, especially on this
-platform, cannot distinguish "blocked on a lock" from "preempted while
-still runnable" — the mutex-wait stacks captured directly in this
-chapter's flame graph are what actually proves the blocking, not the
+genuinely causing threads to block.
+
+**Correct intuition:** The count alone, especially on this platform,
+cannot distinguish "blocked on a lock" from "preempted while still
+runnable" — the mutex-wait stacks captured directly in this chapter's
+flame graph are what actually proves the blocking, not the
 context-switch counters.
+
+**Analogy:** A doorbell that rang twenty times today tells you the door
+was answered twenty times, but not whether those were twenty deliveries
+or the same person leaning on the button — the count needs the
+security footage to actually mean something.
 
 ## Practical Implications
 

@@ -192,24 +192,40 @@ available, treat it as confirmation, not a required step.
 
 ## Common Misconceptions
 
-**M04 — "Higher IPC always means better performance."** This is wrong
-because IPC describes pipeline utilization for a specific workload on a
-specific CPU; elapsed time and completed work remain the primary measure
-of whether something is actually faster, and a workload can have a high
-IPC while still being far slower than a lower-IPC alternative that simply
-does less total work. The evidence that distinguishes the two: compare
-elapsed time and completed work directly, alongside IPC, rather than
-ranking two implementations by IPC alone — Chapter 2's "faster for what
-workload" question applies to counters exactly as much as to benchmarks.
+### *"Higher IPC always means better performance." (M04)*
 
-**M03 (revisited) — "Fewer instructions always means faster code."**
-This chapter's opening story is a direct instance of M03 (first
-introduced in Chapter 6): fewer retired instructions did not translate
-into a meaningful speedup, because the instructions removed weren't the
-ones costing the most cycles. IPC and CPI are the vocabulary this chapter
-adds for explaining *why* — cost per instruction varies enormously
-depending on dependencies, stalls, and pipeline behavior, subjects
-Chapter 8 opens directly.
+**Why it's wrong:** IPC describes pipeline utilization for a specific
+workload on a specific CPU; elapsed time and completed work remain the
+primary measure of whether something is actually faster, and a workload
+can have a high IPC while still being far slower than a lower-IPC
+alternative that simply does less total work.
+
+**Correct intuition:** Compare elapsed time and completed work directly,
+alongside IPC, rather than ranking two implementations by IPC alone —
+Chapter 2's "faster for what workload" question applies to counters
+exactly as much as to benchmarks.
+
+**Analogy:** A factory line that never stops moving looks maximally
+efficient by one measure, but if it's stamping out parts nobody ordered,
+its high "utilization" says nothing about whether the factory is
+actually productive.
+
+### *"Fewer instructions always means faster code." (M03, revisited)*
+
+**Why it's wrong:** This chapter's opening story is a direct instance of
+M03 (first introduced in Chapter 6): fewer retired instructions did not
+translate into a meaningful speedup, because the instructions removed
+weren't the ones costing the most cycles.
+
+**Correct intuition:** IPC and CPI are the vocabulary this chapter adds
+for explaining *why* — cost per instruction varies enormously depending
+on dependencies, stalls, and pipeline behavior, subjects Chapter 8 opens
+directly.
+
+**Analogy:** Cutting three quick errands from a ten-item to-do list
+saves less time than cutting the one item that involves waiting in line
+at the DMV — counting items removed tells you nothing about which items
+were actually expensive.
 
 ## Practical Implications
 

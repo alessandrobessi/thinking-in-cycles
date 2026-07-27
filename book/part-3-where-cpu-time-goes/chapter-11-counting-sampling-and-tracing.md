@@ -194,20 +194,26 @@ rerun the first command a few times at different `--chains` values
 
 ## Common Misconceptions
 
-There is no blueprint-seeded misconception registry entry specific to
-this chapter's three-model framing; a new one is worth naming directly:
-**"A sampling profiler will eventually catch any performance problem
-if you just run it long enough."** This is wrong because a rare event's
-chance of being caught by a periodic sample depends on its *duration*
-relative to the sampling interval, not on how long the profiler runs in
-total — running ten times longer roughly gives ten times as many
-*chances*, but a very short, rare event can still remain effectively
-invisible in aggregate sampled output even after a long run, while a
-tracing tool built to watch for that specific event catches it every
-time by construction. The evidence that distinguishes the two: compare
-a sampling profile's coverage of a known rare event against a trace of
-that same event over an identical time window — the trace will show
-every occurrence; the sample will show, at best, a probabilistic subset.
+### *"A sampling profiler will eventually catch any performance problem if you just run it long enough."*
+
+**Why it's wrong:** A rare event's chance of being caught by a periodic
+sample depends on its *duration* relative to the sampling interval, not
+on how long the profiler runs in total — running ten times longer
+roughly gives ten times as many *chances*, but a very short, rare event
+can still remain effectively invisible in aggregate sampled output even
+after a long run, while a tracing tool built to watch for that specific
+event catches it every time by construction.
+
+**Correct intuition:** Compare a sampling profile's coverage of a known
+rare event against a trace of that same event over an identical time
+window — the trace will show every occurrence; the sample will show, at
+best, a probabilistic subset.
+
+**Analogy:** Taking a photograph once a minute of a busy intersection
+will eventually capture a bus that passes every five minutes, but it
+can run for hours and still never catch a car that runs the red light
+in under a second — running the camera longer buys more chances, not a
+guarantee, for anything brief enough to slip between frames.
 
 ## Practical Implications
 

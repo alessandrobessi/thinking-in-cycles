@@ -199,23 +199,39 @@ running.
 
 ## Common Misconceptions
 
-**M01 — "Low average CPU usage means the CPU cannot be involved in
-latency."** This is wrong because a single slow request can be limited by
-one or two threads on its critical path, each mostly off-CPU, while the
-rest of the machine's cores stay busy with unrelated work — the average
-hides exactly the threads you care about. The evidence that distinguishes
-the two: compare the wall time of the *specific* slow request's critical
-path against machine-wide utilization, not against each other as if they
-answered the same question.
+### *"Low average CPU usage means the CPU cannot be involved in latency." (M01)*
 
-**M02 — "100% CPU means a process is CPU-bound in the useful-work
-sense."** This is wrong because a CPU reporting "busy" can be spinning,
-retiring wasted speculative work, handling kernel bookkeeping, or stalled
-waiting on memory while technically not idle. The evidence that
-distinguishes the two: compare completed work per CPU-second (e.g.
+**Why it's wrong:** A single slow request can be limited by one or two
+threads on its critical path, each mostly off-CPU, while the rest of the
+machine's cores stay busy with unrelated work — the average hides
+exactly the threads you care about.
+
+**Correct intuition:** Compare the wall time of the *specific* slow
+request's critical path against machine-wide utilization, not against
+each other as if they answered the same question — a low machine-wide
+average and a fully saturated critical path can both be true at once.
+
+**Analogy:** A restaurant can report that its kitchen was "only 40% busy
+tonight" while one specific table waited ninety minutes, because that
+table's order got stuck behind two dishes cooked by the one chef who
+happened to be slow — the kitchen's average tells you nothing about that
+table's actual wait.
+
+### *"100% CPU means a process is CPU-bound in the useful-work sense." (M02)*
+
+**Why it's wrong:** A CPU reporting "busy" can be spinning, retiring
+wasted speculative work, handling kernel bookkeeping, or stalled waiting
+on memory while technically not idle.
+
+**Correct intuition:** Compare completed work per CPU-second (e.g.
 `cyclelab`'s `throughput_ops_per_s`) across two runs that both report
 100% CPU — if one does far less useful work per busy CPU-second than the
 other, "100% busy" was not "100% useful."
+
+**Analogy:** A car's engine can be revving at full RPM while the
+transmission is in neutral — the tachometer reads "100%" the whole time,
+but the car isn't going anywhere. Busy and productive are measured on
+different dials.
 
 ## Practical Implications
 

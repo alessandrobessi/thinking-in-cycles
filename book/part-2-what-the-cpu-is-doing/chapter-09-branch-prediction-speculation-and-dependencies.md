@@ -196,28 +196,42 @@ win for predictable data) is the qualitative result to look for.
 
 ## Common Misconceptions
 
-**"A branchless implementation is always faster."** This is wrong
-because removing a branch replaces an occasional misprediction cost with
-a guaranteed, unconditional cost — worthwhile only when the original
-branch was actually expensive (frequently mispredicted), and a net loss
-when it wasn't. The evidence that distinguishes the two: measure the
-original branch's actual predictability on real data (or, lacking a
-misprediction counter, measure elapsed time under the realistic data
-distribution) before assuming a branchless rewrite will win; this
-chapter's lab's `sorted` case is exactly a scenario where the branch was
-already nearly free, and a branchless rewrite there would have added
-guaranteed cost to avoid a penalty that was rarely being paid.
+### *"A branchless implementation is always faster."*
 
-**"Sorting data specifically to help the branch predictor is always
-worth the sorting cost."** This is wrong because sorting has its own
-real cost — at best on the order of *n* log *n* comparisons — and for a
-single linear pass over the data, that cost can easily exceed whatever
-misprediction penalty it saves; it's only clearly worthwhile when the
-same sorted order gets reused across many passes. The evidence that
-distinguishes the two: compare total time for "sort, then scan once"
+**Why it's wrong:** Removing a branch replaces an occasional
+misprediction cost with a guaranteed, unconditional cost — worthwhile
+only when the original branch was actually expensive (frequently
+mispredicted), and a net loss when it wasn't.
+
+**Correct intuition:** Measure the original branch's actual
+predictability on real data (or, lacking a misprediction counter,
+measure elapsed time under the realistic data distribution) before
+assuming a branchless rewrite will win; this chapter's lab's `sorted`
+case is exactly a scenario where the branch was already nearly free, and
+a branchless rewrite there would have added guaranteed cost to avoid a
+penalty that was rarely being paid.
+
+**Analogy:** Always taking the stairs to avoid the small chance an
+elevator is slow only makes sense if the elevator actually is
+frequently slow — if it's usually fast, you've traded an occasional
+minor wait for a guaranteed climb every single time.
+
+### *"Sorting data specifically to help the branch predictor is always worth the sorting cost."*
+
+**Why it's wrong:** Sorting has its own real cost — at best on the order
+of *n* log *n* comparisons — and for a single linear pass over the data,
+that cost can easily exceed whatever misprediction penalty it saves;
+it's only clearly worthwhile when the same sorted order gets reused
+across many passes.
+
+**Correct intuition:** Compare total time for "sort, then scan once"
 against "scan once, unsorted" on the same data — the sorted version can
 lose overall even though its scan phase alone is measurably faster, once
 the sort's own cost is counted.
+
+**Analogy:** Alphabetizing your bookshelf before finding one book isn't
+worth it — the time spent sorting exceeds the time saved searching,
+unless you're going to search that same shelf many times afterward.
 
 ## Practical Implications
 

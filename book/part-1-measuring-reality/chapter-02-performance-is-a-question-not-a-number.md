@@ -180,14 +180,22 @@ itself has no dependency beyond a C11 toolchain and pthreads.
 
 ## Common Misconceptions
 
-**M21 (proposed) — "A program has one true performance number."** This is
-wrong because "faster" is only meaningful for a stated workload, input,
-and metric; as the library story and the Guided Lab both show, the same
-change can help one input size or metric and hurt another. The evidence
-that distinguishes the two: run the same change across multiple input
-sizes or metrics and check whether the ranking of "which version is
-faster" stays the same — if it flips, there was never a single number to
-begin with.
+### *"A program has one true performance number." (M21)*
+
+**Why it's wrong:** "Faster" is only meaningful for a stated workload,
+input, and metric; as the library story and the Guided Lab both show,
+the same change can help one input size or metric and hurt another.
+
+**Correct intuition:** Run the same change across multiple input sizes
+or metrics and check whether the ranking of "which version is faster"
+stays the same — if it flips, there was never a single number to begin
+with, only several questions that happened to share a name.
+
+**Analogy:** Asking "which car is faster" without saying faster at what
+is like asking which vehicle wins a race without naming the course — a
+sports car wins a straight sprint, a truck wins hauling cargo up a hill,
+and neither answer is wrong, because they were never answering the same
+question.
 
 ## Practical Implications
 

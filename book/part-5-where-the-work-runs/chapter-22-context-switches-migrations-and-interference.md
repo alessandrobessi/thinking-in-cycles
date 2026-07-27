@@ -169,16 +169,23 @@ finish before exiting; no manual cleanup needed.
 
 ## Common Misconceptions
 
-**M19 — "Context-switch counts alone diagnose scheduler overhead."**
-This is wrong because the impact of switches depends on why they occur,
+### *"Context-switch counts alone diagnose scheduler overhead." (M19)*
+
+**Why it's wrong:** The impact of switches depends on why they occur,
 where the critical thread waits, and what locality is lost — not on the
 raw count, which can be high for entirely benign, voluntary reasons or
-low while still hiding serious involuntary contention. The evidence
-that distinguishes the two: this chapter's own lab shows the *same*
-metric (involuntary switches) meaning something completely different
-depending on whether it's elevated because of genuine contention (the
+low while still hiding serious involuntary contention.
+
+**Correct intuition:** This chapter's own lab shows the *same* metric
+(involuntary switches) meaning something completely different depending
+on whether it's elevated because of genuine contention (the
 noisy-neighbor condition) or not — the number alone, without that
 context, doesn't tell you which.
+
+**Analogy:** A phone that rings fifty times today could mean fifty
+important calls or one wrong number calling back fifty times — the
+count alone doesn't tell you whether the interruptions actually
+mattered.
 
 ## Practical Implications
 

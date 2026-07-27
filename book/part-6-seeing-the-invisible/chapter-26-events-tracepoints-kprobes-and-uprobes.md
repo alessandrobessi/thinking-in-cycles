@@ -227,32 +227,47 @@ all.
 
 ## Common Misconceptions
 
-**More tracing produces more truth (M14).** This is wrong because event
-volume itself has a cost and a signal-to-noise budget: a probe that
-fires constantly can perturb the very workload it's measuring (the
-overhead this chapter's Tool View section quantifies as rate times
-per-event work) and can bury the specific signal you actually wanted
-under an overwhelming volume of routine, uninteresting events. The
-correct intuition is the same tool-selection discipline Section 15
+### *"More tracing produces more truth." (M14)*
+
+**Why it's wrong:** Event volume itself has a cost and a
+signal-to-noise budget: a probe that fires constantly can perturb the
+very workload it's measuring (the overhead this chapter's Tool View
+section quantifies as rate times per-event work) and can bury the
+specific signal you actually wanted under an overwhelming volume of
+routine, uninteresting events.
+
+**Correct intuition:** The same tool-selection discipline Section 15
 already established — pick the least invasive instrument, and the
 narrowest, most specific event, that actually answers the question in
 front of you; a kprobe on every function call in a hot loop is rarely
-the right first move even when it's technically possible. The evidence
-that distinguishes the two views: compare a narrowly scoped probe (one
-function, one specific condition) against an unfiltered, everything-that
--moves trace of the same workload — the unfiltered version costs more
-overhead, produces far more data to sift through, and answers the
-original question no better.
+the right first move even when it's technically possible. Compare a
+narrowly scoped probe (one function, one specific condition) against an
+unfiltered, everything-that-moves trace of the same workload — the
+unfiltered version costs more overhead, produces far more data to sift
+through, and answers the original question no better.
 
-**Sampling profiles show all latency (M08, revisited).** Chapter 12
-introduced this misconception in the context of on-CPU profiling; this
-chapter's own opening story is a second, sharper instance of the same
-gap — a rare, brief event can be statistically almost invisible to a
-periodic sampler no matter how faithfully that sampler represents
-*typical* execution. Dynamic tracing's fundamental advantage over
+**Analogy:** Wiretapping every phone in a building doesn't help you
+find one specific conversation — it buries it under thousands of
+irrelevant calls you now have to sift through, when a single, targeted
+line would have answered the question directly.
+
+### *"Sampling profiles show all latency." (M08, revisited)*
+
+**Why it's wrong:** Chapter 12 introduced this misconception in the
+context of on-CPU profiling; this chapter's own opening story is a
+second, sharper instance of the same gap — a rare, brief event can be
+statistically almost invisible to a periodic sampler no matter how
+faithfully that sampler represents *typical* execution.
+
+**Correct intuition:** Dynamic tracing's fundamental advantage over
 sampling is exactly here: it does not depend on statistically colliding
 with the event of interest, because it fires deterministically every
 time that event occurs.
+
+**Analogy:** A security guard doing hourly rounds might never happen to
+walk past the one door that's briefly propped open at 3:14am — a sensor
+wired directly to that door catches it every single time, because it
+doesn't depend on timing a glance correctly.
 
 ## Practical Implications
 

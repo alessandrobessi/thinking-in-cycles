@@ -172,19 +172,39 @@ substantial improvement.
 
 ## Common Misconceptions
 
-**M16 (previewed) — "A microbenchmark improvement guarantees a
-production improvement."** Chapter 30 treats this fully, but this
-chapter's opening story is a narrower, related case worth flagging now:
-even within a single controlled benchmark, a local profile improvement
-(one function's share dropping) does not guarantee the metric that
-matters improved, if a bottleneck shift absorbed the savings elsewhere.
+### *"A microbenchmark improvement guarantees a production improvement." (M16, previewed)*
 
-**M17 (previewed) — "An optimization is complete when the original
-hotspot shrinks."** Also fully Chapter 30's territory, and also directly
+**Why it's wrong:** Chapter 30 treats this fully, but this chapter's
+opening story is a narrower, related case worth flagging now: even
+within a single controlled benchmark, a local profile improvement (one
+function's share dropping) does not guarantee the metric that matters
+improved, if a bottleneck shift absorbed the savings elsewhere.
+
+**Correct intuition:** Measure the actual outcome metric before and
+after, not just the shape of the profile — a smaller slice of a pie
+chart doesn't tell you whether the pie itself got smaller.
+
+**Analogy:** Losing weight in one specific place on your body doesn't
+guarantee you lost weight overall — you have to step on the scale, not
+just look in the mirror at the one spot you were focused on.
+
+### *"An optimization is complete when the original hotspot shrinks." (M17, previewed)*
+
+**Why it's wrong:** Also fully Chapter 30's territory, and also directly
 this chapter's incident: the original hotspot did shrink; the workload
 did not get meaningfully faster, because shrinking a hotspot is not the
 goal — improving the outcome metric is, and a shrunk hotspot only
 achieves that if nothing else was waiting to take its place.
+
+**Correct intuition:** Confirm the workload's actual outcome metric
+improved, and check where the new hotspot is — declaring victory at "the
+old bottleneck is smaller" without that second check is exactly this
+chapter's own incident.
+
+**Analogy:** Fixing the slowest checkout line in a supermarket doesn't
+speed up the store if a different line was always going to become the
+new bottleneck the moment the first one sped up — the goal is shorter
+overall wait, not a shorter specific line.
 
 ## Practical Implications
 

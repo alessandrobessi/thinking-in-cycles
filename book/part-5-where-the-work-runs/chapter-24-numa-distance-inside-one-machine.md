@@ -163,15 +163,23 @@ with real captured data.
 
 ## Common Misconceptions
 
-**M11 — "NUMA matters only at enormous scale."** This is wrong because
-any multi-node system — including modest dual-socket workstations and
-many mainstream servers, not just large supercomputers — can suffer
-remote-memory cost and bandwidth imbalance; node count, not raw core
-count or price tier, is what determines whether NUMA effects apply. The
-evidence that distinguishes the two: check node count directly
-(`numactl --hardware` or this chapter's `doctor.sh` check) rather than
-assuming from a machine's size or role — a compact dual-socket server
-has exactly the same local/remote distinction as a much larger one.
+### *"NUMA matters only at enormous scale." (M11)*
+
+**Why it's wrong:** Any multi-node system — including modest
+dual-socket workstations and many mainstream servers, not just large
+supercomputers — can suffer remote-memory cost and bandwidth imbalance;
+node count, not raw core count or price tier, is what determines
+whether NUMA effects apply.
+
+**Correct intuition:** Check node count directly (`numactl --hardware`
+or this chapter's `doctor.sh` check) rather than assuming from a
+machine's size or role — a compact dual-socket server has exactly the
+same local/remote distinction as a much larger one.
+
+**Analogy:** A small two-story house has the same "walk upstairs to get
+something" cost as a skyscraper's elevator ride, proportionally — the
+distinction between "on this floor" and "on another floor" doesn't
+require a skyscraper to matter, just more than one floor.
 
 ## Practical Implications
 

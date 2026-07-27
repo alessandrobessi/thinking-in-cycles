@@ -157,23 +157,39 @@ further portable substitute for genuinely multi-node hardware here.
 
 ## Common Misconceptions
 
-**CPU affinity also binds memory (M10, revisited).** This chapter's own
-opening story is the sharpest possible version of this misconception's
-consequence: pinning worker threads to specific sockets (Chapter 23)
-does nothing at all to fix a first-touch mismatch, because CPU affinity
-and memory placement are separate policies enforced by separate
-mechanisms — `taskset`/`sched_setaffinity` control the former,
-`numactl`/memory-policy calls control the latter. A team that pins CPUs
-and stops there, believing the placement problem is solved, has fixed
-half of a two-part problem and left the other half — which memory node
-actually holds the data — completely untouched.
+### *"CPU affinity also binds memory." (M10, revisited)*
 
-**NUMA matters only at enormous scale (M11, revisited).** The
-setup-thread/worker-pool pattern this chapter opens with needs only two
-sockets to produce a real, measurable remote-memory penalty for half a
-worker pool — it is not a problem that only appears on machines with
-many nodes. Any multi-node system, however small, has exactly the same
-local/remote distinction Chapter 24 introduced.
+**Why it's wrong:** This chapter's own opening story is the sharpest
+possible version of this misconception's consequence: pinning worker
+threads to specific sockets (Chapter 23) does nothing at all to fix a
+first-touch mismatch, because CPU affinity and memory placement are
+separate policies enforced by separate mechanisms —
+`taskset`/`sched_setaffinity` control the former, `numactl`/memory-policy
+calls control the latter.
+
+**Correct intuition:** A team that pins CPUs and stops there, believing
+the placement problem is solved, has fixed half of a two-part problem
+and left the other half — which memory node actually holds the data —
+completely untouched.
+
+**Analogy:** Reassigning a worker to a desk closer to the supply closet
+doesn't move the supplies they already have stacked at their old desk —
+someone still has to carry the boxes over separately.
+
+### *"NUMA matters only at enormous scale." (M11, revisited)*
+
+**Why it's wrong:** The setup-thread/worker-pool pattern this chapter
+opens with needs only two sockets to produce a real, measurable
+remote-memory penalty for half a worker pool — it is not a problem that
+only appears on machines with many nodes.
+
+**Correct intuition:** Any multi-node system, however small, has
+exactly the same local/remote distinction Chapter 24 introduced.
+
+**Analogy:** Setting up a shared kitchen on the wrong floor of a
+two-story duplex is just as inconvenient, proportionally, as putting it
+on the wrong floor of a forty-story building — you don't need forty
+floors for "which floor" to matter.
 
 ## Practical Implications
 

@@ -237,23 +237,65 @@ Example above.
 
 This chapter revisits, rather than introduces, several of this book's
 own misconceptions, because a real investigation is exactly where each
-one would otherwise cause a wrong conclusion:
+one would otherwise cause a wrong conclusion.
 
-- **M01/M02** (Chapter 1): this case study's "acceptable average CPU
-  utilization" symptom is the opening trap — average utilization staying
-  low or moderate says nothing about whether specific threads are
-  serialized behind a lock, exactly Steps 3-4's discovery.
-- **M15** (Chapter 4): Step 1's single-run benchmark is precisely the
-  "one run is an anecdote" failure mode, corrected by Step 2's repeated,
-  interleaved measurement.
-- **M17** (Chapter 15): Step 5's temptation to declare victory once lock
-  contention shrinks, without checking whether the workload outcome
-  itself (throughput, this time) actually kept improving as far as it
-  should have.
-- **M19** (Chapters 22, 29): this case study never leans on
-  context-switch counts alone to diagnose the lock-contention
-  mechanism — Chapter 29's own captured mutex-wait stacks are what
-  actually proves it.
+### *"Low average CPU usage/100% CPU tells you what you need to know." (M01/M02, revisited)*
+
+**Why it's wrong:** This case study's "acceptable average CPU
+utilization" symptom is the opening trap — average utilization staying
+low or moderate says nothing about whether specific threads are
+serialized behind a lock, exactly Steps 3-4's discovery.
+
+**Correct intuition:** An aggregate CPU number and a specific critical
+path's actual behavior are two different questions; this whole
+investigation only makes progress once it stops asking the first one.
+
+**Analogy:** A hospital's "average bed occupancy" can look perfectly
+healthy while the one specialist everyone actually needs has a month-long
+waitlist — the aggregate number and the specific bottleneck are not the
+same measurement.
+
+### *"One benchmark run is evidence." (M15, revisited)*
+
+**Why it's wrong:** Step 1's single-run benchmark is precisely the "one
+run is an anecdote" failure mode, corrected by Step 2's repeated,
+interleaved measurement.
+
+**Correct intuition:** A single quick run at low concurrency didn't lie —
+it just never asked the question that mattered, which repetition and a
+wider sweep finally surfaced.
+
+**Analogy:** Judging a restaurant on one dish from one visit tells you
+less than eating there several times across a full menu — the first
+meal isn't wrong, it's just not enough to draw a conclusion from.
+
+### *"An optimization is complete when the original hotspot shrinks." (M17, revisited)*
+
+**Why it's wrong:** Step 5's temptation to declare victory once lock
+contention shrinks, without checking whether the workload outcome
+itself (throughput, this time) actually kept improving as far as it
+should have.
+
+**Correct intuition:** The bottleneck moved from lock contention to
+memory bandwidth — fixing the first one revealed the second one, which
+is success, not an incomplete fix, as long as you keep looking.
+
+**Analogy:** Draining one flooded room in a house doesn't mean the
+house is dry — water that was pooling there may just be revealing where
+it flows to next.
+
+### *"Context-switch counts alone diagnose scheduler overhead." (M19, revisited)*
+
+**Why it's wrong:** This case study never leans on context-switch
+counts alone to diagnose the lock-contention mechanism — Chapter 29's
+own captured mutex-wait stacks are what actually proves it.
+
+**Correct intuition:** A count can corroborate a mechanism; only a
+captured stack (or equivalent direct evidence) actually proves it.
+
+**Analogy:** A courtroom accepts a witness's testimony as corroborating
+evidence, not as proof on its own — the fingerprint on the doorknob is
+what actually closes the case.
 
 ## Practical Implications
 

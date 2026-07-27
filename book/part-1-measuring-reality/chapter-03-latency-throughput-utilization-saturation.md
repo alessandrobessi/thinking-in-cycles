@@ -177,16 +177,24 @@ concurrency and comparing throughput and elapsed time at each level.
 
 ## Common Misconceptions
 
-**M22 (proposed) — "100% utilization is always bad, and any utilization
-below 100% means there's no problem."** This is wrong because utilization
-and saturation are different measurements: a resource can be moderately
-utilized and still heavily saturated under bursty or correlated arrivals,
-and full utilization is sometimes the deliberate goal, as with a batch
-job trying to maximize throughput. The evidence that distinguishes the
-two: drive a system at increasing concurrency and plot utilization
-alongside queue growth or latency — saturation can appear before
-utilization visibly reaches 100%, and utilization near 100% by itself is
-not evidence of a problem for a throughput-oriented workload.
+### *"100% utilization is always bad, and any utilization below 100% means there's no problem." (M22)*
+
+**Why it's wrong:** Utilization and saturation are different
+measurements: a resource can be moderately utilized and still heavily
+saturated under bursty or correlated arrivals, and full utilization is
+sometimes the deliberate goal, as with a batch job trying to maximize
+throughput.
+
+**Correct intuition:** Drive a system at increasing concurrency and plot
+utilization alongside queue growth or latency — saturation can appear
+before utilization visibly reaches 100%, and utilization near 100% by
+itself is not evidence of a problem for a throughput-oriented workload.
+
+**Analogy:** A highway lane can be "only 70% full" by car-count and
+still be crawling in stop-and-go traffic, because cars arrived in
+bursts rather than evenly spaced — while a cargo train running its
+track at 100% capacity around the clock is exactly the outcome its
+operator wants, not a warning sign.
 
 ## Practical Implications
 

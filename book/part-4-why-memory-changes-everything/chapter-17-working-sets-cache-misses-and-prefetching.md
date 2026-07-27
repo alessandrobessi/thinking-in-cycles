@@ -163,17 +163,25 @@ portable fact.
 
 ## Common Misconceptions
 
-**M05 — "A high cache-miss percentage proves a cache bottleneck."** This
-is wrong because a miss rate needs access volume, miss cost, and
+### *"A high cache-miss percentage proves a cache bottleneck." (M05)*
+
+**Why it's wrong:** A miss rate needs access volume, miss cost, and
 overlap with other work to mean anything on its own — a workload with a
 high miss rate but few total accesses can matter less than one with a
 lower miss rate but far more accesses, and misses that overlap with
 useful computation elsewhere cost less than misses that block progress
-entirely. The evidence that distinguishes the two: connect a miss
-count (or, as in this chapter's portable lab, an elapsed-time proxy for
-it) to total access volume and completed work before concluding
-anything is a "bottleneck" — a phrase this chapter's own numbers earn
-only when paired with how much work those accesses were part of.
+entirely.
+
+**Correct intuition:** Connect a miss count (or, as in this chapter's
+portable lab, an elapsed-time proxy for it) to total access volume and
+completed work before concluding anything is a "bottleneck" — a phrase
+this chapter's own numbers earn only when paired with how much work
+those accesses were part of.
+
+**Analogy:** A shop with a "50% return rate" sounds alarming until you
+learn it only sold two items all year — a lower return rate on ten
+thousand sales represents a much bigger real problem, even though the
+percentage looks smaller.
 
 ## Practical Implications
 

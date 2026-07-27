@@ -195,28 +195,42 @@ binaries.
 
 ## Common Misconceptions
 
-There is no blueprint-seeded misconception registry entry specific to
-this chapter; two are worth naming directly. **"A profiler that shows
-wrong or missing symbols is buggy."** This is wrong because a profiler
-can only report what the binary's metadata actually makes available —
-missing symbols are almost always a build or deployment property (a
-stripped binary, a missing frame pointer, a JIT runtime that didn't
-cooperate), not a defect in the profiling tool itself. The evidence that
-distinguishes the two: profile the identical workload built two
+### *"A profiler that shows wrong or missing symbols is buggy."*
+
+**Why it's wrong:** A profiler can only report what the binary's
+metadata actually makes available — missing symbols are almost always a
+build or deployment property (a stripped binary, a missing frame
+pointer, a JIT runtime that didn't cooperate), not a defect in the
+profiling tool itself.
+
+**Correct intuition:** Profile the identical workload built two
 different ways, as in this chapter's lab — the same profiler produces
 visibly different call-stack quality purely from what the build
 provided it.
 
-**"Frame pointers should always be kept for profiling, no exceptions."**
-This is wrong because keeping frame pointers is a real, sometimes
+**Analogy:** A translator can only translate the words actually spoken
+into the microphone — if half the meeting happened in a hallway out of
+mic range, blaming the translator for the gaps in the transcript
+misses where the information actually went missing.
+
+### *"Frame pointers should always be kept for profiling, no exceptions."*
+
+**Why it's wrong:** Keeping frame pointers is a real, sometimes
 meaningful runtime cost (a reserved register, per-call bookkeeping), and
 alternative unwinding methods (DWARF-based, or hardware last-branch
 records where supported) can recover much of the same information
 without paying it — whether the tradeoff is worth it depends on the
 platform and how much profiling fidelity matters for that specific
-binary. The evidence that distinguishes the two: check whether your
-platform's profiler supports a non-frame-pointer unwinding method before
-assuming frame pointers are the only path to a usable call stack.
+binary.
+
+**Correct intuition:** Check whether your platform's profiler supports
+a non-frame-pointer unwinding method before assuming frame pointers are
+the only path to a usable call stack.
+
+**Analogy:** Leaving a breadcrumb trail every single step of a hike
+costs you something (carrying the crumbs) whether or not you ever need
+to retrace your steps — if there's a good trail map instead, you may
+not need to pay that cost on every hike.
 
 ## Practical Implications
 

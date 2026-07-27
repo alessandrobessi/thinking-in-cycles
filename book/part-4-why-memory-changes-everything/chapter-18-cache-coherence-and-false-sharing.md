@@ -167,17 +167,21 @@ JSON.
 
 ## Common Misconceptions
 
-There is no blueprint-seeded misconception registry entry specific to
-this chapter; a new one (M34, proposed) is worth naming directly, drawn straight from this
-chapter's mandatory cautions: **"Padding every shared structure is a
-safe, free optimization."** This is wrong because padding increases
-memory footprint — sometimes drastically, since a single small field
-padded to a cache line can inflate a structure's size by an order of
-magnitude — and applying it to data that isn't actually experiencing
-false sharing wastes memory and can hurt locality elsewhere for no
-benefit at all. The evidence that distinguishes the two: measure
-scaling with and without padding, as in this chapter's lab, before
-applying it — don't pad reflexively.
+### *"Padding every shared structure is a safe, free optimization." (M34)*
+
+**Why it's wrong:** Padding increases memory footprint — sometimes
+drastically, since a single small field padded to a cache line can
+inflate a structure's size by an order of magnitude — and applying it to
+data that isn't actually experiencing false sharing wastes memory and
+can hurt locality elsewhere for no benefit at all.
+
+**Correct intuition:** Measure scaling with and without padding, as in
+this chapter's lab, before applying it — don't pad reflexively.
+
+**Analogy:** Giving every guest at a dinner party their own private
+table "just in case" avoids any chance of them bumping elbows, but it
+also means renting a much bigger hall for no reason if most guests were
+never going to sit near each other in the first place.
 
 ## Practical Implications
 

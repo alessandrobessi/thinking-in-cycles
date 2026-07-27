@@ -177,18 +177,23 @@ from each run's raw JSON.
 
 ## Common Misconceptions
 
-There is no blueprint-seeded misconception registry entry specific to
-this chapter; a new one (M37, proposed) is worth naming directly, extending M02 (Chapter 1)
-into scheduling territory specifically: **"High CPU utilization means
-the machine is optimally scheduling its work."** This is wrong because
-utilization is an aggregate busy-time measure that says nothing about
-whether specific threads are waiting in the run queue behind others —
-a machine can be fully utilized while accumulating real, avoidable
-queueing delay for latency-sensitive work. The evidence that
-distinguishes the two: this chapter's own lab — throughput (a rough
+### *"High CPU utilization means the machine is optimally scheduling its work." (M37, extends M02)*
+
+**Why it's wrong:** Utilization is an aggregate busy-time measure that
+says nothing about whether specific threads are waiting in the run queue
+behind others — a machine can be fully utilized while accumulating
+real, avoidable queueing delay for latency-sensitive work.
+
+**Correct intuition:** This chapter's own lab — throughput (a rough
 utilization proxy) stays flat from 10 to 40 threads while involuntary
 switches nearly triple, showing real additional contention that
 utilization alone never surfaces.
+
+**Analogy:** An airport runway can be "100% utilized" — planes landing
+and taking off back to back with zero idle time — while dozens of
+flights circle overhead waiting their turn, burning fuel and time. The
+runway's own busy-ness says nothing about how long anyone waited to use
+it.
 
 ## Practical Implications
 

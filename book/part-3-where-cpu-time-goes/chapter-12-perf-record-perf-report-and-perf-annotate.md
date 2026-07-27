@@ -187,34 +187,56 @@ inspection, on purpose).
 
 ## Common Misconceptions
 
-**M08 — "Sampling profiles show all latency."** This is wrong because a
-CPU profile like this chapter's only shows *on-CPU* execution — Chapter
-11's sampling model, which needs something running to sample. Time spent
-blocked, waiting, or sleeping never shows up as a hot function here,
-even when it dominates a request's actual latency (Chapter 1's whole
-opening problem). The evidence that distinguishes the two: this
-chapter's lab's `__ulock_wait` entry is exactly off-CPU time
-(`pthread_join` blocking) that a naive reading could mistake for "hot
-code," when it's actually the *absence* of running code — full treatment
-of what off-CPU sampling requires is Chapter 29.
+### *"Sampling profiles show all latency." (M08)*
 
-**"The function with the highest cost in a profile is always the best
-optimization target."** This is wrong because a high *inclusive* cost
-can come entirely from a function's position in the call graph (called
-from many places) rather than from its own code being expensive — this
-chapter's opening story directly. The evidence that distinguishes the
-two: check self cost, not just inclusive cost, before deciding where to
-spend optimization effort — a function with high inclusive cost but low
-self cost points at *its callees*, not at itself.
+**Why it's wrong:** A CPU profile like this chapter's only shows
+*on-CPU* execution — Chapter 11's sampling model, which needs something
+running to sample. Time spent blocked, waiting, or sleeping never shows
+up as a hot function here, even when it dominates a request's actual
+latency (Chapter 1's whole opening problem).
 
-**"Kernel frames in a profile are irrelevant to application
-performance."** This is wrong because time an application's own code
-causes to be spent in the kernel (a syscall, a page fault, a scheduling
-decision) is still time that request or workload waited for, even
-though the code executing during it isn't the application's own — this
-chapter's `__ulock_wait` frame is exactly a kernel-side frame that
-matters to interpreting the profile correctly, not one to filter out
-reflexively.
+**Correct intuition:** This chapter's lab's `__ulock_wait` entry is
+exactly off-CPU time (`pthread_join` blocking) that a naive reading
+could mistake for "hot code," when it's actually the *absence* of
+running code — full treatment of what off-CPU sampling requires is
+Chapter 29.
+
+**Analogy:** A dashboard camera only records what's happening while the
+car is moving — if the car sits idling at a closed rail crossing for ten
+minutes, that footage shows nothing "hot" at all, even though it's
+exactly where the trip's time went.
+
+### *"The function with the highest cost in a profile is always the best optimization target."*
+
+**Why it's wrong:** A high *inclusive* cost can come entirely from a
+function's position in the call graph (called from many places) rather
+than from its own code being expensive — this chapter's opening story
+directly.
+
+**Correct intuition:** Check self cost, not just inclusive cost, before
+deciding where to spend optimization effort — a function with high
+inclusive cost but low self cost points at *its callees*, not at
+itself.
+
+**Analogy:** A company's CEO "touches" nearly every dollar that flows
+through the org chart on its way to being spent, but that doesn't mean
+the CEO is personally where the money goes — you have to look at who's
+actually spending it, not just who it passed through.
+
+### *"Kernel frames in a profile are irrelevant to application performance."*
+
+**Why it's wrong:** Time an application's own code causes to be spent
+in the kernel (a syscall, a page fault, a scheduling decision) is still
+time that request or workload waited for, even though the code
+executing during it isn't the application's own — this chapter's
+`__ulock_wait` frame is exactly a kernel-side frame that matters to
+interpreting the profile correctly, not one to filter out reflexively.
+
+**Analogy:** Time your delivery driver spends waiting at a warehouse
+loading dock still counts against your delivery's total time, even
+though the warehouse isn't part of your own company — filtering out
+"someone else's building" from the timeline would just hide where the
+delay actually happened.
 
 ## Practical Implications
 
