@@ -28,10 +28,20 @@
 
 #define CYCLELAB_VERSION "0.1.0"
 
+/* Explicitly cache-line-aligned: struct size alone does not guarantee
+ * that -- an unaligned base address would still let each 64-byte struct
+ * straddle two cache lines, letting adjacent counters share one after
+ * all. _Alignas plus an aligned allocation (aligned_alloc, below) are
+ * both required for "no sharing possible" to actually hold. */
 typedef struct {
-    long counter;
+    _Alignas(CYCLELAB_CACHE_LINE_BYTES) long counter;
     char pad[CYCLELAB_CACHE_LINE_BYTES - sizeof(long)];
 } padded_counter_t;
+
+_Static_assert(sizeof(padded_counter_t) == CYCLELAB_CACHE_LINE_BYTES,
+               "padded_counter_t must be exactly one cache line");
+_Static_assert(_Alignof(padded_counter_t) >= CYCLELAB_CACHE_LINE_BYTES,
+               "padded_counter_t must be cache-line-aligned");
 
 static const char *padding_name(cyclelab_padding_t p) {
     return (p == CYCLELAB_PADDING_PACKED) ? "packed" : "padded";
@@ -196,7 +206,13 @@ int false_sharing_run(const cyclelab_options_t *opts, const cyclelab_hostinfo_t 
     if (opts->padding == CYCLELAB_PADDING_PACKED) {
         packed = calloc((size_t)nthreads, sizeof(long));
     } else {
-        padded = calloc((size_t)nthreads, sizeof(padded_counter_t));
+        /* aligned_alloc, not calloc/malloc: a plain allocator gives no
+         * guarantee the returned address is a multiple of the cache line
+         * size, and without that guarantee two adjacent 64-byte structs
+         * can still straddle a shared line -- see padded_counter_t above. */
+        size_t padded_bytes = (size_t)nthreads * sizeof(padded_counter_t);
+        padded = aligned_alloc(CYCLELAB_CACHE_LINE_BYTES, padded_bytes);
+        if (padded != NULL) memset(padded, 0, padded_bytes);
     }
     if ((opts->padding == CYCLELAB_PADDING_PACKED && packed == NULL) ||
         (opts->padding == CYCLELAB_PADDING_PADDED && padded == NULL)) {

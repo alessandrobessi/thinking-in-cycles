@@ -91,7 +91,17 @@ measuring the specific hardware, not applying a general rule.
 
 - What is measured: latency per access at a fixed, larger-than-cache
   working set, swept across increasing stride values, using
-  `cyclelab sequential-memory --stride=N`.
+  `cyclelab sequential-memory --working-set-size=64000192 --stride=N`.
+  The explicit working-set size matters here, not just its size: it is
+  prime (1,000,003 slots), which guarantees every stride tested visits
+  every slot in the buffer once before repeating. A power-of-two working
+  set (including `cyclelab`'s own 1 MiB default) paired with a
+  power-of-two stride would instead make each stride visit only a
+  fraction of the buffer — `num_slots / gcd(num_slots, stride)` unique
+  slots — quietly shrinking the *effective* working set as stride grows
+  and confounding "cost of a larger stride" with "cost of a smaller
+  effective working set." Always pass this working-set size explicitly
+  when running the command below; do not rely on the default.
 - What is not measured: which specific miss type (compulsory vs.
   capacity) or which cache level accounts for the cost at any given
   stride — that requires hardware counters (`perf mem`, Chapter 20) this
@@ -156,7 +166,9 @@ and do not treat any single non-unit stride's relative ranking as a
 portable fact.
 
 **Fallback path:** if `python3` isn't available, run the eleven
-`cyclelab sequential-memory --stride=...` commands directly and read
+`cyclelab sequential-memory --working-set-size=64000192 --stride=...`
+commands directly — keeping the explicit prime working-set size, for the
+same reason the Tool View section above explains — and read
 `results.ns_per_access` from each run's raw JSON.
 
 **Cleanup:** none.

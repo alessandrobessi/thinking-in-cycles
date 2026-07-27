@@ -160,14 +160,32 @@ necessarily a crossover at the same sizes, on a different machine — the
 qualitative point is that the ranking can flip at all, not the specific
 sizes where it does.
 
+One unit caveat before interpreting this table: `--op=int` and
+`--op=mixed` are not doing equal work per reported "op." Each `mixed`
+op updates both an integer and a floating-point accumulator, while each
+`int` op updates only the integer one — so `throughput_ops_per_s` is
+meaningful for comparing the *same* op across sizes (which is what the
+ranking-flip point below actually needs), but not for reading the raw
+gap between `int` and `mixed` at a single size as "how much cheaper
+integer work is." That gap always includes the fact that `mixed` is
+doing strictly more per op, on top of whatever else is happening.
+
 **Interpretation:** if your run shows a similar reordering between the
-smallest and largest size, you've reproduced the chapter's point directly:
-per-run fixed costs (thread start/join, warm-up, the fixed cost of
-`--op=mixed`'s extra branch inside the accumulator loop) matter
-proportionally more at small iteration counts than large ones. If your
-run doesn't show a clean reordering, that's still informative — it means
-this particular pair of configurations isn't a good example of the effect
-on your machine, which is a legitimate, useful negative result.
+smallest and largest size, you've reproduced the chapter's point
+directly: genuinely fixed, one-time costs paid once per run — thread
+start/join, branch-predictor and cache warm-up, frequency-scaling
+ramp-up — matter proportionally more at small iteration counts than
+large ones, which is enough on its own to shuffle a close ranking
+between two configurations depending on run length, without needing any
+per-iteration cost to explain it. (The `mixed` mode's extra
+floating-point update, by contrast, is *not* a fixed cost — it runs
+inside the same repeated inner loop as everything else, so its cost
+scales with iteration count like everything else in that loop; it does
+not become "more fixed" or "less fixed" as size changes, and isn't what
+produces the crossover.) If your run doesn't show a clean reordering,
+that's still informative — it means this particular pair of
+configurations isn't a good example of the effect on your machine,
+which is a legitimate, useful negative result.
 
 **Cleanup:** none.
 

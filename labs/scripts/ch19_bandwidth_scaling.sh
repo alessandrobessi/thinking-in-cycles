@@ -20,14 +20,17 @@ fi
 
 DURATION="${1:-0.5}"
 NCPU=$(getconf _NPROCESSORS_ONLN 2>/dev/null || sysctl -n hw.ncpu 2>/dev/null || echo 8)
+OVER1=$((NCPU * 3 / 2))
+OVER2=$((NCPU * 2))
 
 echo "Chapter 19 lab: aggregate streaming bandwidth vs. thread count."
 echo "(this machine reports $NCPU logical CPUs; working set 64M per thread,"
-echo " comfortably larger than any per-core cache)"
+echo " comfortably larger than any per-core cache; the last two points"
+echo " oversubscribe past $NCPU to confirm the ceiling, not just approach it)"
 echo
 
 printf '%-8s %-16s\n' "threads" "bandwidth_gb_s"
-for THREADS in 1 2 4 6 8 "$NCPU"; do
+for THREADS in 1 2 4 6 8 "$NCPU" "$OVER1" "$OVER2"; do
   OUT="$("$CYCLELAB" bandwidth --working-set-size=64M --threads="$THREADS" \
     --duration="$DURATION" --quiet)"
   BW=$(printf '%s' "$OUT" | python3 -c \
@@ -37,13 +40,14 @@ done
 
 echo
 echo "Interpretation: expect bandwidth to rise close to linearly at first"
-echo "(2 threads roughly 2x 1 thread's number), then flatten well before"
-echo "reaching this machine's full core count -- the point past which more"
-echo "threads asking for more data cannot make the memory system deliver it"
-echo "faster, because the shared channels between cores and DRAM are"
-echo "already close to their sustainable rate. Compare the single-thread"
-echo "number here against 'random-memory' mode's implied bandwidth"
-echo "(64 bytes / ns_per_access) at the same working set: pointer-chasing"
-echo "achieves a small fraction of this mode's throughput despite touching"
-echo "memory just as continuously -- the latency-bound vs. bandwidth-bound"
-echo "distinction this chapter is about."
+echo "(2 threads roughly 2x 1 thread's number), then decelerate as thread"
+echo "count approaches this machine's full core count. Do not stop the"
+echo "sweep exactly at the core count and call it flat -- on this book's"
+echo "own reference machine, throughput was still rising (just more"
+echo "slowly) at the core count itself, and only clearly plateaued once"
+echo "the sweep went past it into oversubscription. Compare the"
+echo "single-thread number here against 'random-memory' mode's implied"
+echo "bandwidth (64 bytes / ns_per_access) at the same working set:"
+echo "pointer-chasing achieves a small fraction of this mode's throughput"
+echo "despite touching memory just as continuously -- the latency-bound"
+echo "vs. bandwidth-bound distinction this chapter is about."

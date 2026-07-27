@@ -28,12 +28,54 @@
 
 #define CYCLELAB_VERSION "0.1.0"
 
+/* A minimal reusable barrier: macOS's libpthread does not provide
+ * pthread_barrier_t at all (Linux's does), so this mode needs its own to
+ * hold every worker at the starting line until all of them have finished
+ * allocating and first-touching their own buffer (see bw_worker below). */
+typedef struct {
+    pthread_mutex_t mutex;
+    pthread_cond_t cond;
+    int count;
+    int total;
+    int generation;
+} bw_barrier_t;
+
+static void bw_barrier_init(bw_barrier_t *b, int total) {
+    pthread_mutex_init(&b->mutex, NULL);
+    pthread_cond_init(&b->cond, NULL);
+    b->count = 0;
+    b->total = total;
+    b->generation = 0;
+}
+
+static void bw_barrier_wait(bw_barrier_t *b) {
+    pthread_mutex_lock(&b->mutex);
+    int gen = b->generation;
+    b->count++;
+    if (b->count == b->total) {
+        b->generation++;
+        b->count = 0;
+        pthread_cond_broadcast(&b->cond);
+    } else {
+        while (gen == b->generation) {
+            pthread_cond_wait(&b->cond, &b->mutex);
+        }
+    }
+    pthread_mutex_unlock(&b->mutex);
+}
+
+static void bw_barrier_destroy(bw_barrier_t *b) {
+    pthread_mutex_destroy(&b->mutex);
+    pthread_cond_destroy(&b->cond);
+}
+
 typedef struct {
     int index;
     const cyclelab_options_t *opts;
     double *buf;
     long num_doubles;
-    double deadline;
+    bw_barrier_t *barrier;
+    int *any_alloc_failed;
     long target_passes;
 
     long passes_done;
@@ -48,8 +90,35 @@ static void *bw_worker(void *arg) {
     ctx->affinity_result = affinity_apply(ctx->opts->affinity_spec, ctx->index,
                                            ctx->opts->threads, &ctx->affinity_reason);
 
-    double *buf = ctx->buf;
+    /* Allocate and first-touch *after* affinity is applied, and inside
+     * this worker rather than the main thread: on a NUMA system, the
+     * thread that first writes a page is the thread whose node that page
+     * lands on (Chapter 25's own subject). Having the main thread
+     * allocate and initialize every worker's buffer up front, before any
+     * worker's affinity was even applied, would place all of it on
+     * whichever node the main thread happened to be running on --
+     * exactly the confound this mode exists to avoid, since its whole
+     * point is measuring bandwidth from each worker's own local memory. */
     long n = ctx->num_doubles;
+    double *buf = malloc((size_t)n * sizeof(double));
+    if (buf == NULL) {
+        *ctx->any_alloc_failed = 1;
+        bw_barrier_wait(ctx->barrier);
+        return NULL;
+    }
+    for (long k = 0; k < n; k++) {
+        buf[k] = (double)((k * 2654435761UL + (unsigned long)ctx->index) % 1000) / 7.0;
+    }
+    ctx->buf = buf;
+
+    /* Every worker crosses this barrier only once its own allocation and
+     * first-touch is done, so the timed loop below starts from the same
+     * line for every thread instead of some threads racing ahead while
+     * others are still faulting in pages. */
+    bw_barrier_wait(ctx->barrier);
+    if (*ctx->any_alloc_failed) return NULL;
+
+    double deadline = timing_now_seconds() + ctx->opts->duration_s;
     volatile double sum = 0.0;
     long passes = 0;
     double start = timing_now_seconds();
@@ -71,7 +140,7 @@ static void *bw_worker(void *arg) {
         if (ctx->target_passes > 0) {
             if (passes >= ctx->target_passes) break;
         } else {
-            if (timing_now_seconds() >= ctx->deadline) break;
+            if (timing_now_seconds() >= deadline) break;
         }
     }
 
@@ -197,29 +266,21 @@ int bandwidth_run(const cyclelab_options_t *opts, const cyclelab_hostinfo_t *hos
     long num_doubles = opts->working_set_bytes / (long)sizeof(double);
     if (num_doubles < 1) num_doubles = 1;
 
-    for (int i = 0; i < nthreads; i++) {
-        ctxs[i].buf = malloc((size_t)num_doubles * sizeof(double));
-        if (ctxs[i].buf == NULL) {
-            fprintf(stderr, "cyclelab: out of memory allocating a %ld-byte buffer for thread %d\n",
-                    opts->working_set_bytes, i);
-            for (int j = 0; j < i; j++) free(ctxs[j].buf);
-            free(ctxs);
-            free(tids);
-            return 1;
-        }
-        for (long k = 0; k < num_doubles; k++) {
-            ctxs[i].buf[k] = (double)((k * 2654435761UL + (unsigned long)i) % 1000) / 7.0;
-        }
-        ctxs[i].num_doubles = num_doubles;
-    }
-
-    double start_wall = timing_now_seconds();
-    double deadline = start_wall + opts->duration_s;
+    /* nthreads + 1: the main thread is itself a barrier participant, so
+     * it can capture start_wall at the exact moment every worker has
+     * finished allocating and first-touching its own buffer -- excluding
+     * that allocation time from the measured duration below, rather than
+     * folding it into the reported bandwidth number. */
+    bw_barrier_t barrier;
+    bw_barrier_init(&barrier, nthreads + 1);
+    int any_alloc_failed = 0;
 
     for (int i = 0; i < nthreads; i++) {
         ctxs[i].index = i;
         ctxs[i].opts = opts;
-        ctxs[i].deadline = deadline;
+        ctxs[i].num_doubles = num_doubles;
+        ctxs[i].barrier = &barrier;
+        ctxs[i].any_alloc_failed = &any_alloc_failed;
         ctxs[i].target_passes = opts->iterations;
     }
 
@@ -228,15 +289,30 @@ int bandwidth_run(const cyclelab_options_t *opts, const cyclelab_hostinfo_t *hos
             fprintf(stderr, "cyclelab: failed to start worker thread %d\n", i);
             for (int j = 0; j < i; j++) pthread_join(tids[j], NULL);
             for (int j = 0; j < nthreads; j++) free(ctxs[j].buf);
+            bw_barrier_destroy(&barrier);
             free(ctxs);
             free(tids);
             return 1;
         }
     }
+
+    bw_barrier_wait(&barrier); /* released once every worker has allocated */
+    double start_wall = timing_now_seconds();
+
     for (int i = 0; i < nthreads; i++) {
         pthread_join(tids[i], NULL);
     }
     double duration_actual_s = timing_now_seconds() - start_wall;
+    bw_barrier_destroy(&barrier);
+
+    if (any_alloc_failed) {
+        fprintf(stderr, "cyclelab: out of memory allocating a %ld-byte buffer for one or more threads\n",
+                opts->working_set_bytes);
+        for (int i = 0; i < nthreads; i++) free(ctxs[i].buf);
+        free(ctxs);
+        free(tids);
+        return 1;
+    }
 
     long long total_passes = 0;
     long long total_bytes = 0;

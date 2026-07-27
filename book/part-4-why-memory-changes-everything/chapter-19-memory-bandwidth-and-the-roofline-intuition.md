@@ -142,28 +142,37 @@ This sweeps `--threads` for `cyclelab bandwidth` at a fixed 64MB
 per-thread working set, tabulating aggregate sustained bandwidth.
 
 **Expected qualitative result:** bandwidth should rise close to linearly
-at low thread counts, then flatten well before reaching the machine's
-full logical core count. One example run on the reference machine for
-this book (Apple M4, macOS, arm64, 10 logical CPUs) showed:
+at low thread counts, then grow more slowly as thread count approaches
+and passes the machine's full logical core count. One example run on
+the reference machine for this book (Apple M4, macOS, arm64, 10 logical
+CPUs) showed:
 
 ```text
 threads  bandwidth_gb_s
-1        14.84
-2        26.93
-4        51.31
-6        59.14
-8        75.80
-10       74.11
+1        15.87
+2        31.61
+4        58.18
+6        76.30
+8        89.79
+10       90.63
+15       94.97
+20       94.59
 ```
 
-Roughly linear scaling from 1 to 4 threads (14.84 to 51.31 GB/s, close
-to 4x), then clear flattening from 6 threads onward — 8 and 10 threads
-delivered essentially the same throughput.
+Roughly linear scaling from 1 to 4 threads (15.87 to 58.18 GB/s, close
+to 4x), then clearly decelerating returns from 6 threads onward. Note
+that throughput is still climbing, just slowly, at 10 threads (this
+machine's full logical core count) — it only clearly flattens once the
+sweep goes past that count into oversubscription (15 and 20 threads).
+So the real saturation point on this machine is slightly *beyond* its
+own logical core count, not comfortably before it — sweep past your own
+machine's core count, not just up to it, before concluding where the
+flattening actually happens.
 
-**Interpretation:** compare the single-thread number (14.84 GB/s) against
+**Interpretation:** compare the single-thread number (15.87 GB/s) against
 `random-memory` mode's *implied* bandwidth at the same 64MB working set:
 Chapter 16's data showed roughly 93.8ns per 64-byte access there, which
-works out to about 0.68 GB/s — roughly 22x less than this chapter's
+works out to about 0.68 GB/s — roughly 23x less than this chapter's
 single-thread streaming number, despite both continuously accessing
 memory the entire time. That gap *is* latency-bound versus
 bandwidth-bound, made concrete: the pointer chase's lack of
@@ -171,7 +180,7 @@ memory-level parallelism, not any hardware limitation, is what caps it
 so far below what the same hardware sustains for a friendlier access
 pattern.
 
-**Fallback path:** if `python3` isn't available, run the six
+**Fallback path:** if `python3` isn't available, run the eight
 `cyclelab bandwidth --threads=...` commands directly and read
 `results.bandwidth_gb_per_s` from each run's raw JSON.
 

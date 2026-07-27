@@ -181,9 +181,15 @@ plain, non-dependent loop the compiler can vectorize and the CPU can
 prefetch aggressively -- the opposite access shape from
 sequential-memory/random-memory's deliberately dependent pointer chase,
 because bandwidth measurement needs the hardware's latency-hiding
-tricks turned on, not defeated. Use a `--working-set-size` well beyond
-your machine's last-level cache to measure real DRAM bandwidth rather
-than cache bandwidth. On the reference machine for this book, sweeping
+tricks turned on, not defeated. Each worker allocates and first-touches
+its own buffer itself, after affinity is applied, then waits at a
+barrier until every worker has done the same -- so on a NUMA system,
+each thread's memory lands on its own node rather than all of it landing
+on whichever node the main thread happened to run on, and the reported
+duration excludes allocation time entirely. Use a `--working-set-size`
+well beyond your machine's last-level cache to measure real DRAM
+bandwidth rather than cache bandwidth. On the reference machine for
+this book, sweeping
 `--threads` at a fixed 64M working set showed clear saturation:
 throughput scaled roughly linearly from 1 to 4 threads (14.6 to 52.3
 GB/s) and then flattened from 6 to 10 threads (65.6 to 76.2 GB/s) as the

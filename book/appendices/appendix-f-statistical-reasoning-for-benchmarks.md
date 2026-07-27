@@ -82,10 +82,17 @@ probably a real difference"; **effect size** answers the separate
 question "how big is it, in a unit that doesn't depend on sample size."
 Cohen's *d* (the difference between two means, divided by their pooled
 standard deviation) applied to this appendix's real-effect comparison
-gives *d* ≈ 1.96 — a very large effect by any conventional
-threshold (0.2 small, 0.5 medium, 0.8 large), consistent with
-`--chains=2` roughly 1.7x the throughput of `--chains=1` on this
-machine. The reason effect size matters separately from "is it real":
+gives *d* ≈ 76 — an extreme effect by any conventional threshold
+(0.2 small, 0.5 medium, 0.8 large), and *d* this large is exactly what
+low run-to-run variance plus a genuinely large mean shift produces: the
+pooled standard deviation here (about 3.1M) is tiny relative to the
+234.8M-unit gap between the means, so the same gap that shows up as
+`--chains=2` running roughly 1.7x the throughput of `--chains=1` also
+shows up as a *d* far outside the range effect-size guidance is usually
+written for — a reminder that Cohen's thresholds were calibrated on
+noisier measurements than a tight, low-variance benchmark repetition
+typically produces. The reason effect size matters separately from "is
+it real":
 a large enough sample can make a genuinely tiny, practically
 meaningless difference statistically significant (Chapter 4's own
 territory: more repetitions narrow a confidence interval around

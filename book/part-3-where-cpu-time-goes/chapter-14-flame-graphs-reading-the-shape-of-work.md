@@ -53,6 +53,19 @@ chapter's lab uses directly (`labs/scripts/foldstacks.py` and
 for 3 seconds with macOS `sample`, folded with `foldstacks.py`, rendered
 with `flamegraph_svg.py`. Reference machine: Apple M4, macOS, arm64.*
 
+One naming caveat before reading it: macOS `sample`(1) is a **wall-clock**
+sampler — it snapshots every thread's current stack on a timer regardless
+of whether that thread is actually running on a CPU at that instant,
+unlike `perf record`'s hardware-timer sampling, which only fires on a
+thread that is on-CPU. That is exactly why the main thread's tower below
+shows real width while blocked in `_pthread_join` → `__ulock_wait`: this
+specific figure is a **wall-clock, all-thread-state flame graph**, not a
+strict CPU flame graph, even though every reading skill this chapter
+teaches (width, plateau, wrapper) applies to it identically. Chapter 29
+gives this exact property of `sample` its full treatment; for now, read
+the left tower's width as "time this thread's stack looked like this
+when sampled," not "time this thread spent on-CPU running this code."
+
 Reading it deliberately, bottom to top, left to right:
 
 - **Broad base frames:** the bottommost `thread` frame spans the full
@@ -93,10 +106,17 @@ frame's chain of parents going down to the root — everything directly
 below a given frame in the same tower. A **plateau** is a wide frame
 with little rising above it (self-cost-heavy); a **tower** is a full
 vertical stack of frames from base to top, representing one call path's
-full depth. A **CPU flame graph** is built from on-CPU sampled stacks
-(this chapter's kind); an **off-CPU flame graph** is built instead from
-time spent blocked or waiting, requiring an entirely different capture
-method (Chapter 29) since on-CPU sampling structurally cannot see it.
+full depth. A **CPU flame graph** is built from on-CPU sampled stacks —
+a hardware-timer or PMU-driven sampler that only fires on a thread
+actually running; an **off-CPU flame graph** is built instead from time
+spent blocked or waiting, requiring an entirely different capture
+method (Chapter 29) since genuine on-CPU sampling structurally cannot
+see it. This chapter's own worked example is a close cousin, not a
+strict instance of either: macOS `sample`'s wall-clock sampling shows
+every thread's stack regardless of run state, so it renders blocked
+time (the main thread's tower) with real width too — useful for the
+same reading skills, but not the same guarantee a true CPU flame graph
+makes.
 
 ## Technical Explanation
 
@@ -135,9 +155,13 @@ renderer — the format, not the specific tools, is the actual interface.
 ## Tool View
 
 - What is measured: this chapter's lab captures, folds, and renders a
-  real flame graph from a `cyclelab` run.
-- What is not measured: an off-CPU flame graph (Chapter 29) or a
-  differential flame graph (Chapter 15, next) — both use this same
+  real flame graph from a `cyclelab` run, using macOS `sample`'s
+  wall-clock, all-thread-state sampling (see the Worked Example's
+  caveat) rather than a strict on-CPU-only sampler.
+- What is not measured: a strict CPU flame graph built from genuine
+  on-CPU-only sampling (the canonical `perf record` pipeline below
+  produces one on Linux), an off-CPU flame graph (Chapter 29), or a
+  differential flame graph (Chapter 15, next) — each uses this same
   folded-stack format but a different capture method or a second input
   file, respectively.
 - Required permissions: none for this chapter's lab.
@@ -282,9 +306,14 @@ execution accumulated in the call hierarchy, not a timeline.**
   deeper instead.
 - Separate towers commonly represent separate threads or separate call
   paths active during the same capture window, not sequential events.
-- A CPU flame graph structurally cannot show off-CPU time — a narrow or
-  absent frame here says nothing about whether that path matters for
-  tail latency.
+- A strict CPU flame graph (genuine on-CPU-only sampling) structurally
+  cannot show off-CPU time — a narrow or absent frame there says nothing
+  about whether that path matters for tail latency. This chapter's own
+  worked example is captured differently (macOS `sample`'s wall-clock,
+  all-thread-state sampling), which is exactly why its blocked main
+  thread shows up with real width instead of vanishing — a property of
+  the specific tool, not a general feature of CPU flame graphs, and
+  Chapter 29's full subject.
 
 ## Further Reading
 

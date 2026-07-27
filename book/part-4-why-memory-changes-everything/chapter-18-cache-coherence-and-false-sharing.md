@@ -141,16 +141,16 @@ arm64, 10 logical CPUs) showed:
 
 ```text
 padding  threads  throughput_incr_s
-packed   1        1,024,144,377
-padded   1          996,902,728
-packed   8        4,187,346,953
-padded   8        5,656,504,211
-packed   10       4,662,959,654
-padded   10       5,806,974,070
+packed   1        1,095,871,075
+padded   1        1,101,491,637
+packed   8        4,323,376,492
+padded   8        5,373,728,288
+packed   10       5,064,709,887
+padded   10       6,231,229,929
 ```
 
-At 1 thread, packed and padded were within 3% of each other. At 8
-threads, padded led by roughly 35%.
+At 1 thread, packed and padded were within 1% of each other. At 8
+threads, padded led by roughly 24%.
 
 **Interpretation:** the gap's exact size is specific to this machine —
 different core counts, cache hierarchies, and coherence interconnects
