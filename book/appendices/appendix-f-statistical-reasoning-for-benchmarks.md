@@ -9,22 +9,33 @@ illustrative placeholders.
 
 ## The real data this appendix uses
 
-Two comparisons, twelve repetitions each, `cyclelab compute
---duration=0.3 --threads=1 --op=int`:
+Two comparisons, twelve *paired blocks* each, `cyclelab compute
+--duration=0.3 --threads=1 --op=int`. Each block runs both
+configurations back to back, in a freshly randomized order within the
+block (not all of one configuration's runs, then all of the other's,
+in two separate sessions) — the same interleaving discipline Chapter
+4/15 use for a single before/after comparison and Chapter 8 uses for
+its five-way chain-count sweep, applied here to keep this appendix's
+own statistics honest about what they can and can't establish:
 
-**A real effect** (`--chains=1` vs. `--chains=2`):
+**A real effect** (`--chains=1` vs. `--chains=2`, paired by block):
 
 ```text
-chains=1: 655.0M 679.5M 680.6M 686.8M 691.7M 690.3M 697.2M 693.8M 694.5M 693.4M 696.0M 697.5M
-chains=2: 1298.2M 1299.4M 1299.6M 1297.7M 1298.2M 1295.5M 1296.1M 1294.0M 1297.8M 1292.2M 1294.4M 1294.9M
+block     1      2      3      4      5      6      7      8      9     10     11     12
+chains=1  725.4  720.8  726.0  671.8  719.2  722.7  723.6  721.3  713.5  716.5  718.9  716.2
+chains=2 1356.3 1338.7 1314.4 1329.9 1328.3 1332.6 1327.8 1327.7 1318.9 1319.3 1300.0 1313.0
 ```
 
-**No real effect** (`--chains=1` run twice, as two separate sessions):
+**No real effect** (`--chains=1` run twice per block, order randomized
+within each block — not two separate sessions):
 
 ```text
-run 1: 708.1M 707.2M 713.9M 705.0M 714.2M 710.9M 712.3M 712.0M 704.4M 709.9M 715.0M 711.9M
-run 2: 711.8M 713.8M 713.7M 712.6M 715.1M 711.1M 711.0M 712.2M 714.2M 711.9M 714.2M 715.2M
+block    1      2      3      4      5      6      7      8      9     10     11     12
+run A   719.2  717.0  712.6  719.7  717.8  710.6  702.9  713.3  713.1  715.5  717.4  714.0
+run B   719.6  708.1  721.4  721.0  713.9  715.8  700.6  718.4  712.0  717.9  716.5  720.1
 ```
+
+(Both tables in millions of ops/s.)
 
 ## Medians and percentiles
 
@@ -32,22 +43,22 @@ Chapter 4 already prefers the median and relevant percentiles over the
 mean, for the same reason this appendix's own data reinforces: a mean
 is more sensitive to a single outlier run (a thermal event, a
 background process, one unlucky scheduling decision) than a median is.
-The `chains=1` data above has one visible low outlier (655.0M against a
-cluster around 680-697.5M) — a mean would shift noticeably toward it;
-the median (692.6M) barely moves. Percentiles generalize this:
-reporting p50/p90 of a benchmark's own repeated runs (not just the
-workload's own latency distribution, Chapter 3's tail latency) shows
-whether a "typical" run and a "worse" run are close together or far
-apart — informative on its own, before even comparing two
-configurations. One honest limit worth stating explicitly: with twelve
-repetitions, a p99 is not a meaningful tail estimate — p99 of twelve
-values is essentially just the maximum, and the maximum of a small
-sample is a noisy, high-variance statistic in its own right, not a
-stable characterization of "how bad the worst case gets." Reaching for
-p99 specifically requires far more repetitions than this appendix uses
-(hundreds, not a dozen); with a dozen runs, report the median, and p90
-only loosely, rather than reading precision into a number this small a
-sample can't actually support.
+The `chains=1` column above has one visible low outlier (671.8M in
+block 4, against a cluster around 713-726M) — a mean would shift
+noticeably toward it; the median (720.0M) barely moves. Percentiles
+generalize this: reporting p50/p90 of a benchmark's own repeated runs
+(not just the workload's own latency distribution, Chapter 3's tail
+latency) shows whether a "typical" run and a "worse" run are close
+together or far apart — informative on its own, before even comparing
+two configurations. One honest limit worth stating explicitly: with
+twelve repetitions, a p99 is not a meaningful tail estimate — p99 of
+twelve values is essentially just the maximum, and the maximum of a
+small sample is a noisy, high-variance statistic in its own right, not
+a stable characterization of "how bad the worst case gets." Reaching
+for p99 specifically requires far more repetitions than this appendix
+uses (hundreds, not a dozen); with a dozen runs, report the median, and
+p90 only loosely, rather than reading precision into a number this
+small a sample can't actually support.
 
 ## Confidence intervals
 
@@ -61,45 +72,39 @@ than assuming a specific theoretical distribution shape.
 
 The statistic worth bootstrapping directly is the *difference* (or
 ratio) between the two configurations, not each configuration's own
-mean separately: checking whether two marginal confidence intervals
-happen to overlap is a real but conservative, less sensitive test than
-computing a confidence interval for the difference itself, and the two
-can disagree — two overlapping marginal intervals can still hide a real,
-detectable difference between them. Applied to this appendix's data
-(2,000 resamples, resampling each configuration's twelve values and
-recomputing the mean difference each time, 95% interval): the real
-effect gives a difference of [602.8M, 616.1M] ops/s (`chains=2` minus
-`chains=1`) and a ratio of [1.87x, 1.91x] — entirely positive, entirely
-above 1x, real evidence the two configurations differ, consistent with
-the separate-interval comparison below but more direct.
+mean separately, and — since this appendix's data is paired by block —
+the resampling unit should be the *block*, not the individual run:
+resample the twelve blocks with replacement, and for each resampled set
+recompute the mean of that block's own paired difference (`chains=2`'s
+value minus `chains=1`'s value, within the same block). Resampling
+individual runs instead of blocks would implicitly assume every run is
+an independent draw regardless of which block it came from — an
+assumption this appendix's own paired collection doesn't need to make,
+since pairing is exactly what controls for whatever varies block to
+block (thermal state, frequency scaling, background load) without
+having to assume it away.
 
-The same procedure applied to the two `chains=1` *sessions* — the same
-configuration, run in two separate back-to-back sessions — gives a
-difference of [0.5M, 4.8M] ops/s and a ratio of [1.0007x, 1.0067x]:
-barely, but detectably, distinguishable from zero *for these two
-specific sessions*. That last qualifier matters: this is one session
-compared against one other session, twelve repetitions each, not many
-independently-collected session pairs — the bootstrap resamples
-individual runs as though they were independent draws from each
-session's own distribution, which they reasonably are *within* a
-session, but it says nothing about whether this particular gap would
-show up again between a fresh pair of sessions, since there is only one
-pair here to begin with. The honest reading is narrower than "the two
-sessions really differ, reproducibly": it's "these two specific
-sessions were detectably different from each other, by something —
-thermal state, frequency scaling, background load, or genuine
-run-to-run drift are all plausible, and nothing in this data
-distinguishes between them." That is itself the useful lesson: even a
-"same configuration, run twice" comparison isn't immune to whatever
-changed between the two sessions, which is exactly why Chapter 4 and
-Chapter 8's own guided lab interleave configurations *within* one
-session rather than trusting two separate blocks run back to back.
-Comparing the two configurations' separate marginal intervals ([708.4M,
-712.3M] and [712.3M, 713.9M], meeting almost exactly at their shared
-edge) would have looked like clean "no difference" and missed this
-smaller gap entirely — a real illustration of why the direct-difference
-method is more sensitive, whatever the correct explanation for what it
-found here turns out to be.
+Applied to this appendix's data (2,000 resamples of the twelve blocks,
+95% interval): the real effect gives a block-level difference of
+[599.1M, 621.4M] ops/s and a ratio of [1.83x, 1.88x] — entirely
+positive, entirely above 1x, real evidence the two configurations
+differ. The same procedure applied to the "no real effect" pair — the
+same configuration, twice per block, order randomized within each block
+— gives a block-level difference of [-1.6M, 3.5M] ops/s and a ratio of
+[0.998x, 1.005x]: an interval that **includes zero** (equivalently,
+includes 1x for the ratio) — correctly failing to distinguish this pair
+from "no difference," exactly what a genuinely null comparison should
+produce once the data is collected in a way that controls for
+block-to-block variation. That correct null result is itself the point:
+resampling *individual* runs from two separately-collected, un-paired
+sessions instead (as an earlier draft of this appendix did) can produce
+an interval that barely excludes zero even when nothing about the
+underlying configurations differs — not because the direct-difference
+method is wrong, but because treating two un-paired sessions' runs as
+freely interchangeable throws away the information that would have
+correctly attributed a session-to-session shift to the sessions, not to
+the configuration. Pairing by block, and resampling at the block level,
+is what makes the null result actually look null.
 
 ## Bootstrap intuition
 
@@ -124,12 +129,12 @@ probably a real difference"; **effect size** answers the separate
 question "how big is it, in a unit that doesn't depend on sample size."
 Cohen's *d* (the difference between two means, divided by their pooled
 standard deviation) applied to this appendix's real-effect comparison
-gives *d* ≈ 70 — an extreme effect by any conventional threshold
+gives *d* ≈ 42 — an extreme effect by any conventional threshold
 (0.2 small, 0.5 medium, 0.8 large), and *d* this large is exactly what
 low run-to-run variance plus a genuinely large mean shift produces: the
-pooled standard deviation here (about 8.6M) is tiny relative to the
-608.5M-unit gap between the means, so the same gap that shows up as
-`--chains=2` running roughly 1.88x the throughput of `--chains=1` also
+pooled standard deviation here (about 14.4M) is tiny relative to the
+609.3M-unit gap between the means, so the same gap that shows up as
+`--chains=2` running roughly 1.85x the throughput of `--chains=1` also
 shows up as a *d* far outside the range effect-size guidance is usually
 written for — a reminder that Cohen's thresholds were calibrated on
 noisier measurements than a tight, low-variance benchmark repetition
@@ -177,26 +182,23 @@ whichever point in the sweep looked most interesting.
 ## Practical versus statistical significance
 
 The distinction this whole appendix builds toward: a difference can be
-statistically well-established within the data at hand (a difference
-confidence interval that excludes zero) and still not matter for any
-decision that depends on it — and, separately, "well-established in
-this data" is not automatically "would show up again." This appendix's
-own "no real effect" pair makes both points at once: the two `chains=1`
-sessions differ detectably, by roughly 0.07-0.67%, within these two
-specific sessions — genuinely "significant" by the direct-difference
-test, and small enough that it wouldn't be worth chasing even if it
-were a real, per-run effect. But with only one session on each side,
-this appendix's own data cannot say whether that gap would recur
-between a fresh pair of sessions, or whether it was specific to
-whatever changed between these two particular ones. Both readings point
-the same direction in practice — don't chase it — but for different
-reasons, and only the weaker one ("too small to matter, even if real")
-is something this specific comparison actually established; the
-stronger one ("a real, reproducible per-run effect") would need
-multiple independent session pairs, not the twelve-repetitions-times-two
-this appendix has. The reverse also holds: a difference too small to
-distinguish from noise in ten runs might still be real and meaningful,
-just under-measured — more repetitions, not a different conclusion, is
+statistically well-established (a block-level difference confidence
+interval that excludes zero, a real, reproducible effect under this
+appendix's own paired-block collection) and still not matter for any
+decision that depends on it — a real, repeatable 0.3% throughput
+difference is "significant" in the statistical sense demonstrated
+above, but rarely worth the engineering cost of chasing unless the
+specific context makes 0.3% valuable at scale. This appendix's actual
+real-effect comparison is nowhere near that marginal — `chains=2`'s
+1.83x-1.88x block-level speedup is both statistically well-established
+*and* large enough to matter for essentially any purpose — but the
+distinction still applies in general, and shows up concretely in the
+"no real effect" pair: once properly paired and interleaved, its
+block-level difference interval includes zero, correctly signaling
+nothing here is worth chasing at all, statistically or practically.
+The reverse also holds: a difference too small to distinguish from
+noise in ten runs might still be real and meaningful, just
+under-measured — more repetitions, not a different conclusion, is
 the correct response to that specific situation.
 Chapter 4's own discipline (state what the data supports and what it
 doesn't, separate observation from recommendation) is this appendix's

@@ -189,19 +189,26 @@ make doctor          # confirm perf is installed and check perf_event_paranoid
 
 ```bash
 perf stat -r 5 -e task-clock,cycles,instructions -- \
-  ./labs/cyclelab/bin/cyclelab compute --duration=1 --threads=1 --chains=1 --quiet
+  ./labs/cyclelab/bin/cyclelab compute --iterations=25000000 --threads=1 --chains=1 --quiet
 perf stat -r 5 -e task-clock,cycles,instructions -- \
-  ./labs/cyclelab/bin/cyclelab compute --duration=1 --threads=1 --chains=8 --quiet
+  ./labs/cyclelab/bin/cyclelab compute --iterations=25000000 --threads=1 --chains=8 --quiet
 ```
 
-**Expected qualitative result:** both runs should report similar
-`instructions` counts (same instruction mix, same duration budget scaled
-by iteration count — compare `instructions` divided by
-`results.total_iterations` from each run's JSON if you redirect
-`--output` to a file alongside `perf stat`'s stderr output). The
-`--chains=8` run should report a materially higher `insn per cycle`
-figure than `--chains=1` — the direct counter confirmation of Chapter
-7 and 8's throughput-based evidence for the same effect.
+Note `--iterations=N` here, not `--duration=N`: both runs need to
+request the identical amount of work for the `instructions` comparison
+below to mean what it claims. Two runs measured for the same *duration*
+instead would retire proportionally more instructions in whichever run
+is faster (roughly 3x more for `--chains=8`, matching Chapter 7 and 8's
+own throughput ratio) — a real number, but the wrong one to read as
+"these two runs did the same amount of work."
+
+**Expected qualitative result:** with iterations held equal, both runs
+should report similar `instructions` counts (the same requested
+arithmetic work, per Chapter 7's own caveat about what that does and
+doesn't prove about the compiled code). The `--chains=8` run should
+report a materially higher `insn per cycle` figure than `--chains=1` —
+the direct counter confirmation of Chapter 7 and 8's throughput-based
+evidence for the same effect.
 
 **Interpretation:** if your `perf stat` numbers show `--chains=8` with
 meaningfully higher IPC than `--chains=1`, you've directly measured what

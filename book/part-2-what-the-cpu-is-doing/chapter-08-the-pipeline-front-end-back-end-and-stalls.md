@@ -181,48 +181,54 @@ and others two) hands one or more chains a longer critical path than the
 rest for reasons that have nothing to do with the hardware — a confound
 this lab avoids by construction rather than needing to explain away.
 
-**Expected qualitative result:** throughput should rise sharply from 1
-toward 4 chains, then — rather than settling into a clean, flat plateau
-— stay uneven even across this fairness-controlled set. This script
-interleaves repetitions round-robin across all five chain counts (1
-rep of chains=1, then 2, then 4, then 8, then 16, then back to 1, and so
-on) rather than running all nine repetitions of one chain count before
-moving to the next — the same reason Chapter 4/15 interleave "before"
-and "after" runs, applied here to a five-way sweep: a blocked run order
-would confound chain count with whatever changes over the sweep's
-wall-clock duration (thermal state, frequency scaling, background
-load), so a chain count that happened to run later could look faster
-for reasons having nothing to do with chain count itself. One example
-run (9 interleaved repetitions per chain count; medians shown, all
+**Expected qualitative result:** throughput should rise as chain count
+increases from 1, and those gains should taper off — that part is
+portable. The exact shape past that point (a clean plateau, a gradual
+decline, something uneven) is *not* itself a portable expectation; it
+depends on the specific compiler and microarchitecture, and this
+black-box throughput sweep can observe whatever shape shows up without
+being able to explain it. This script collects each round's five
+repetitions (one per chain count) in a freshly randomized order every
+round, not a fixed rotation and not run in blocks — a *fixed* rotating
+order would still confound chain count with whichever position always
+runs first, last, and so on within each round, in addition to the
+sweep-wide drift a blocked order confounds it with. Randomizing the
+order fresh each round is what actually rules both out — the same logic
+as a randomized block design generally, applied here to a five-way
+sweep instead of Chapter 4/15's two-way before/after. One example run
+(9 randomized-order repetitions per chain count; medians shown, all
 individually reproducible to within about 1-2%) on the reference
 machine for this book (Apple M4, macOS, arm64) showed:
 
 ```text
 chains   throughput_ops_s
-1        694,447,492
-2        1,295,486,232
-4        2,318,177,737
-8        2,210,464,787
-16       2,538,432,653
+1        702,656,358
+2        1,299,768,237
+4        2,329,861,466
+8        2,216,408,833
+16       2,546,049,694
 ```
 
-Throughput roughly tripled from 1 to 4 chains, as expected. It does not
-then plateau cleanly: 8 chains measures a little *below* 4, and 16 —
-the highest chain count tested — is the fastest result in the table.
-This specific ranking is reproducible on this machine across repeated
-full sweeps (lands within a percent or two every time, run order and
-all), so it isn't run-to-run noise and it isn't a run-order artifact
-either — the interleaving above is exactly what rules that out. It also
-isn't the earlier schedule-fairness artifact, since 4, 8, and 16 all
-divide 16 evenly. It's a real, second pattern on top of the first one.
+Throughput roughly tripled from 1 to 4 chains, as expected. On this
+particular machine and compiler, it does not then plateau cleanly: 8
+chains measures a little *below* 4, and 16 — the highest chain count
+tested — is the fastest result in the table. This specific ranking is
+reproducible here across repeated full sweeps, each with its own fresh
+random ordering, so it isn't run-to-run noise, and it isn't explained by
+any chain count consistently landing in a favorable position within a
+round or across the sweep, since the order itself changes every time.
+It also isn't the earlier schedule-fairness artifact, since 4, 8, and 16
+all divide 16 evenly. It's a real, second pattern on top of the first
+one — specific to this machine and compiler, not a general property of
+out-of-order CPUs.
 
 **Interpretation:** the initial rise (1 to 4 chains) is this chapter's
 core lesson working exactly as expected: more independent work, more of
 the pipeline kept busy. The remaining unevenness among 4, 8, and 16 is
-genuine and not an artifact of this lab's schedule, but this portable,
-black-box throughput sweep has no way to say *why* — register
-allocation, code layout, and other compiler-specific choices are all
-plausible candidates, and a specific answer would need to come from
+genuine and not an artifact of this lab's schedule or collection order,
+but this portable, black-box throughput sweep has no way to say *why*
+— register allocation, code layout, and other compiler-specific choices
+are all plausible candidates, and a specific answer would need to come from
 reading the generated assembly for these three specializations directly
 (Tool View, above), not from the throughput numbers alone. Resist the
 temptation to reach for a hardware explanation (vector width, cache
@@ -257,10 +263,12 @@ occurs in practice.
 **Correct intuition:** The same CPU, running the same source-level
 update workload (Chapter 7's own caveat: `--chains=1` and `--chains=16`
 are separately compiled specializations, so "exact same instruction
-mix" is a machine-code-level claim this book doesn't verify), shows
-dramatically different stall behavior depending purely on how
-independent the requested work is (this chapter's lab) — nothing about
-the hardware changed between the two runs.
+mix" is a machine-code-level claim this book doesn't verify), shows a
+dramatically different *throughput* depending purely on how independent
+the requested work is (this chapter's lab) — a result *consistent with*
+dramatically different stall behavior, though this portable lab
+measures throughput, not stalls directly; nothing about the hardware
+changed between the two runs.
 
 **Analogy:** A single cashier isn't "broken" when a line forms — the
 line is a normal consequence of customers arriving faster than one

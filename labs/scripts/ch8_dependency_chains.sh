@@ -13,14 +13,21 @@
 # hardware being measured. Testing only divisors of 16 removes that
 # confound by construction instead of needing to explain it away.
 #
-# Repetitions are interleaved round-robin across chain counts (1, 2, 4,
-# 8, 16, 1, 2, 4, 8, 16, ...), not run in blocks (all of chain=1, then
-# all of chain=2, ...): a blocked order confounds chain count with
-# whatever changes over the run's wall-clock duration (thermal state,
-# frequency scaling, background load), exactly Chapter 4's own
-# interleaved-comparison discipline, applied here to a five-way sweep
-# instead of a two-way before/after.
+# Repetitions are collected in a freshly randomized order every round
+# (not a fixed round-robin, and not run in blocks): a *fixed* rotating
+# order (1, 2, 4, 8, 16, 1, 2, 4, 8, 16, ...) still confounds chain
+# count with within-round position -- whichever chain count always runs
+# first could differ from the others because of a real, repeatable
+# per-position effect (frequency ramp-up, cache state at the start of a
+# round), not because of chain count itself. Randomizing which chain
+# count lands in which position, fresh every round, is what actually
+# rules that out -- the same logic as randomized block design generally,
+# applied here to a five-way sweep instead of a two-way before/after.
 set -uo pipefail
+# (Not set -e: this project's lab scripts consistently avoid it --
+# set -e's behavior inside command substitutions and conditional
+# contexts is a well-known footgun, and this script instead validates
+# each parsed value explicitly, below, rather than relying on it.)
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CYCLELAB="$SCRIPT_DIR/../cyclelab/bin/cyclelab"
@@ -40,25 +47,33 @@ CHAIN_LIST=(1 2 4 8 16)
 
 echo "Chapter 8 lab: throughput vs. independent-chain count (--chains), same"
 echo "source-level update workload throughout, $REPS repetitions per chain"
-echo "count, interleaved round-robin (not run in blocks) to avoid confounding"
-echo "chain count with time/thermal drift. Only chain counts dividing 16"
-echo "evenly are tested (1, 2, 4, 8, 16) -- see this script's header comment."
+echo "count, each round in a freshly randomized order to avoid confounding"
+echo "chain count with within-round position or sweep-wide drift. Only chain"
+echo "counts dividing 16 evenly are tested (1, 2, 4, 8, 16) -- see this"
+echo "script's header comment."
 echo
 
 # Plain indexed arrays, not associative -- macOS ships bash 3.2 by
 # default, which has no associative-array support. RESULTS_N holds every
-# CHAIN_LIST[N]'s repetitions, interleaved with every other index's.
+# CHAIN_LIST[N]'s repetitions, collected in randomized order.
 NCHAINS=${#CHAIN_LIST[@]}
 for ((i = 0; i < NCHAINS; i++)); do
   eval "RESULTS_$i=()"
 done
 
 for ((r = 0; r < REPS; r++)); do
-  for ((i = 0; i < NCHAINS; i++)); do
+  ORDER=$(python3 -c "import random; idx=list(range($NCHAINS)); random.shuffle(idx); print(' '.join(map(str, idx)))")
+  for i in $ORDER; do
     CHAINS="${CHAIN_LIST[$i]}"
     OUT="$("$CYCLELAB" compute --duration="$DURATION" --threads=1 --op=int --chains="$CHAINS" --quiet)"
     T=$(printf '%s' "$OUT" | python3 -c \
       "import json,sys; print(json.load(sys.stdin)['results']['throughput_ops_per_s'])")
+    case "$T" in
+      ''|*[!0-9.]*)
+        echo "cyclelab: unexpected non-numeric throughput '$T' for chains=$CHAINS (rep $r) -- aborting" >&2
+        exit 1
+        ;;
+    esac
     eval "RESULTS_$i+=(\"\$T\")"
   done
 done
@@ -73,21 +88,18 @@ for ((i = 0; i < NCHAINS; i++)); do
 done
 
 echo
-echo "Interpretation: throughput should rise sharply from 1 chain toward 4,"
-echo "then -- rather than settling into a clean plateau -- stay uneven even"
-echo "across this fairness-controlled set (every tested value divides 16"
-echo "evenly, so no chain count here gets an unfair, longer critical path"
-echo "than another). On this book's reference machine, 8 chains measures a"
-echo "little below 4, and 16 is the fastest of all. Because every chain"
-echo "count's repetitions are interleaved with every other's, this ranking"
-echo "cannot be explained by one chain count simply running earlier or later"
-echo "in the sweep -- a real confound the blocked-order version of this"
-echo "script had until this interleaving was added. That remaining"
-echo "unevenness is real and reproducible, but this black-box throughput"
-echo "sweep cannot say why -- register allocation, code layout, and other"
-echo "compiler-specific choices are all plausible candidates, and pinning"
-echo "one down requires reading the generated assembly (cc -S) for the"
-echo "specific chain counts in question, not just comparing throughput"
-echo "numbers. Do not expect the same favored chain counts on a different"
-echo "machine or compiler; do expect the initial 1-to-4 rise and some"
-echo "uneven, non-monotonic shape past it, rather than a flat ceiling."
+echo "Interpretation: throughput should rise as chain count increases from 1,"
+echo "then the gains should taper off -- the portable part of this lab's"
+echo "result. The exact shape past that point (a clean plateau, a gradual"
+echo "decline, or something uneven) is not itself portable -- it depends on"
+echo "the specific compiler and microarchitecture, and this black-box"
+echo "throughput sweep can observe that shape but not explain it. On this"
+echo "book's reference machine, the measured shape is uneven rather than a"
+echo "clean plateau: 8 chains measures a little below 4, and 16 is the"
+echo "fastest of all. Because every round's chain-count order is freshly"
+echo "randomized, this ranking cannot be explained by one chain count"
+echo "simply occupying a favorable position within each round, or by a slow"
+echo "drift across the whole sweep -- both are real confounds earlier"
+echo "versions of this script had. Pinning down *why* this specific machine"
+echo "favors these specific chain counts requires reading the generated"
+echo "assembly (cc -S) for them, not just comparing throughput numbers."

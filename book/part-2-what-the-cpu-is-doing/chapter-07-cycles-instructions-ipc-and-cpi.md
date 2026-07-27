@@ -179,12 +179,20 @@ One honest limit on that claim: `--chains=1` and `--chains=8` are two
 while the source-level operation sequence is identical, the compiler is
 free to generate different machine code for each — different register
 allocation at minimum, and potentially different instruction counts,
-depending on the compiler and target. This chapter's portable lab
-cannot verify retired-instruction counts directly; that verification is
-exactly what the `perf stat` commands below are for, and this result
-should be read as *evidence consistent with* a large IPC difference,
-not as a machine-code-level proof of one, unless you've confirmed equal
-instruction counts for your own build.
+opcodes, or spill behavior, depending on the compiler and target. This
+chapter's portable lab cannot verify retired-instruction counts
+directly; that verification is exactly what the `perf stat` commands
+below are for, and this result should be read as *evidence consistent
+with* a large IPC difference, not as machine-code-level proof of one.
+Even a confirmed equal `instructions` count between the two runs is not
+by itself a full equivalence proof — it rules out a large difference in
+how much work was actually retired, which is the specific, narrower
+thing this chapter needs, but two runs can retire the same instruction
+*count* while still differing in opcode mix, register pressure, or
+spill/reload traffic. Only reading the generated assembly for both
+specializations directly (`cc -S`, Chapter 6's technique) settles that
+stronger claim; an equal instruction count is the cheaper, still
+meaningful check this chapter actually asks for.
 
 **Expected qualitative result:** `--chains=8` should show substantially
 higher throughput than `--chains=1`, despite requesting the identical
@@ -203,19 +211,36 @@ count that is identical between the two.
 the outside, without reading the counter directly — the same requested
 arithmetic operations retiring much faster, on average, once the CPU
 has independent work to interleave. A reader with `perf stat` access on
-Linux can confirm this properly, in two steps and in this order: first,
-with both runs fixed to the identical `--iterations` count (the Tool
-View commands above), check that `instructions` comes out close between
-the two — that specific check is what confirms the compiled code didn't
-diverge in a way that matters, *because* the work requested was held
-equal. Only after that check passes does comparing `cycles` and `insn
-per cycle` mean what this chapter claims it means. Skipping the
-equal-work step and instead comparing two runs measured for the same
-*duration* (not the same iteration count) would retire roughly 3x more
-instructions in the faster run, matching this chapter's own throughput
-ratio — a real number, but one that confirms nothing about whether the
-compiled code diverged, since it never held the requested work equal in
-the first place.
+Linux can confirm this properly, in three steps and in this order:
+first, with both runs fixed to the identical `--iterations` count (the
+Tool View commands above), check that `instructions` comes out close
+between the two — that specific check rules out a large difference in
+how much work was actually retired, the narrower and cheaper thing this
+step can establish (not full machine-code equivalence — see the Guided
+Lab's own caveat above). Only after that check passes does comparing
+`cycles` and `insn per cycle` mean what this chapter claims it means;
+if a stronger equivalence claim matters, reading the generated assembly
+for both specializations is the step that actually settles it. Skipping
+the equal-work step entirely and instead comparing two runs measured
+for the same *duration* (not the same iteration count) would retire
+roughly 3x more instructions in the faster run, matching this chapter's
+own throughput ratio — a real number, but one that answers a different
+question than "did the compiled code diverge," since it never held the
+requested work equal in the first place.
+
+One further limit on this specific validation, worth naming rather than
+glossing over: `perf stat -r 10` repeats *one* command ten times: the
+two Tool View commands above still collect all ten `chains=1`
+repetitions in one block, then all ten `chains=8` repetitions in a
+separate block afterward, not interleaved with each other. That's the
+same block-order confound Chapter 8's guided lab fixes for its own
+five-way sweep by randomizing collection order every round. A fully
+rigorous version of this specific check would alternate individual
+`perf stat` invocations between the two configurations (or use a
+wrapper script that does), rather than running `perf stat -r 10` once
+per configuration back to back — a refinement this chapter leaves as an
+exercise, since these commands are already documented, not tested, on
+this book's own reference machine.
 
 **Fallback path:** already this chapter's primary path — the portable
 `cyclelab`-only comparison stands on its own without `perf`, as evidence
@@ -290,9 +315,10 @@ performance verdict without elapsed time and workload context.**
   Chapter 4's thermal/frequency-scaling cautions apply directly here.
 - Comparing counters across two different workloads or input sizes
   compares two different things, not a before/after of the same thing.
-- The same instruction sequence can retire far faster with independent
-  work available to interleave than without it — measurable even without
-  reading a hardware counter directly, as this chapter's lab shows.
+- The same amount and mix of requested arithmetic work can execute far
+  faster when its data dependencies expose more independent operations
+  — measurable even without reading a hardware counter directly, as this
+  chapter's lab shows.
 - `perf stat` is the standard Linux tool for reading these counters
   directly; Chapter 10 covers it in depth.
 
