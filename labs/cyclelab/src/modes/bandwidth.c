@@ -140,8 +140,15 @@ static void *bw_worker(void *arg) {
      * allocate and initialize every worker's buffer up front, before any
      * worker's affinity was even applied, would place all of it on
      * whichever node the main thread happened to be running on --
-     * exactly the confound this mode exists to avoid, since its whole
-     * point is measuring bandwidth from each worker's own local memory. */
+     * exactly the confound this fixes. This alone does not *guarantee*
+     * a worker keeps running on the node its memory landed on for the
+     * rest of the timed loop: with the default --affinity=none, the
+     * scheduler is free to migrate a worker to a different node after
+     * first-touch, and this mode does not detect or prevent that. A run
+     * that needs guaranteed-local access for the entire timed region
+     * should pair this mode with explicit CPU affinity or `numactl`
+     * CPU/node binding (Chapter 25) -- first-touch ordering fixes where
+     * initialization happens; it does not pin anything afterward. */
     long n = ctx->num_doubles;
     double *buf = malloc((size_t)n * sizeof(double));
     int failed = (buf == NULL);

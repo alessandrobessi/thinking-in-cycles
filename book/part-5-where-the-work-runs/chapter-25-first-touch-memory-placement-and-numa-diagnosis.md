@@ -59,8 +59,9 @@ physically moving it closer — weighing that against the real cost of
 the move itself. **NUMA hit/miss statistics** report *page-allocation*
 outcomes — whether a page was actually allocated on the node its policy
 preferred (`numa_hit`) or had to fall back to a different node
-(`numa_miss`), accumulated since the process started — not a live tally
-of individual memory accesses. They are the right evidence for "did
+(`numa_miss`) — a system-wide, per-node kernel counter, accumulated
+since boot, not a per-process or a live tally of individual memory
+accesses. They are the right evidence for "did
 placement happen the way this policy intended," a necessary precondition
 for good locality; they are not themselves a measurement of how many
 memory *accesses* ended up local versus remote, which no counter at this
@@ -127,19 +128,24 @@ whose access pattern changes faster than migration can track it.
   documented, not tested**, consistent with Chapter 24's confirmed
   single-node reference machine.
 
-  One instrumentation caveat: `numastat -p <pid>` reports page-placement
-  and allocation counters (`numa_hit`, `numa_miss`, and related fields) —
-  whether the pages a process is using were actually allocated on that
-  process's preferred or requested node, accumulated since the process
-  started. It does not report a live tally of which fraction of memory
-  *accesses* were satisfied locally versus remotely; no per-access
-  counter like that exists at this layer. In this comparison, what
-  actually demonstrates the local-versus-remote cost difference is the
-  elapsed-time (or `ns_per_access`) gap between the two `--cpunodebind`
-  runs themselves; `numastat -p` is useful alongside that for confirming
-  the pages genuinely landed where `--membind` asked them to (a
-  placement check), not as a substitute measurement of access locality
-  itself.
+  One instrumentation caveat, since `numastat` has two distinct forms
+  that are easy to conflate: plain `numastat`, with no argument, reports
+  system-wide, per-node allocator counters (`numa_hit`, `numa_miss`,
+  `numa_foreign`, `local_node`, `other_node`, in pages, accumulated since
+  boot) — evidence about the allocator's own behavior across the whole
+  machine, not about any one process. `numastat -p <pid>`, the form used
+  above, reports something different: that specific process's *current*
+  resident memory, broken down by node and category (heap, stack,
+  private, and so on) — a snapshot of where a process's memory actually
+  lives right now, not a hit/miss counter at all. Read here, it is a
+  genuine placement check ("did this process's memory end up on the node
+  `--membind` asked for") — useful alongside the interleaved throughput
+  comparison, not a substitute for it. Neither form of `numastat` reports
+  a live tally of which fraction of memory *accesses* were satisfied
+  locally versus remotely; no per-access counter like that exists at this
+  layer. What actually demonstrates the local-versus-remote cost
+  difference in this comparison is the elapsed-time (or `ns_per_access`)
+  gap between the two `--cpunodebind` runs themselves.
 - Common failure mode: pinning CPU placement (Chapter 23) without also
   addressing memory placement, leaving the exact mismatch this chapter's
   story describes fully intact — CPU affinity alone never touches memory
@@ -163,11 +169,12 @@ narrower question above:
    primarily the elapsed-time (or `ns_per_access`) gap between the two
    `--cpunodebind` runs, since that gap *is* the local-versus-remote
    cost difference. Separately, write down what you'd want `numastat -p
-   <pid>`'s `numa_hit`/`numa_miss` fields to show as a placement check —
-   confirmation that each run's pages actually landed on the node
-   `--membind` requested — keeping in mind that those fields count page
-   allocations, not individual memory accesses, so they corroborate
-   *where the memory is*, not *how fast reaching it was*.
+   <pid>`'s per-node resident-memory breakdown to show as a placement
+   check — confirmation that each run's memory actually landed on the
+   node `--membind` requested — keeping in mind that this per-process
+   view reports *where the memory currently resides*, not a count of
+   individual memory accesses, so it corroborates placement, not *how
+   fast reaching that memory was*.
 3. State what changing the setup thread's pinning (rather than the
    workers') would be expected to do to the same experiment, and why
    that's a different fix than pinning the workers themselves.

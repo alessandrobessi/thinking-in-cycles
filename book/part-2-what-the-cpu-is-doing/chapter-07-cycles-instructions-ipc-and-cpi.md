@@ -155,39 +155,58 @@ to see IPC numbers directly.
 ./labs/scripts/ch7_ipc_intuition.sh
 ```
 
-This runs the exact same per-iteration instruction mix (`--op=int`, 16
-unrolled arithmetic operations per iteration either way) once as a single
-dependency chain (`--chains=1`) and once as eight independent chains
-(`--chains=8`), so any throughput difference between the two comes from
-how efficiently the CPU could pack those *same* instructions into time,
-not from doing different amounts of work.
+This runs the same per-iteration *arithmetic operation sequence* at the
+C source level (`--op=int`, 16 unrolled slots, each doing the identical
+multiply/add/xor either way) once as a single dependency chain
+(`--chains=1`) and once as eight independent chains (`--chains=8`), so
+any throughput difference between the two is a candidate for "how
+efficiently the CPU could pack those operations into time," not a
+difference in how much arithmetic work was requested — that part is
+verifiable directly by reading `labs/cyclelab/src/modes/compute.c`'s
+`CYCLELAB_DEFINE_COMPUTE_WORKER` macro, which generates both chain
+counts from the same template.
+
+One honest limit on that claim: `--chains=1` and `--chains=8` are two
+*separately compiled* specializations (Chapter 8 explains why), so
+while the source-level operation sequence is identical, the compiler is
+free to generate different machine code for each — different register
+allocation at minimum, and potentially different instruction counts,
+depending on the compiler and target. This chapter's portable lab
+cannot verify retired-instruction counts directly; that verification is
+exactly what the `perf stat` commands below are for, and this result
+should be read as *evidence consistent with* a large IPC difference,
+not as a machine-code-level proof of one, unless you've confirmed equal
+instruction counts for your own build.
 
 **Expected qualitative result:** `--chains=8` should show substantially
-higher throughput than `--chains=1`, despite executing the identical
-instruction sequence per iteration. One example run on the reference
-machine for this book (Apple M4, macOS, arm64) showed:
+higher throughput than `--chains=1`, despite requesting the identical
+arithmetic operation sequence per iteration. One example run on the
+reference machine for this book (Apple M4, macOS, arm64) showed:
 
 ```text
 chains=1: throughput_ops_per_s ≈ 724,000,000
 chains=8: throughput_ops_per_s ≈ 2,227,000,000
 ```
 
-Roughly a 3.1x difference, from an instruction-mix change of exactly
-zero.
+Roughly a 3.1x difference, from a source-level arithmetic-operation
+count that is identical between the two.
 
 **Interpretation:** this is what a large IPC difference looks like from
-the outside, without reading the counter directly — the same instructions
-retiring much faster, on average, once the CPU has independent work to
-interleave. A reader with `perf stat` access on Linux can confirm this
-directly: run the two Tool View commands above and compare the reported
-`instructions` and `cycles` counts (`insn per cycle` in `perf stat`'s own
-summary line) between the two — expect a noticeably higher IPC for
-`--chains=8`, in rough proportion to the throughput difference measured
-here.
+the outside, without reading the counter directly — the same requested
+arithmetic operations retiring much faster, on average, once the CPU
+has independent work to interleave. A reader with `perf stat` access on
+Linux can confirm this properly: run the two Tool View commands above
+and compare the reported `instructions` counts between the two runs
+first (they should be close, confirming the compiled code didn't
+diverge in a way that matters) before comparing `cycles` and `insn per
+cycle` — checking `instructions` first is what turns this from an
+assumption into a measurement.
 
 **Fallback path:** already this chapter's primary path — the portable
-`cyclelab`-only comparison stands on its own without `perf`. If `perf` is
-available, treat it as confirmation, not a required step.
+`cyclelab`-only comparison stands on its own without `perf`, as evidence
+consistent with an IPC difference. If `perf` is available, treat it as
+the actual confirmation this chapter's portable lab cannot provide on
+its own.
 
 **Cleanup:** none.
 

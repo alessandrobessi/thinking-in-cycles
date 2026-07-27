@@ -35,11 +35,19 @@ background process, one unlucky scheduling decision) than a median is.
 The `chains=1` data above has one visible low outlier (655.0M against a
 cluster around 680-697.5M) — a mean would shift noticeably toward it;
 the median (692.6M) barely moves. Percentiles generalize this:
-reporting p50/p90/p99 of a benchmark's own repeated runs (not just the
+reporting p50/p90 of a benchmark's own repeated runs (not just the
 workload's own latency distribution, Chapter 3's tail latency) shows
-whether a "typical" run and a "worst-case" run are close together or
-far apart — informative on its own, before even comparing two
-configurations.
+whether a "typical" run and a "worse" run are close together or far
+apart — informative on its own, before even comparing two
+configurations. One honest limit worth stating explicitly: with twelve
+repetitions, a p99 is not a meaningful tail estimate — p99 of twelve
+values is essentially just the maximum, and the maximum of a small
+sample is a noisy, high-variance statistic in its own right, not a
+stable characterization of "how bad the worst case gets." Reaching for
+p99 specifically requires far more repetitions than this appendix uses
+(hundreds, not a dozen); with a dozen runs, report the median, and p90
+only loosely, rather than reading precision into a number this small a
+sample can't actually support.
 
 ## Confidence intervals
 
@@ -47,20 +55,36 @@ A **confidence interval** answers a narrower question than it's often
 given credit for: not "where is the true value," but "given this
 sample, what range of values would be consistent with having produced
 it." A **bootstrap** confidence interval builds this range empirically
-—resampling the observed data with replacement, many times, and taking
-the middle 95% of the resulting distribution of sample means — rather
-than assuming a specific theoretical distribution shape. Applied to the
-data above (2,000 resamples, 95% interval): `chains=1` gives
-[681.0M, 693.6M]; `chains=2` gives [1295.2M, 1297.7M] — no overlap at
-all, real evidence the two configurations differ. The same procedure
-applied to the two `chains=1` *sessions* — genuinely the same
-configuration, run twice — gives [708.4M, 712.3M] and [712.3M,
-713.9M]: the two intervals meet almost exactly at their shared edge
-rather than sitting apart, essentially what "no real difference" should
-look like. This is the concrete, numeric version of Chapter 4's own
-qualitative rule: if repeat runs of the *same* configuration spread
-nearly as much as two configurations differ, the difference is not yet
-established.
+— resampling the observed data with replacement, many times, and taking
+the middle 95% of the resulting distribution of a statistic — rather
+than assuming a specific theoretical distribution shape.
+
+The statistic worth bootstrapping directly is the *difference* (or
+ratio) between the two configurations, not each configuration's own
+mean separately: checking whether two marginal confidence intervals
+happen to overlap is a real but conservative, less sensitive test than
+computing a confidence interval for the difference itself, and the two
+can disagree — two overlapping marginal intervals can still hide a real,
+detectable difference between them. Applied to this appendix's data
+(2,000 resamples, resampling each configuration's twelve values and
+recomputing the mean difference each time, 95% interval): the real
+effect gives a difference of [602.8M, 616.1M] ops/s (`chains=2` minus
+`chains=1`) and a ratio of [1.87x, 1.91x] — entirely positive, entirely
+above 1x, real evidence the two configurations differ, consistent with
+the separate-interval comparison below but more direct. The same
+procedure applied to the two `chains=1` *sessions* — genuinely the same
+configuration, run twice — gives a difference of [0.5M, 4.8M] ops/s and
+a ratio of [1.0007x, 1.0067x]: barely, but genuinely, distinguishable
+from zero. That's not a contradiction of "no real effect" — it's the
+more sensitive test correctly detecting that "no real effect" was never
+quite true of two *specific* sessions on a real, imperfectly quiet
+machine; the honest reading is "a real but vanishingly small difference
+that the Effect Size section below shows doesn't matter," not "zero
+difference." Comparing the two configurations' separate marginal
+intervals ([708.4M, 712.3M] and [712.3M, 713.9M], meeting almost exactly
+at their shared edge) would have looked like clean "no difference" and
+missed this — a real illustration of why the direct-difference method
+is the one to trust when the two disagree.
 
 ## Bootstrap intuition
 
@@ -116,22 +140,37 @@ and rises across the stride range; Chapter 8's chains-vs-throughput
 curve favors specific chain counts and dips at others), and both are
 genuine hardware behavior, not noise — a monotonicity filter would have
 thrown out real findings in exactly the two chapters that most needed
-a multiple-comparisons discipline. The actual protection is
-reproducibility: repeat each configuration (not just each pairwise
-comparison) enough times to know its own spread, same as this
-appendix's other sections, and trust a specific configuration's result
-only once it's stable across repeats — smooth or not — rather than
-inferring anything from the sweep's overall shape.
+a multiple-comparisons discipline. Repeating each configuration (not
+just each pairwise comparison) enough times to know its own spread is
+necessary — a result that isn't stable across repeats was never
+trustworthy regardless of how many configurations were tested — but
+it is not, by itself, sufficient: reproducibility confirms a specific
+measurement is real and stable, it does not control the probability
+that, somewhere across many honestly-measured, individually-reproducible
+configurations, one or two look unusually large or small purely by
+chance. The actual protection against that is holding a sweep's own
+standout result to a higher bar than a single configuration measured on
+its own: treat anything that looks surprising *within* a sweep as a
+hypothesis the sweep generated, not a conclusion it proved, and confirm
+it with an independent run collected afterward, specifically targeting
+that one configuration — the same discipline as any single real-effect
+comparison in this appendix, just applied a second time before trusting
+whichever point in the sweep looked most interesting.
 
 ## Practical versus statistical significance
 
 The distinction this whole appendix builds toward: a difference can be
-statistically well-established (non-overlapping confidence intervals,
-a real, reproducible effect) and still not matter for any decision that
-depends on it — a real, repeatable 0.3% throughput difference is
-"significant" in the statistical sense demonstrated above, but rarely
+statistically well-established (a difference confidence interval that
+excludes zero, a real, reproducible effect) and still not matter for
+any decision that depends on it. This appendix's own "no real effect"
+pair is the concrete example: the direct-difference bootstrap above
+found the two `chains=1` sessions genuinely, detectably differ by
+roughly 0.07-0.67% — "significant" in the statistical sense, a real
+difference that repeating the comparison would reproduce — but rarely
 worth the engineering cost of chasing unless the specific context makes
-0.3% valuable at scale. The reverse also holds: a difference too small
+well under 1% valuable at scale, and certainly not the "chains=2 is
+faster" finding this appendix set out to establish. The reverse also
+holds: a difference too small
 to distinguish from noise in ten runs might still be real and
 meaningful, just under-measured — more repetitions, not a different
 conclusion, is the correct response to that specific situation.

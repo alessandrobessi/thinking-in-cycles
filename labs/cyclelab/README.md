@@ -144,7 +144,15 @@ maximum chain count this mode supports.) This is what Chapter 8 uses to
 make the CPU's available instruction-level parallelism visible as a
 throughput difference rather than an abstract claim -- on the reference
 machine for this book, `--chains=8` measured roughly 3.1x the throughput
-of `--chains=1` for `--op=int`.
+of `--chains=1` for `--op=int`. One fairness caveat: because each
+iteration unrolls a *fixed* 16 slots, a chain count that doesn't divide
+16 evenly (6, 10, 12, 14, ...) gives some chains one more update than
+others within the same iteration -- a longer critical path for those
+chains that has nothing to do with the hardware being measured. Chapter
+8's own guided lab therefore only compares chain counts that divide 16
+evenly (1, 2, 4, 8, 16); an earlier draft of that chapter compared a
+wider range and misattributed the resulting pattern to vector register
+width, when it was largely this scheduling artifact.
 
 ## `branch` mode
 
@@ -203,12 +211,17 @@ to one scalar `fadd` chain with zero vectorization, while the
 eight-accumulator version compiles to four independent 2-wide NEON
 `fadd.2d` accumulators loading 8 doubles per iteration -- a real,
 verified difference in generated code, not an assumption. Each worker
-allocates and first-touches
-its own buffer itself, after affinity is applied, then waits at a
-barrier until every worker has done the same -- so on a NUMA system,
-each thread's memory lands on its own node rather than all of it landing
-on whichever node the main thread happened to run on, and the reported
-duration excludes allocation time entirely. Use a `--working-set-size`
+allocates and first-touches its own buffer itself, after affinity is
+applied, then waits at a barrier until every worker has done the same
+-- so on a NUMA system, each thread's memory lands on its own node
+rather than all of it landing on whichever node the main thread
+happened to run on, and the reported duration excludes allocation time
+entirely. First-touch ordering alone doesn't *guarantee* a worker stays
+on that node for the rest of the run, though: with the default
+`--affinity=none`, the scheduler can still migrate a worker afterward.
+Pair this mode with explicit CPU affinity or `numactl` binding (Chapter
+25) for a run that needs guaranteed-local access throughout, not just
+at first-touch. Use a `--working-set-size`
 well beyond your machine's last-level cache to measure real DRAM
 bandwidth rather than cache bandwidth. On the reference machine for
 this book, sweeping `--threads` at a fixed 64M working set showed
