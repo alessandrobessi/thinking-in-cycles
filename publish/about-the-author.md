@@ -1,5 +1,19 @@
 # About the Author
 
+::: {.content-visible when-format="html"}
+::: {style="text-align: center; margin-bottom: 2em;"}
+![](figures/generated/author.png){width=250px}
+:::
+:::
+
+::: {.content-visible unless-format="html"}
+![](figures/generated/author.png){width=250px fig-align="center"}
+
+```{=typst}
+#v(1.5em)
+```
+:::
+
 Alessandro Bessi is an AI expert, data scientist, and software engineer
 whose work spans machine learning, complex systems, and the
 infrastructure required to make intelligent systems work in practice.

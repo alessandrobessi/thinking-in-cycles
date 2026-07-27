@@ -1,5 +1,7 @@
 # About the Author
 
+![Alessandro Bessi](../figures/generated/author.png)
+
 Alessandro Bessi is an AI expert, data scientist, and software engineer
 whose work spans machine learning, complex systems, and the
 infrastructure required to make intelligent systems work in practice.

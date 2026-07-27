@@ -6,7 +6,7 @@ other book asset, not treated as disposable build output — see the
 root `.gitignore`, which deliberately does not exclude this directory.
 
 **Mostly empty**, alongside `figures/source/` — see that directory's
-README for why. Two real files live here:
+README for why. Three real files live here:
 
 - `ch14-flame-graph-example.svg`, a genuine captured-and-rendered flame
   graph (`cyclelab compute --threads=2 --chains=4 --op=mixed`, sampled
@@ -17,3 +17,5 @@ README for why. Two real files live here:
 - `cover.png`, the book's cover artwork, referenced by `_quarto.yml`'s
   `book.cover-image` key (used directly as the EPUB cover; shown on the
   HTML site's landing page depending on theme).
+- `author.png`, the author portrait shown on the About the Author page
+  (`book/about-the-author.md` and `publish/about-the-author.md`).
