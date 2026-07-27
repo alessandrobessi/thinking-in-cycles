@@ -15,15 +15,15 @@ Two comparisons, twelve repetitions each, `cyclelab compute
 **A real effect** (`--chains=1` vs. `--chains=2`):
 
 ```text
-chains=1: 327.4M 323.9M 327.4M 327.2M 327.2M 323.8M 327.0M 327.3M 327.2M 326.5M 327.2M 327.6M
-chains=2: 568.6M 562.4M 567.8M 564.5M 558.3M 562.5M 563.3M 558.8M 561.2M 556.6M 557.7M 556.0M
+chains=1: 698.6M 727.9M 728.4M 728.8M 727.5M 729.4M 726.5M 728.8M 726.9M 728.3M 727.4M 729.6M
+chains=2: 1342.5M 1355.7M 1347.1M 1343.1M 1340.4M 1342.2M 1344.7M 1339.0M 1338.8M 1334.8M 1337.3M 1329.0M
 ```
 
 **No real effect** (`--chains=1` run twice, as two separate sessions):
 
 ```text
-run 1: 324.0M 327.5M 327.2M 327.7M 327.4M 327.2M 327.8M 327.3M 327.5M 326.7M 326.9M 324.3M
-run 2: 326.2M 326.6M 327.1M 327.3M 326.5M 327.1M 327.4M 327.0M 327.1M 327.5M 327.3M 327.1M
+run 1: 711.2M 729.1M 729.0M 730.0M 726.8M 728.9M 726.9M 728.9M 727.6M 728.4M 727.9M 729.0M
+run 2: 729.2M 727.5M 728.5M 727.9M 729.1M 727.3M 729.5M 726.8M 729.7M 727.6M 729.0M 727.5M
 ```
 
 ## Medians and percentiles
@@ -32,9 +32,10 @@ Chapter 4 already prefers the median and relevant percentiles over the
 mean, for the same reason this appendix's own data reinforces: a mean
 is more sensitive to a single outlier run (a thermal event, a
 background process, one unlucky scheduling decision) than a median is.
-The `chains=1` data above has two visible low outliers (323.8-324.3M
-against a cluster around 327M) in both runs — a mean would shift
-noticeably toward them; the median (327.2M and 327.1M) barely moves.
+The `chains=1` data above has one visible low outlier (698.6M against a
+cluster around 727-729.6M), and `run 1` has the same pattern (711.2M
+against a 726.8-730.0M cluster) — a mean would shift noticeably toward
+each; the median (728.1M and 728.7M respectively) barely moves.
 Percentiles generalize this: reporting p50/p90/p99 of a benchmark's own
 repeated runs (not just the workload's own latency distribution,
 Chapter 3's tail latency) shows whether a "typical" run and a
@@ -51,11 +52,11 @@ it." A **bootstrap** confidence interval builds this range empirically
 the middle 95% of the resulting distribution of sample means — rather
 than assuming a specific theoretical distribution shape. Applied to the
 data above (2,000 resamples, 95% interval): `chains=1` gives
-[325.8M, 327.3M]; `chains=2` gives [559.2M, 563.7M] — no overlap at
+[720.6M, 728.6M]; `chains=2` gives [1337.8M, 1344.8M] — no overlap at
 all, real evidence the two configurations differ. The same procedure
 applied to the two `chains=1` *sessions* — genuinely the same
-configuration, run twice — gives [326.0M, 327.4M] and [326.8M,
-327.2M]: heavily overlapping, exactly what "no real difference" should
+configuration, run twice — gives [723.9M, 728.8M] and [727.8M,
+728.8M]: heavily overlapping, exactly what "no real difference" should
 look like. This is the concrete, numeric version of Chapter 4's own
 qualitative rule: if repeat runs of the *same* configuration spread
 nearly as much as two configurations differ, the difference is not yet
@@ -82,12 +83,12 @@ probably a real difference"; **effect size** answers the separate
 question "how big is it, in a unit that doesn't depend on sample size."
 Cohen's *d* (the difference between two means, divided by their pooled
 standard deviation) applied to this appendix's real-effect comparison
-gives *d* ≈ 76 — an extreme effect by any conventional threshold
+gives *d* ≈ 80 — an extreme effect by any conventional threshold
 (0.2 small, 0.5 medium, 0.8 large), and *d* this large is exactly what
 low run-to-run variance plus a genuinely large mean shift produces: the
-pooled standard deviation here (about 3.1M) is tiny relative to the
-234.8M-unit gap between the means, so the same gap that shows up as
-`--chains=2` running roughly 1.7x the throughput of `--chains=1` also
+pooled standard deviation here (about 7.6M) is tiny relative to the
+615.5M-unit gap between the means, so the same gap that shows up as
+`--chains=2` running roughly 1.85x the throughput of `--chains=1` also
 shows up as a *d* far outside the range effect-size guidance is usually
 written for — a reminder that Cohen's thresholds were calibrated on
 noisier measurements than a tight, low-variance benchmark repetition

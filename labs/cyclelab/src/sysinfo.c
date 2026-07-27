@@ -5,6 +5,10 @@
 #include <sys/utsname.h>
 #include <unistd.h>
 
+#if defined(__APPLE__)
+#include <sys/sysctl.h>
+#endif
+
 #if defined(__x86_64__) || defined(_M_X64)
 #define CYCLELAB_ARCH "x86_64"
 #elif defined(__aarch64__) || defined(_M_ARM64)
@@ -12,6 +16,26 @@
 #else
 #define CYCLELAB_ARCH "unknown"
 #endif
+
+/* Best-effort L1 data cache line size, in bytes; 0 if this platform
+ * offers no portable way to ask. Never guessed or hardcoded here -- a
+ * caller that gets 0 back should treat the line size as unknown, not
+ * assume any specific value. */
+static int detect_cache_line_bytes(void) {
+#if defined(__APPLE__)
+    int64_t line = 0;
+    size_t len = sizeof(line);
+    if (sysctlbyname("hw.cachelinesize", &line, &len, NULL, 0) == 0 && line > 0) {
+        return (int)line;
+    }
+    return 0;
+#elif defined(_SC_LEVEL1_DCACHE_LINESIZE)
+    long line = sysconf(_SC_LEVEL1_DCACHE_LINESIZE);
+    return (line > 0) ? (int)line : 0;
+#else
+    return 0;
+#endif
+}
 
 static void safe_copy(char *dst, size_t dst_size, const char *src) {
     if (src == NULL || src[0] == '\0') {
@@ -40,4 +64,6 @@ void sysinfo_collect(cyclelab_hostinfo_t *info) {
 
     long ncpu = sysconf(_SC_NPROCESSORS_ONLN);
     info->logical_cpus = (ncpu > 0) ? (int)ncpu : 1;
+
+    info->cache_line_bytes_detected = detect_cache_line_bytes();
 }

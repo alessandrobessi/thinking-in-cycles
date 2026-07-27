@@ -158,6 +158,25 @@ change how expensive false sharing is, sometimes substantially. The
 qualitative shape (roughly equal at 1 thread, a growing gap as thread
 count increases) is what to look for, not this exact percentage.
 
+**A real caveat this reference machine itself demonstrates:** `padded`
+pads each counter out to `CYCLELAB_CACHE_LINE_BYTES` (64 bytes), a
+compiled-in assumption, not a measured one. `cyclelab` now detects the
+platform's actual L1 cache line size at runtime (via `sysctl` on macOS,
+`sysconf` on Linux) and warns in its JSON `warnings` array whenever the
+detected value exceeds that compiled-in constant, since a *larger* real
+coherence granule means two "padded" counters could still land on the
+same line — this book's own reference machine (Apple M4) does exactly
+that, reporting a detected 128-byte line against the tool's compiled-in
+64-byte assumption. Rebuilding with a 128-byte constant and re-running
+the same sweep at 8 threads showed padded throughput rise from
+5,373,728,288 (64-byte padding, a 24% lead over packed) to 5,973,499,943
+(128-byte padding, a 38% lead) — confirming that 64-byte padding on
+*this specific machine* was only partially effective, not the complete
+fix it would be on hardware where 64 bytes actually is the coherence
+granule. Always check a run's own `cache_line_bytes_detected` field
+(and heed the warning if one appears) before trusting "padded" to mean
+"cannot share a line" on any given machine.
+
 **Fallback path:** if `python3` isn't available, run the ten
 `cyclelab false-sharing --padding=... --threads=...` commands directly
 and read `results.throughput_increments_per_s` from each run's raw

@@ -132,7 +132,12 @@ static void print_json(FILE *out, const cyclelab_options_t *opts,
     fprintf(out, "    \"threads\": %d,\n", opts->threads);
     fprintf(out, "    \"affinity\": \""); json_write_escaped(out, opts->affinity_spec); fprintf(out, "\",\n");
     fprintf(out, "    \"padding\": \"%s\",\n", padding_name(opts->padding));
-    fprintf(out, "    \"cache_line_bytes\": %d\n", CYCLELAB_CACHE_LINE_BYTES);
+    fprintf(out, "    \"cache_line_bytes\": %d,\n", CYCLELAB_CACHE_LINE_BYTES);
+    if (host->cache_line_bytes_detected > 0) {
+        fprintf(out, "    \"cache_line_bytes_detected\": %d\n", host->cache_line_bytes_detected);
+    } else {
+        fprintf(out, "    \"cache_line_bytes_detected\": null\n");
+    }
     fprintf(out, "  },\n");
 
     fprintf(out, "  \"warnings\": [");
@@ -266,6 +271,24 @@ int false_sharing_run(const cyclelab_options_t *opts, const cyclelab_hostinfo_t 
             }
             if (!already) warnings[nwarnings++] = ctxs[i].affinity_reason;
         }
+    }
+    /* padded_counter_t's alignment guarantee is only as good as
+     * CYCLELAB_CACHE_LINE_BYTES actually matching this machine's real
+     * coherence granule. A smaller detected value is harmless (padding
+     * to a larger size than strictly necessary never causes sharing);
+     * a *larger* one would mean two "padded" counters could still land
+     * on the same coherence line, quietly invalidating "cannot share" --
+     * so only the larger case is worth a warning. */
+    char cache_line_warning[160];
+    if (opts->padding == CYCLELAB_PADDING_PADDED &&
+        host->cache_line_bytes_detected > CYCLELAB_CACHE_LINE_BYTES &&
+        nwarnings < 64) {
+        snprintf(cache_line_warning, sizeof(cache_line_warning),
+                 "detected cache line size (%d bytes) exceeds this build's "
+                 "compiled-in assumption (%d bytes); the padded layout's "
+                 "no-sharing guarantee does not hold on this machine",
+                 host->cache_line_bytes_detected, CYCLELAB_CACHE_LINE_BYTES);
+        warnings[nwarnings++] = cache_line_warning;
     }
     if (!opts->quiet) {
         for (int w = 0; w < nwarnings; w++) {

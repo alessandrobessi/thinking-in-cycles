@@ -37,7 +37,10 @@ Before reading further: if a change makes a fixed-size buffer allocation
 strategy replace a growing one, would you expect its effect on total
 throughput to be the same at a small input size and a large input size?
 If not, which direction do you expect the difference to go, and why? Hold
-that prediction — the Guided Lab measures something structurally similar.
+that prediction — the Guided Lab measures the same underlying *shape*
+(a fixed, one-time cost competing against a cost that scales with how
+much work one run does), using a different, more reproducible proxy for
+"how much work" than an actual growing input.
 
 ## Worked Example
 
@@ -86,16 +89,25 @@ all.
 
 ## Technical Explanation
 
-The library story generalizes into a rule: any change that shifts *fixed,
-per-operation overhead* against *marginal, per-unit-of-work cost* will
-affect small-input and large-input workloads in opposite directions. A
-large up-front allocation is fixed overhead, paid once; it is invisible
-when amortized over millions of records and dominant when there's only
-one record to amortize it over. This isn't specific to buffers — the same
-shape shows up in thread-pool warm-up, connection pooling, JIT
+The library story generalizes into a rule, and the rule has a precise
+shape: for a fixed, one-time cost `T_fixed` (a startup cost, paid exactly
+once) and a marginal, per-unit cost `T_unit` (paid once per record,
+iteration, or unit of work), total time for `N` units is
+
+```
+T(N) = T_fixed + N * T_unit
+```
+
+`T_fixed / N` — the fixed cost's *share* of the total — shrinks as `N`
+grows, which is exactly why a large up-front buffer allocation is
+invisible when amortized over millions of records and dominant when
+there's only one record to amortize it over: the same `T_fixed` term,
+divided by wildly different `N`. This isn't specific to buffers — the
+same shape shows up in thread-pool warm-up, connection pooling, JIT
 compilation, cache warming, and batch-size tuning of every kind. None of
 these are bugs in the technique. They are properties of *which* workload
-model you evaluate them against.
+model you evaluate them against — specifically, of how large `N` is
+relative to the ratio `T_fixed / T_unit` for that specific change.
 
 This is also why **service level** has to be stated, not assumed. "Keep
 p99 under 100ms" and "finish the batch by 6 a.m." are both legitimate
@@ -106,21 +118,29 @@ simultaneously true.
 ## Tool View
 
 No new measurement tool is needed yet — the tool from Chapter 1 (compare
-wall time / user time / system time, or here, throughput at varying input
-size) is enough, applied more deliberately:
+wall time / user time / system time, or here, throughput at varying
+measurement length) is enough, applied more deliberately:
 
-- What is measured: a metric (here, throughput) at more than one input
-  size, for more than one configuration, so a comparison can be made
-  *within* each size rather than pooled across sizes.
-- What is not measured: which size is "the real one" — that's a decision
-  about the workload model, not something a measurement can answer for
-  you.
+- What is measured: a metric (here, throughput) at more than one
+  measurement length (iteration count, this chapter's proxy for `N` in
+  `T(N) = T_fixed + N * T_unit`), for more than one configuration, so a
+  comparison can be made *within* each length rather than pooled across
+  lengths.
+- What is not measured: a genuine varying-*data*-size experiment — this
+  lab varies how many times the same fixed-size operation repeats, not
+  the size of an input structure. Chapters 17 and 19's `--working-set-size`
+  sweeps are this book's actual varying-data-size experiments; use those
+  as the template if the question is specifically about input size rather
+  than measurement length.
+- What is not measured, either way: which length or size is "the real
+  one" — that's a decision about the workload model, not something a
+  measurement can answer for you.
 - Required permissions: none.
 - Likely overhead: negligible.
 - Portability: works anywhere `cyclelab` runs.
 - Common failure mode: reporting a single benchmark number ("20% faster")
-  without saying at what input size it was measured, then being surprised
-  when it doesn't generalize.
+  without saying at what measurement length or input size it was
+  measured, then being surprised when it doesn't generalize.
 
 ## Guided Lab
 
@@ -134,80 +154,100 @@ size) is enough, applied more deliberately:
 ./labs/scripts/ch2_size_sweep.sh
 ```
 
-This runs `cyclelab compute` at three fixed iteration counts (a small,
-medium, and large "input size") with two operation mixes (`--op=int` and
-`--op=mixed`), and tabulates throughput for each combination.
+This runs `cyclelab compute` at three fixed iteration counts — a short,
+medium, and long measurement length, standing in for `N` in
+`T(N) = T_fixed + N * T_unit`, *not* a changing input size — with two
+operation mixes (`--op=int` and `--op=mixed`), **nine repetitions per
+cell**, reporting the median and the min-max range at each length
+(Chapter 4's repetition discipline, borrowed a couple of chapters early
+because it's already necessary here).
 
-**Expected qualitative result:** the *ranking* of which configuration has
-higher throughput should not have to be the same at the smallest size as
-at the largest size. One example run on the reference machine for this
-book (Apple M4, macOS, arm64, `cyclelab` release build) showed exactly
-that pattern:
-
-```text
-iterations   op       throughput_ops_s
-200000       int      169,671,262
-200000       mixed    245,587,110
-5000000      int      313,828,869
-5000000      mixed    309,549,605
-100000000    int      321,417,451
-100000000    mixed    250,123,107
-```
-
-At the smallest size, `mixed` outperformed `int`; at the largest size,
-`int` outperformed `mixed`. Do not expect these exact numbers, or even
-necessarily a crossover at the same sizes, on a different machine — the
-qualitative point is that the ranking can flip at all, not the specific
-sizes where it does.
-
-One unit caveat before interpreting this table: `--op=int` and
+One unit caveat before reading any of these numbers: `--op=int` and
 `--op=mixed` are not doing equal work per reported "op." Each `mixed`
 op updates both an integer and a floating-point accumulator, while each
 `int` op updates only the integer one — so `throughput_ops_per_s` is
-meaningful for comparing the *same* op across sizes (which is what the
-ranking-flip point below actually needs), but not for reading the raw
-gap between `int` and `mixed` at a single size as "how much cheaper
-integer work is." That gap always includes the fact that `mixed` is
-doing strictly more per op, on top of whatever else is happening.
+meaningful for comparing the *same* op across measurement lengths, but
+not for reading the raw gap between `int` and `mixed` as "how much
+cheaper integer work is." That gap always includes the fact that
+`mixed` is doing strictly more per op, on top of whatever else is
+happening.
 
-**Interpretation:** if your run shows a similar reordering between the
-smallest and largest size, you've reproduced the chapter's point
-directly: genuinely fixed, one-time costs paid once per run — thread
+**Expected qualitative result:** at the shortest measurement length, the
+spread across repetitions of the *same* configuration should be
+comparable to, or larger than, the gap between `int`'s and `mixed`'s
+medians — meaning a single run cannot reliably rank them at all. At
+longer lengths, the two configurations' medians should settle into a
+smaller, more stable gap. One example run on the reference machine for
+this book (Apple M4, macOS, arm64, `cyclelab` release build, 9
+repetitions per cell) showed exactly that pattern:
+
+```text
+iterations   op       median_ops_s   min_ops_s      max_ops_s
+5000         int      526,315,813    283,687,891    547,945,402
+5000         mixed    533,333,411    449,438,307    540,540,676
+5000000      int      730,967,437    711,819,768    732,493,406
+5000000      mixed    680,526,727    646,987,464    686,565,627
+100000000    int      722,133,761    656,314,401    729,445,148
+100000000    mixed    670,456,422    658,248,220    673,291,292
+```
+
+At 5,000 iterations, `int`'s own min-max spread (283.7M-548.0M, a range
+of roughly 264M) is far *wider* than the 7M gap between `int`'s and
+`mixed`'s medians — the two configurations' medians are, for practical
+purposes, tied, and any single one of these nine runs could have shown
+either one "ahead." At 5,000,000 and 100,000,000 iterations, the
+medians separate to a stable ~50M-ops/s gap (`int` consistently ahead,
+by roughly 7-8%) at both lengths, and the two configurations' min-max
+ranges barely overlap — a genuinely reproducible ranking, not noise. Do
+not expect these exact numbers, or the exact iteration counts where
+noise stops dominating, on a different machine — the qualitative point
+is that *how much a single run's ranking can be trusted* depends on
+measurement length, not that the ranking itself must flip.
+
+**Interpretation:** the fixed, one-time costs paid once per run — thread
 start/join, branch-predictor and cache warm-up, frequency-scaling
-ramp-up — matter proportionally more at small iteration counts than
-large ones, which is enough on its own to shuffle a close ranking
-between two configurations depending on run length, without needing any
-per-iteration cost to explain it. (The `mixed` mode's extra
-floating-point update, by contrast, is *not* a fixed cost — it runs
-inside the same repeated inner loop as everything else, so its cost
-scales with iteration count like everything else in that loop; it does
-not become "more fixed" or "less fixed" as size changes, and isn't what
-produces the crossover.) If your run doesn't show a clean reordering,
-that's still informative — it means this particular pair of
-configurations isn't a good example of the effect on your machine,
-which is a legitimate, useful negative result.
+ramp-up — are a small, roughly constant absolute cost regardless of
+iteration count, so they (and ordinary scheduling noise alongside them)
+dominate a *short* run's measurement and shrink to irrelevance in a
+*long* one, exactly `T_fixed`'s shrinking share of `T(N)` as `N` grows.
+That is why the short-length row is noisy enough that `int` and `mixed`
+are statistically indistinguishable, while the two longer-length rows
+agree with each other on a small, stable, explicable gap: `mixed`
+doing strictly more work per op (the unit caveat above), now visible
+without being swamped by fixed-cost noise. If your own run's numbers
+look different in the details, check whether the shortest length's
+spread is still comparable to its own gap between medians — that
+relationship, not any specific number, is what should hold on any
+machine.
 
 **Cleanup:** none.
 
-**Fallback path:** the script uses `python3` only to format `cyclelab`'s
-JSON output into a table. If `python3` isn't available, run the six
-`cyclelab compute --iterations=... --op=...` commands from the script
-directly and read `results.duration_actual_s` and
-`results.throughput_ops_per_s` from the raw JSON by eye — `cyclelab`
-itself has no dependency beyond a C11 toolchain and pthreads.
+**Fallback path:** the script uses `python3` only for JSON parsing and
+computing the median/min/max. If `python3` isn't available, run the
+`cyclelab compute --iterations=... --op=...` commands directly, several
+times per configuration, and compare `results.throughput_ops_per_s`
+across repetitions by eye — `cyclelab` itself has no dependency beyond a
+C11 toolchain and pthreads.
 
 ## Common Misconceptions
 
 ### *"A program has one true performance number." (M21)*
 
 **Why it's wrong:** "Faster" is only meaningful for a stated workload,
-input, and metric; as the library story and the Guided Lab both show,
-the same change can help one input size or metric and hurt another.
+input, and metric; the library story shows a change helping one input
+size and hurting another, and the Guided Lab shows the narrower but
+equally important cousin of that same mistake: a ranking measured from
+a single short run can be pure noise, indistinguishable from a ranking
+measured from a single long run that happens to agree with it by
+chance — "faster" needs a stated measurement length as much as a stated
+input size or metric.
 
 **Correct intuition:** Run the same change across multiple input sizes
-or metrics and check whether the ranking of "which version is faster"
-stays the same — if it flips, there was never a single number to begin
-with, only several questions that happened to share a name.
+or metrics (and, per Chapter 4, multiple repetitions at each) and check
+whether the ranking of "which version is faster" stays the same — if it
+flips, or if it's not even reproducible run to run, there was never a
+single number to begin with, only several questions that happened to
+share a name.
 
 **Analogy:** Asking "which car is faster" without saying faster at what
 is like asking which vehicle wins a race without naming the course — a
@@ -247,10 +287,13 @@ operating conditions are explicit.**
 - A change that trades fixed overhead for marginal cost (or vice versa)
   will affect small and large workloads in opposite directions.
 - Cost per unit of work matters even when elapsed time doesn't change.
-- A benchmark number without a stated input size and workload model
-  cannot be safely generalized.
+- A benchmark number without a stated input size, measurement length,
+  and workload model cannot be safely generalized.
 - Two teams can both be right about the same change having opposite
   effects, if they're measuring different operations.
+- A short measurement's ranking can be pure noise; trust a ranking only
+  once its gap between configurations clearly exceeds the spread across
+  repeated runs of each one (Chapter 4).
 
 ## Further Reading
 

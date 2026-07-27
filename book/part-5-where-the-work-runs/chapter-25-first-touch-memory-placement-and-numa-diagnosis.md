@@ -101,8 +101,8 @@ whose access pattern changes faster than migration can track it.
   hardware:
 
   ```bash
-  numactl --cpunodebind=0 --membind=0 ./labs/cyclelab/bin/cyclelab compute --duration=2 --threads=4
-  numactl --cpunodebind=1 --membind=0 ./labs/cyclelab/bin/cyclelab compute --duration=2 --threads=4
+  numactl --cpunodebind=0 --membind=0 ./labs/cyclelab/bin/cyclelab random-memory --working-set-size=512M --duration=2 --threads=4
+  numactl --cpunodebind=1 --membind=0 ./labs/cyclelab/bin/cyclelab random-memory --working-set-size=512M --duration=2 --threads=4
   numactl --interleave=all ./labs/cyclelab/bin/cyclelab bandwidth --duration=2 --threads=8
   numastat -p "$PID"   # substitute the target process's PID
   ```
@@ -110,9 +110,29 @@ whose access pattern changes faster than migration can track it.
   The first two commands are designed to be compared directly: same
   workload, same memory-binding node, only the *executing* node differs —
   isolating exactly the local-versus-remote-execution question this
-  chapter's Predict Before Measuring section asked. **All four commands
-  are documented, not tested**, consistent with Chapter 24's confirmed
+  chapter's Predict Before Measuring section asked. `random-memory`'s
+  dependent pointer chase over a working set well beyond any cache level
+  (Chapter 16) is the right workload for this specific comparison,
+  deliberately not `compute`: a tiny, register- and L1-resident
+  accumulator would settle into cache after its first few iterations and
+  stop touching main memory at all, at which point CPU/memory-node
+  binding would have nothing left to measure. **All four commands are
+  documented, not tested**, consistent with Chapter 24's confirmed
   single-node reference machine.
+
+  One instrumentation caveat: `numastat -p <pid>` reports page-placement
+  and allocation counters (`numa_hit`, `numa_miss`, and related fields) —
+  whether the pages a process is using were actually allocated on that
+  process's preferred or requested node, accumulated since the process
+  started. It does not report a live tally of which fraction of memory
+  *accesses* were satisfied locally versus remotely; no per-access
+  counter like that exists at this layer. In this comparison, what
+  actually demonstrates the local-versus-remote cost difference is the
+  elapsed-time (or `ns_per_access`) gap between the two `--cpunodebind`
+  runs themselves; `numastat -p` is useful alongside that for confirming
+  the pages genuinely landed where `--membind` asked them to (a
+  placement check), not as a substitute measurement of access locality
+  itself.
 - Common failure mode: pinning CPU placement (Chapter 23) without also
   addressing memory placement, leaving the exact mismatch this chapter's
   story describes fully intact — CPU affinity alone never touches memory
@@ -132,9 +152,15 @@ narrower question above:
    socket-1-pinned) do you expect to show lower average memory latency,
    and by roughly how much relative to the other two, given everything
    Chapter 24 established about local versus remote access cost?
-2. Write down what `numastat -p <pid>` would need to show to confirm or
-   refute that hypothesis — specifically, which counters (local vs.
-   remote hits) you'd expect to differ between the two worker pairs.
+2. Write down what evidence would confirm or refute that hypothesis:
+   primarily the elapsed-time (or `ns_per_access`) gap between the two
+   `--cpunodebind` runs, since that gap *is* the local-versus-remote
+   cost difference. Separately, write down what you'd want `numastat -p
+   <pid>`'s `numa_hit`/`numa_miss` fields to show as a placement check —
+   confirmation that each run's pages actually landed on the node
+   `--membind` requested — keeping in mind that those fields count page
+   allocations, not individual memory accesses, so they corroborate
+   *where the memory is*, not *how fast reaching it was*.
 3. State what changing the setup thread's pinning (rather than the
    workers') would be expected to do to the same experiment, and why
    that's a different fix than pinning the workers themselves.

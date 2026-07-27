@@ -28,45 +28,89 @@
 
 #define CYCLELAB_VERSION "0.1.0"
 
-/* A minimal reusable barrier: macOS's libpthread does not provide
- * pthread_barrier_t at all (Linux's does), so this mode needs its own to
- * hold every worker at the starting line until all of them have finished
- * allocating and first-touching their own buffer (see bw_worker below). */
+/* A ready gate, not a reusable barrier: every worker allocates and
+ * first-touches its own buffer (see bw_worker below), marks itself
+ * ready, and then blocks until the main thread has published one
+ * shared start_time/deadline and released everyone at once -- a real
+ * common measurement window, rather than each worker computing its own
+ * deadline from its own wake-up time (which can drift under scheduling
+ * jitter, especially oversubscribed). A failure anywhere -- a worker's
+ * allocation, or main's own pthread_create() -- sets abort, which wakes
+ * every waiting participant immediately instead of leaving already-
+ * created workers blocked on a ready count that can now never be
+ * reached. All of ready_count/abort/go/start_time/deadline are only
+ * ever touched with mutex held, except for the post-release reads in
+ * bw_worker, which happen only after this thread's own matching
+ * lock/unlock pair below -- safe by the usual happens-before argument. */
 typedef struct {
     pthread_mutex_t mutex;
     pthread_cond_t cond;
-    int count;
+    int ready_count;
     int total;
-    int generation;
-} bw_barrier_t;
+    int abort;
+    int go;
+    double start_time;
+    double deadline; /* meaningful only when opts->iterations == 0 */
+} bw_gate_t;
 
-static void bw_barrier_init(bw_barrier_t *b, int total) {
-    pthread_mutex_init(&b->mutex, NULL);
-    pthread_cond_init(&b->cond, NULL);
-    b->count = 0;
-    b->total = total;
-    b->generation = 0;
+static void bw_gate_init(bw_gate_t *g, int total) {
+    pthread_mutex_init(&g->mutex, NULL);
+    pthread_cond_init(&g->cond, NULL);
+    g->ready_count = 0;
+    g->total = total;
+    g->abort = 0;
+    g->go = 0;
+    g->start_time = 0.0;
+    g->deadline = 0.0;
 }
 
-static void bw_barrier_wait(bw_barrier_t *b) {
-    pthread_mutex_lock(&b->mutex);
-    int gen = b->generation;
-    b->count++;
-    if (b->count == b->total) {
-        b->generation++;
-        b->count = 0;
-        pthread_cond_broadcast(&b->cond);
-    } else {
-        while (gen == b->generation) {
-            pthread_cond_wait(&b->cond, &b->mutex);
-        }
+static void bw_gate_destroy(bw_gate_t *g) {
+    pthread_mutex_destroy(&g->mutex);
+    pthread_cond_destroy(&g->cond);
+}
+
+/* Worker side: mark ready (or aborted), then wait for release. */
+static void bw_gate_worker_ready_and_wait(bw_gate_t *g, int failed) {
+    pthread_mutex_lock(&g->mutex);
+    if (failed) g->abort = 1;
+    g->ready_count++;
+    pthread_cond_broadcast(&g->cond); /* wake main if it's waiting on ready_count */
+    while (!g->go && !g->abort) {
+        pthread_cond_wait(&g->cond, &g->mutex);
     }
-    pthread_mutex_unlock(&b->mutex);
+    pthread_mutex_unlock(&g->mutex);
 }
 
-static void bw_barrier_destroy(bw_barrier_t *b) {
-    pthread_mutex_destroy(&b->mutex);
-    pthread_cond_destroy(&b->cond);
+/* Main side, once every worker thread has been successfully created:
+ * wait for all of them to finish allocating, then either abort (one of
+ * them failed to allocate) or publish a shared start_time/deadline and
+ * release everyone from the same starting line at once. Returns nonzero
+ * if the run was aborted. */
+static int bw_gate_main_release(bw_gate_t *g, double duration_s) {
+    pthread_mutex_lock(&g->mutex);
+    while (g->ready_count < g->total && !g->abort) {
+        pthread_cond_wait(&g->cond, &g->mutex);
+    }
+    int aborted = g->abort;
+    if (!aborted) {
+        g->start_time = timing_now_seconds();
+        g->deadline = g->start_time + duration_s;
+        g->go = 1;
+    }
+    pthread_cond_broadcast(&g->cond);
+    pthread_mutex_unlock(&g->mutex);
+    return aborted;
+}
+
+/* Main side, only on a pthread_create() failure: aborts the gate so any
+ * already-created workers currently waiting in
+ * bw_gate_worker_ready_and_wait can return instead of blocking forever
+ * on a ready count that will now never reach `total`. */
+static void bw_gate_abort(bw_gate_t *g) {
+    pthread_mutex_lock(&g->mutex);
+    g->abort = 1;
+    pthread_cond_broadcast(&g->cond);
+    pthread_mutex_unlock(&g->mutex);
 }
 
 typedef struct {
@@ -74,8 +118,7 @@ typedef struct {
     const cyclelab_options_t *opts;
     double *buf;
     long num_doubles;
-    bw_barrier_t *barrier;
-    int *any_alloc_failed;
+    bw_gate_t *gate;
     long target_passes;
 
     long passes_done;
@@ -101,27 +144,26 @@ static void *bw_worker(void *arg) {
      * point is measuring bandwidth from each worker's own local memory. */
     long n = ctx->num_doubles;
     double *buf = malloc((size_t)n * sizeof(double));
-    if (buf == NULL) {
-        *ctx->any_alloc_failed = 1;
-        bw_barrier_wait(ctx->barrier);
-        return NULL;
+    int failed = (buf == NULL);
+    if (!failed) {
+        for (long k = 0; k < n; k++) {
+            buf[k] = (double)((k * 2654435761UL + (unsigned long)ctx->index) % 1000) / 7.0;
+        }
+        ctx->buf = buf;
     }
-    for (long k = 0; k < n; k++) {
-        buf[k] = (double)((k * 2654435761UL + (unsigned long)ctx->index) % 1000) / 7.0;
-    }
-    ctx->buf = buf;
 
-    /* Every worker crosses this barrier only once its own allocation and
-     * first-touch is done, so the timed loop below starts from the same
-     * line for every thread instead of some threads racing ahead while
-     * others are still faulting in pages. */
-    bw_barrier_wait(ctx->barrier);
-    if (*ctx->any_alloc_failed) return NULL;
+    bw_gate_worker_ready_and_wait(ctx->gate, failed);
+    if (ctx->gate->abort) return NULL;
 
-    double deadline = timing_now_seconds() + ctx->opts->duration_s;
+    /* start_time/deadline were published once by main, under its own
+     * lock, before this thread's own bw_gate_worker_ready_and_wait call
+     * returned -- a shared absolute window every worker times against,
+     * not a value each worker computes independently from its own
+     * wake-up time. */
+    double deadline = ctx->gate->deadline;
     volatile double sum = 0.0;
     long passes = 0;
-    double start = timing_now_seconds();
+    double start = ctx->gate->start_time;
 
     for (;;) {
         /* A plain, independent-iteration reduction: nothing here forces
@@ -266,46 +308,58 @@ int bandwidth_run(const cyclelab_options_t *opts, const cyclelab_hostinfo_t *hos
     long num_doubles = opts->working_set_bytes / (long)sizeof(double);
     if (num_doubles < 1) num_doubles = 1;
 
-    /* nthreads + 1: the main thread is itself a barrier participant, so
-     * it can capture start_wall at the exact moment every worker has
-     * finished allocating and first-touching its own buffer -- excluding
-     * that allocation time from the measured duration below, rather than
-     * folding it into the reported bandwidth number. */
-    bw_barrier_t barrier;
-    bw_barrier_init(&barrier, nthreads + 1);
-    int any_alloc_failed = 0;
+    bw_gate_t gate;
+    bw_gate_init(&gate, nthreads);
 
     for (int i = 0; i < nthreads; i++) {
         ctxs[i].index = i;
         ctxs[i].opts = opts;
         ctxs[i].num_doubles = num_doubles;
-        ctxs[i].barrier = &barrier;
-        ctxs[i].any_alloc_failed = &any_alloc_failed;
+        ctxs[i].gate = &gate;
         ctxs[i].target_passes = opts->iterations;
     }
 
+    int create_failed = 0;
+    int created = 0;
     for (int i = 0; i < nthreads; i++) {
         if (pthread_create(&tids[i], NULL, bw_worker, &ctxs[i]) != 0) {
             fprintf(stderr, "cyclelab: failed to start worker thread %d\n", i);
-            for (int j = 0; j < i; j++) pthread_join(tids[j], NULL);
-            for (int j = 0; j < nthreads; j++) free(ctxs[j].buf);
-            bw_barrier_destroy(&barrier);
-            free(ctxs);
-            free(tids);
-            return 1;
+            create_failed = 1;
+            break;
         }
+        created++;
     }
 
-    bw_barrier_wait(&barrier); /* released once every worker has allocated */
-    double start_wall = timing_now_seconds();
+    if (create_failed) {
+        /* Wake any already-created workers out of bw_gate_worker_ready_and_wait
+         * instead of letting them block forever on a ready count that can
+         * now never reach `total` -- the deadlock the original barrier-based
+         * version had on this exact path. */
+        bw_gate_abort(&gate);
+        for (int j = 0; j < created; j++) pthread_join(tids[j], NULL);
+        for (int j = 0; j < nthreads; j++) free(ctxs[j].buf);
+        bw_gate_destroy(&gate);
+        free(ctxs);
+        free(tids);
+        return 1;
+    }
+
+    /* Blocks until every worker has finished allocating, then publishes
+     * one shared start_time/deadline and releases all of them from the
+     * same starting line -- a single common measurement window, instead
+     * of each worker computing its own deadline from its own post-wakeup
+     * timestamp, which can drift under scheduling jitter (especially
+     * oversubscribed). */
+    int aborted = bw_gate_main_release(&gate, opts->duration_s);
+    double start_wall = gate.start_time;
 
     for (int i = 0; i < nthreads; i++) {
         pthread_join(tids[i], NULL);
     }
-    double duration_actual_s = timing_now_seconds() - start_wall;
-    bw_barrier_destroy(&barrier);
+    double duration_actual_s = aborted ? 0.0 : (timing_now_seconds() - start_wall);
+    bw_gate_destroy(&gate);
 
-    if (any_alloc_failed) {
+    if (aborted) {
         fprintf(stderr, "cyclelab: out of memory allocating a %ld-byte buffer for one or more threads\n",
                 opts->working_set_bytes);
         for (int i = 0; i < nthreads; i++) free(ctxs[i].buf);

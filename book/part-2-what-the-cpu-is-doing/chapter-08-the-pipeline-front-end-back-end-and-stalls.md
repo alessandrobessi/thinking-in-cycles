@@ -147,16 +147,16 @@ reference machine for this book (Apple M4, macOS, arm64) showed:
 
 ```text
 chains   throughput_ops_s
-1        317,058,995
-2        576,450,166
-4        852,665,021
-8        1,247,342,575
-12       1,250,231,784
-16       1,249,415,104
+1        718,161,175
+2        1,365,610,488
+4        2,296,777,873
+8        2,337,706,624
+12       2,337,175,334
+16       2,336,233,275
 ```
 
-Throughput approximately quadrupled from 1 to 8 chains, then stayed
-essentially flat from 8 to 16.
+Throughput a little over tripled from 1 to 4 chains, then stayed
+essentially flat from 4 chains all the way to 16.
 
 **Interpretation:** the flattening point is specific to this CPU, this
 instruction mix, and this run — do not expect the same chain count to be

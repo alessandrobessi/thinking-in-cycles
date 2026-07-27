@@ -168,11 +168,12 @@ instruction sequence per iteration. One example run on the reference
 machine for this book (Apple M4, macOS, arm64) showed:
 
 ```text
-chains=1: throughput_ops_per_s ≈ 320,000,000
-chains=8: throughput_ops_per_s ≈ 1,258,000,000
+chains=1: throughput_ops_per_s ≈ 726,000,000
+chains=8: throughput_ops_per_s ≈ 2,339,000,000
 ```
 
-Roughly a 4x difference, from an instruction-mix change of exactly zero.
+Roughly a 3.2x difference, from an instruction-mix change of exactly
+zero.
 
 **Interpretation:** this is what a large IPC difference looks like from
 the outside, without reading the counter directly — the same instructions

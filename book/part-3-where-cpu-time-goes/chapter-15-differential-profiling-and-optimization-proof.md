@@ -31,10 +31,10 @@ faster," without ever checking the second claim directly.
 
 Before reading further: if you profile a workload for exactly 3 seconds
 before an optimization and exactly 3 seconds after, and the "after"
-version completes four times as much actual work in those 3 seconds,
-do you expect the two profiles' total sample counts to be roughly
-equal, or roughly proportional to the work completed? Hold your answer
-— this chapter's lab measures exactly this.
+version completes roughly three times as much actual work in those 3
+seconds, do you expect the two profiles' total sample counts to be
+roughly equal, or roughly proportional to the work completed? Hold your
+answer — this chapter's lab measures exactly this.
 
 ## Worked Example
 
@@ -139,11 +139,11 @@ profiles' total sample counts should come out close to *equal* despite
 real run on the reference machine for this book showed:
 
 ```text
-baseline total samples (main-thread path):  1750
-after    total samples (main-thread path):  1744
+baseline total samples (main-thread path):  1579
+after    total samples (main-thread path):  1579
 ```
 
-Nearly identical — even though "after" completed roughly four times the
+Identical — even though "after" completed roughly three times the
 iterations in that same 3-second capture, confirmed separately by the
 interleaved throughput benchmark in step 1. The differential flame graph
 showed mostly grey (unchanged shape) with a few small red frames from

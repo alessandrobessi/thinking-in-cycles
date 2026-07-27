@@ -129,10 +129,17 @@ accumulator chains instead of one: with `--chains=1`, unroll slot *u*
 always updates the same accumulator, so slot *u+1* must wait for slot
 *u*'s result; with `--chains=8`, the 8 unrolled slots each update their
 *own* chain, so none of them depend on each other within an iteration.
-This is what Chapter 8 uses to make the CPU's available instruction-level
-parallelism visible as a throughput difference rather than an abstract
-claim -- on the reference machine for this book, `--chains=8` measured
-roughly 4x the throughput of `--chains=1` for `--op=int`.
+Internally, each supported chain count (1-16) is its own specialized,
+compile-time-unrolled function with ordinary local scalar accumulators,
+not one runtime-parameterized function indexing into a shared array --
+with N fixed at compile time, `u % N` folds away entirely and the
+accumulators can live in registers, so a chain-count comparison measures
+independent-work scheduling itself, not the cost of runtime indexing on
+top of it. This is what Chapter 8 uses to make the CPU's available
+instruction-level parallelism visible as a throughput difference rather
+than an abstract claim -- on the reference machine for this book,
+`--chains=8` measured roughly 3.2x the throughput of `--chains=1` for
+`--op=int`.
 
 ## `branch` mode
 
@@ -189,11 +196,14 @@ on whichever node the main thread happened to run on, and the reported
 duration excludes allocation time entirely. Use a `--working-set-size`
 well beyond your machine's last-level cache to measure real DRAM
 bandwidth rather than cache bandwidth. On the reference machine for
-this book, sweeping
-`--threads` at a fixed 64M working set showed clear saturation:
-throughput scaled roughly linearly from 1 to 4 threads (14.6 to 52.3
-GB/s) and then flattened from 6 to 10 threads (65.6 to 76.2 GB/s) as the
-shared memory channels approached their sustainable limit.
+this book, sweeping `--threads` at a fixed 64M working set showed
+roughly linear scaling from 1 to 4 threads (15.87 to 58.18 GB/s), then
+clearly decelerating (but still rising) returns from 6 threads onward,
+only fully flattening once the sweep went past this machine's own
+10-logical-CPU count into oversubscription (90.63 GB/s at 10 threads,
+94.6-95.0 GB/s at 15 and 20) -- sweep past your own machine's core
+count, not just up to it, before concluding where saturation actually
+happens.
 
 ## `false-sharing` mode
 
@@ -208,8 +218,16 @@ thread count is false sharing -- cache-coherence traffic from threads
 writing to the same line, even though each only touches its own
 logically distinct counter. On the reference machine for this book,
 `--padding=padded` measured consistently higher throughput than
-`--padding=packed` at every thread count tested, growing to roughly 46%
-higher at 8 threads.
+`--padding=packed` at every thread count tested, growing to roughly 24%
+higher at 8 threads. The padded layout's guarantee is only as strong as
+`CYCLELAB_CACHE_LINE_BYTES` (64, compiled in) actually matching the
+platform's real coherence granule: `cyclelab` detects the real L1 line
+size at runtime and emits a warning when it's larger than that constant.
+This book's own reference machine (Apple M4) triggers exactly that
+warning -- it reports a 128-byte line, not 64 -- and re-running the
+same sweep with a 128-byte compiled-in constant showed the padded lead
+at 8 threads grow further, from 24% to 38%, confirming the 64-byte
+padding here was only partially effective.
 
 ## `lock-contention` mode
 
@@ -368,7 +386,7 @@ processed, not iterations):
   "mode": "false-sharing",
   "config": { "duration_requested_s": 2.0, "increments_requested": null,
               "threads": 8, "affinity": "none", "padding": "padded",
-              "cache_line_bytes": 64 },
+              "cache_line_bytes": 64, "cache_line_bytes_detected": 128 },
   "results": {
     "duration_actual_s": 2.000123,
     "total_increments": 12290604610,

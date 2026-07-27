@@ -79,9 +79,15 @@ specific pattern-detection logic — commonly tuned around small,
 constant strides seen recently — and different stride values can
 interact with that detection logic in ways that are not monotonic:
 some medium strides may confuse a stream detector more than a
-somewhat larger, more obviously non-unit stride does. This chapter's
-lab shows this directly rather than asserting a clean theoretical
-curve, because real hardware doesn't always provide one, and the
+somewhat larger, more obviously non-unit stride does. Prefetcher
+pattern-detection is one plausible contributor to that kind of
+non-monotonic shape, not the only one: TLB reach, cache-set conflicts,
+and DRAM row/bank locality are all stride-sensitive too, and this
+chapter's portable lab (elapsed time only, no hardware counters) cannot
+attribute its own non-monotonic result to any one of them specifically
+— that attribution is Chapter 20's territory. What the lab does show
+directly, without needing that attribution, is that real hardware
+doesn't provide a clean, monotonic stride-vs-cost curve at all, and the
 honest lesson is more useful than an oversimplified one: contiguous
 (stride-1) access is dramatically better than *any* strided access on
 real hardware, but ranking non-unit strides against each other requires
@@ -159,11 +165,26 @@ the non-monotonic middle: stride=16 (12.3ns) is faster than stride=8
 
 **Interpretation:** the gap between stride=1 and everything else is the
 headline result and should replicate on most hardware with a stream
-prefetcher. The specific non-monotonic shape between stride=2 and
-stride=1024 is this machine's prefetcher's specific behavior — expect a
-different, but likely still non-monotonic, shape on a different CPU,
-and do not treat any single non-unit stride's relative ranking as a
-portable fact.
+prefetcher. Resist attributing the specific non-monotonic shape between
+stride=2 and stride=1024 to the prefetcher alone: this experiment
+doesn't isolate the prefetcher from every other stride-sensitive part of
+the memory hierarchy. TLB reach (a stride large enough to touch a new
+page every few accesses stresses the TLB differently than one that
+doesn't), cache-set conflict mapping, cache-level transitions, and
+DRAM row/bank locality can all vary with stride too, and this chapter's
+lab has no way to attribute the shape to any one of them specifically —
+only Chapter 20's hardware counters (`perf mem`, uncore events) could
+separate "prefetcher didn't help here" from "this stride happened to hit
+a conflict-prone cache set" or "this stride crossed more page
+boundaries." A dependent pointer chase like this one is also, by
+construction, a harder case for prefetching than a stream: the next
+address isn't known until the previous load completes, which limits
+what any prefetcher — however good — can act on before that load lands.
+Treat the finding as "this machine's memory hierarchy responds to stride
+non-monotonically, for reasons this lab can observe but not attribute,"
+not as a specific claim about prefetcher behavior; expect a different,
+but likely still non-monotonic, shape on a different CPU, and do not
+treat any single non-unit stride's relative ranking as a portable fact.
 
 **Fallback path:** if `python3` isn't available, run the eleven
 `cyclelab sequential-memory --working-set-size=64000192 --stride=...`

@@ -54,6 +54,112 @@ static const char *op_name(cyclelab_op_t op) {
     }
 }
 
+/* Runs the actual timed loop for a *compile-time-constant* chain count
+ * N. This is a macro, not a runtime-parameterized function, specifically
+ * so that N is a literal the compiler can see at every call site: with N
+ * fixed and small, `int_acc[N]`/`float_acc[N]` are ordinary (non-volatile)
+ * local arrays the optimizer can promote entirely to registers via
+ * scalar replacement, and `u % N` for u in a compile-time-constant-trip
+ * loop (OPS_PER_ITERATION) folds to a compile-time index with no runtime
+ * division at all. Neither of those is true when N is a runtime value
+ * read from ctx->opts->chains, which is why this file no longer has a
+ * single generic compute_worker: a runtime chain count forces real
+ * memory traffic and a real modulo on every inner-loop step regardless
+ * of `volatile`, which would confound "cost of N chains" with "cost of
+ * indexing into an array of N chains."
+ *
+ * The loop-carried dependency itself is real and intentional either way:
+ * chain c's result at unroll slot u depends only on chain c's own
+ * previous result, so the compiler cannot hoist, reorder away, or
+ * constant-fold any chain's arithmetic -- and with N > 1, no chain
+ * depends on any other chain, which is exactly the independent-work
+ * Chapter 8's lab needs to demonstrate. Dead-code elimination is
+ * prevented by the same mechanism as before: the folded checksum below
+ * is this program's actual printed output (BLUEPRINT.md Section 8). */
+#define CYCLELAB_DEFINE_COMPUTE_WORKER(N)                                          \
+static void compute_worker_chains_##N(compute_worker_ctx_t *ctx, unsigned long seed) { \
+    long long int_acc[N];                                                         \
+    double float_acc[N];                                                          \
+    for (int c = 0; c < N; c++) {                                                 \
+        unsigned long chain_seed = seed + (unsigned long)c * 0x9E3779B97F4A7C15UL; \
+        int_acc[c] = (long long)(chain_seed | 1UL);                               \
+        float_acc[c] = 1.0 + (double)(chain_seed % 1000) / 7.0;                   \
+    }                                                                             \
+                                                                                    \
+    long iters = 0;                                                               \
+    double start = timing_now_seconds();                                          \
+                                                                                    \
+    for (;;) {                                                                    \
+        for (int u = 0; u < OPS_PER_ITERATION; u++) {                             \
+            int c = u % N;                                                        \
+            switch (ctx->opts->op) {                                             \
+                case CYCLELAB_OP_INT:                                             \
+                    int_acc[c] = int_acc[c] * 2654435761LL + (long long)u + 1;    \
+                    int_acc[c] ^= (int_acc[c] >> 13);                             \
+                    break;                                                        \
+                case CYCLELAB_OP_FLOAT:                                          \
+                    float_acc[c] = float_acc[c] * 1.0000001 + 0.0000003 * (double)(u + 1); \
+                    if (float_acc[c] > 1e6 || float_acc[c] < -1e6) {              \
+                        float_acc[c] = float_acc[c] - (double)(long long)(float_acc[c] / 1e6) * 1e6; \
+                    }                                                             \
+                    break;                                                        \
+                case CYCLELAB_OP_MIXED:                                          \
+                default:                                                          \
+                    int_acc[c] = int_acc[c] * 2654435761LL + (long long)u + 1;    \
+                    int_acc[c] ^= (int_acc[c] >> 13);                             \
+                    float_acc[c] = float_acc[c] * 1.0000001 + (double)(int_acc[c] & 0xff) * 1e-7; \
+                    if (float_acc[c] > 1e6 || float_acc[c] < -1e6) {              \
+                        float_acc[c] = float_acc[c] - (double)(long long)(float_acc[c] / 1e6) * 1e6; \
+                    }                                                             \
+                    break;                                                        \
+            }                                                                     \
+        }                                                                         \
+        iters++;                                                                  \
+                                                                                    \
+        if (ctx->target_iterations > 0) {                                        \
+            if (iters >= ctx->target_iterations) break;                          \
+        } else {                                                                  \
+            if ((iters & 0x3FF) == 0 && timing_now_seconds() >= ctx->deadline) break; \
+        }                                                                         \
+    }                                                                             \
+                                                                                    \
+    ctx->elapsed_s = timing_now_seconds() - start;                                \
+    ctx->iterations_done = iters;                                                 \
+                                                                                    \
+    long long int_fold = 0;                                                       \
+    double float_fold = 0.0;                                                      \
+    for (int c = 0; c < N; c++) {                                                 \
+        int_fold ^= int_acc[c];                                                   \
+        float_fold += float_acc[c];                                               \
+    }                                                                             \
+    ctx->int_checksum = int_fold;                                                 \
+    ctx->float_checksum = float_fold;                                             \
+}
+
+CYCLELAB_DEFINE_COMPUTE_WORKER(1)
+CYCLELAB_DEFINE_COMPUTE_WORKER(2)
+CYCLELAB_DEFINE_COMPUTE_WORKER(3)
+CYCLELAB_DEFINE_COMPUTE_WORKER(4)
+CYCLELAB_DEFINE_COMPUTE_WORKER(5)
+CYCLELAB_DEFINE_COMPUTE_WORKER(6)
+CYCLELAB_DEFINE_COMPUTE_WORKER(7)
+CYCLELAB_DEFINE_COMPUTE_WORKER(8)
+CYCLELAB_DEFINE_COMPUTE_WORKER(9)
+CYCLELAB_DEFINE_COMPUTE_WORKER(10)
+CYCLELAB_DEFINE_COMPUTE_WORKER(11)
+CYCLELAB_DEFINE_COMPUTE_WORKER(12)
+CYCLELAB_DEFINE_COMPUTE_WORKER(13)
+CYCLELAB_DEFINE_COMPUTE_WORKER(14)
+CYCLELAB_DEFINE_COMPUTE_WORKER(15)
+CYCLELAB_DEFINE_COMPUTE_WORKER(16)
+
+#undef CYCLELAB_DEFINE_COMPUTE_WORKER
+
+_Static_assert(CYCLELAB_MAX_CHAINS == 16,
+               "compute.c defines one specialized worker per chain count "
+               "1..16 -- update the CYCLELAB_DEFINE_COMPUTE_WORKER(N) list "
+               "above if CYCLELAB_MAX_CHAINS ever changes");
+
 static void *compute_worker(void *arg) {
     compute_worker_ctx_t *ctx = (compute_worker_ctx_t *)arg;
 
@@ -64,77 +170,36 @@ static void *compute_worker(void *arg) {
      * do not all retrace the same accumulator sequence. */
     unsigned long seed = ctx->opts->seed + (unsigned long)ctx->index * 2654435761UL;
 
-    /* Genuine loop-carried dependency, per chain: chain c's result at unroll
-     * slot u depends only on chain c's own previous result, so the compiler
-     * cannot hoist, reorder away, or constant-fold any chain's loop -- and
-     * with chains > 1, no chain depends on any other chain either, which is
-     * exactly the independent-work Chapter 8's lab needs to demonstrate.
-     * `volatile` is belt-and-suspenders on top of that real dependency and
-     * the fact that the final, folded values are printed (BLUEPRINT.md
-     * Section 8: "prints work completed and a checksum to prevent
-     * dead-code elimination"). */
-    int chains = ctx->opts->chains;
-    volatile long long int_acc[CYCLELAB_MAX_CHAINS];
-    volatile double float_acc[CYCLELAB_MAX_CHAINS];
-    for (int c = 0; c < chains; c++) {
-        unsigned long chain_seed = seed + (unsigned long)c * 0x9E3779B97F4A7C15UL;
-        int_acc[c] = (long long)(chain_seed | 1UL);
-        float_acc[c] = 1.0 + (double)(chain_seed % 1000) / 7.0;
+    /* Dispatch to the specialized worker for this exact chain count, so
+     * every supported --chains value (1-16) gets genuinely unrolled,
+     * register-resident, modulo-free code -- see
+     * CYCLELAB_DEFINE_COMPUTE_WORKER above for why that requires a
+     * compile-time constant rather than a single runtime-parameterized
+     * loop. */
+    switch (ctx->opts->chains) {
+        case 1:  compute_worker_chains_1(ctx, seed);  break;
+        case 2:  compute_worker_chains_2(ctx, seed);  break;
+        case 3:  compute_worker_chains_3(ctx, seed);  break;
+        case 4:  compute_worker_chains_4(ctx, seed);  break;
+        case 5:  compute_worker_chains_5(ctx, seed);  break;
+        case 6:  compute_worker_chains_6(ctx, seed);  break;
+        case 7:  compute_worker_chains_7(ctx, seed);  break;
+        case 8:  compute_worker_chains_8(ctx, seed);  break;
+        case 9:  compute_worker_chains_9(ctx, seed);  break;
+        case 10: compute_worker_chains_10(ctx, seed); break;
+        case 11: compute_worker_chains_11(ctx, seed); break;
+        case 12: compute_worker_chains_12(ctx, seed); break;
+        case 13: compute_worker_chains_13(ctx, seed); break;
+        case 14: compute_worker_chains_14(ctx, seed); break;
+        case 15: compute_worker_chains_15(ctx, seed); break;
+        case 16: compute_worker_chains_16(ctx, seed); break;
+        default:
+            /* cli.c validates --chains to [1, CYCLELAB_MAX_CHAINS] before
+             * this ever runs; unreachable in practice. */
+            fprintf(stderr, "cyclelab: internal error: unsupported chain count %d\n",
+                    ctx->opts->chains);
+            break;
     }
-
-    long iters = 0;
-    double start = timing_now_seconds();
-
-    for (;;) {
-        for (int u = 0; u < OPS_PER_ITERATION; u++) {
-            int c = u % chains;
-            switch (ctx->opts->op) {
-                case CYCLELAB_OP_INT:
-                    int_acc[c] = int_acc[c] * 2654435761LL + (long long)u + 1;
-                    int_acc[c] ^= (int_acc[c] >> 13);
-                    break;
-                case CYCLELAB_OP_FLOAT:
-                    float_acc[c] = float_acc[c] * 1.0000001 + 0.0000003 * (double)(u + 1);
-                    if (float_acc[c] > 1e6 || float_acc[c] < -1e6) {
-                        float_acc[c] = float_acc[c] - (double)(long long)(float_acc[c] / 1e6) * 1e6;
-                    }
-                    break;
-                case CYCLELAB_OP_MIXED:
-                default:
-                    int_acc[c] = int_acc[c] * 2654435761LL + (long long)u + 1;
-                    int_acc[c] ^= (int_acc[c] >> 13);
-                    float_acc[c] = float_acc[c] * 1.0000001 + (double)(int_acc[c] & 0xff) * 1e-7;
-                    if (float_acc[c] > 1e6 || float_acc[c] < -1e6) {
-                        float_acc[c] = float_acc[c] - (double)(long long)(float_acc[c] / 1e6) * 1e6;
-                    }
-                    break;
-            }
-        }
-        iters++;
-
-        if (ctx->target_iterations > 0) {
-            if (iters >= ctx->target_iterations) break;
-        } else {
-            /* Check the clock only every 1024 iterations so timing
-             * overhead stays negligible relative to the work itself. */
-            if ((iters & 0x3FF) == 0 && timing_now_seconds() >= ctx->deadline) break;
-        }
-    }
-
-    ctx->elapsed_s = timing_now_seconds() - start;
-    ctx->iterations_done = iters;
-
-    /* Fold all chains into the same two-field checksum the JSON schema
-     * already had before --chains existed, so output shape doesn't change
-     * for the chains=1 (default) case. */
-    long long int_fold = 0;
-    double float_fold = 0.0;
-    for (int c = 0; c < chains; c++) {
-        int_fold ^= int_acc[c];
-        float_fold += float_acc[c];
-    }
-    ctx->int_checksum = int_fold;
-    ctx->float_checksum = float_fold;
     return NULL;
 }
 
