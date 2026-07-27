@@ -88,26 +88,41 @@ no matter how wide the underlying pipeline actually was.
 Adding independent chains gives the out-of-order machinery more choices
 about what to run next when one chain is waiting on its own prior step —
 which is why throughput rose sharply from `--chains=1` toward the middle
-of this chapter's lab range. But that benefit has a ceiling: a real CPU
-has a finite issue width (how many instructions it can dispatch per
+of this chapter's lab range. But that benefit has a ceiling, and the
+ceiling shows up in two distinct, stacked ways, not one. First, a real
+CPU has a finite issue width (how many instructions it can dispatch per
 cycle), a finite number of execution units, and finite internal buffering
-for tracking in-flight instructions. Past some number of independent
-chains, adding more doesn't create more usable parallelism — it just
-creates more work waiting for the same finite resources, and throughput
-flattens. That flattening, not the initial rise, is this chapter's
-central evidence: **a stall is specifically a failure to supply
-independent work**, and once independent work is no longer the limiting
-factor, adding more of it stops helping.
+for tracking in-flight instructions — past some number of independent
+chains, adding more doesn't create more usable parallelism, because the
+CPU itself has nowhere to put the extra concurrency. Second, and less
+obviously: each chain count this chapter's lab tests is a *different
+compiled program* (Chapter 7's own compile-time specialization, one
+function per chain count), and how efficiently the compiler can map that
+specific number of accumulators onto the CPU's finite physical registers
+does not scale smoothly with chain count — on this book's own reference
+machine, throughput at 8 and 16 chains is noticeably higher than at 6,
+10, 12, or 14, a real, reproducible pattern favoring chain counts that
+happen to divide evenly into the machine's vector register width, not a
+smooth plateau. Both mechanisms are real: **a stall is specifically a
+failure to supply independent work**, and once independent work is no
+longer the limiting factor, *how well the compiler can express that
+independent work in hardware* becomes the next thing that matters —
+which is why the shape past the initial rise is uneven rather than flat.
 
 ## Tool View
 
 - What is measured: throughput as a function of available independent
   work (`--chains`), as an indirect but real signal of pipeline behavior.
 - What is not measured: which *specific* resource (issue width,
-  execution unit count, reorder buffer size) is the limiting factor at
-  the plateau — that requires microarchitecture-specific counters this
-  chapter deliberately doesn't require, in keeping with Section 7.3's
-  "one new mental model at a time."
+  execution unit count, reorder buffer size, or the compiler's own
+  register allocation for that specific chain count) is responsible for
+  any one chain count's exact result — that requires either
+  microarchitecture-specific hardware counters this chapter deliberately
+  doesn't require, or reading the generated assembly for a specific
+  chain count directly (`cc -S`, the same technique Chapter 6 used) —
+  both reasonable next steps for a reader who wants the specific
+  mechanism, not something this chapter's portable lab needs to already
+  answer.
 - Required permissions: none for this chapter's lab.
 - Likely overhead: negligible.
 - Portability: works anywhere `cyclelab` runs.
@@ -140,37 +155,58 @@ factor, adding more of it stops helping.
 This sweeps `--chains` from 1 to 16 for the same `--op=int` instruction
 mix, tabulating throughput at each value.
 
-**Expected qualitative result:** throughput should rise sharply at first,
-then flatten well before reaching the highest chain count tested — not
-keep climbing in proportion to the chain count. One example run on the
-reference machine for this book (Apple M4, macOS, arm64) showed:
+**Expected qualitative result:** throughput should rise sharply at
+first, then — rather than settling into a clean, flat plateau — become
+noticeably uneven as chain count keeps increasing, with some chain
+counts clearly outperforming their neighbors. One example run (9
+repetitions per chain count; medians shown, all individually
+reproducible to within about 1%) on the reference machine for this
+book (Apple M4, macOS, arm64) showed:
 
 ```text
 chains   throughput_ops_s
-1        718,161,175
-2        1,365,610,488
-4        2,296,777,873
-8        2,337,706,624
-12       2,337,175,334
-16       2,336,233,275
+1        727,005,494
+2        1,317,117,343
+4        2,339,897,373
+6        1,507,949,372
+8        2,235,614,622
+10       1,820,018,479
+12       1,745,995,332
+14       1,840,566,430
+16       2,561,270,716
 ```
 
-Throughput a little over tripled from 1 to 4 chains, then stayed
-essentially flat from 4 chains all the way to 16.
+Throughput roughly tripled from 1 to 4 chains, as expected. But it does
+not then plateau: 6 chains is *slower* than 4, 8 recovers to nearly the
+4-chain level, 10 and 12 drop again, and 16 — the highest chain count
+tested — is the fastest result in the whole table. This specific run is
+highly reproducible on this machine (repeating it lands within about 1%
+every time), so this isn't noise; it's a real, second pattern on top of
+the first one.
 
-**Interpretation:** the flattening point is specific to this CPU, this
-instruction mix, and this run — do not expect the same chain count to be
-where a different machine's curve levels off. The shape (rise, then
-plateau) is the qualitative result; if your run shows a dip rather than a
-clean plateau at the high end, that's plausible too (register pressure
-from tracking many independent chains at once has its own cost) and
-still consistent with this chapter's point: more independent work stops
-being free at some point.
+**Interpretation:** the initial rise (1 to 4 chains) is this chapter's
+core lesson working exactly as expected: more independent work, more of
+the pipeline kept busy. The uneven shape from 6 chains onward is the
+*second* mechanism the Technical Explanation section names: each chain
+count is a separately compiled, specialized function (Chapter 7), and
+how efficiently the compiler can fit that many accumulators into the
+CPU's physical registers and vector units doesn't scale smoothly with
+chain count — on this build, chain counts that divide evenly into the
+hardware's vector width (4, 8, 16) noticeably outperform the ones that
+don't (6, 10, 12, 14). Do not expect the same specific numbers, or even
+the same favored chain counts, on a different CPU or compiler — the
+portable lesson is that *past the initial ILP-driven rise*, throughput
+depends on compiler and hardware specifics that a black-box throughput
+sweep can observe but not attribute; reading the generated assembly for
+a couple of chain counts (Tool View, above) is the natural next step for
+anyone who wants to know *why* their own machine favors the counts it
+does.
 
 **Fallback path:** this lab has no external dependency beyond
 `cyclelab` and `python3` (for parsing JSON); if `python3` is unavailable,
-run the six `cyclelab compute --chains=...` commands directly and read
-`results.throughput_ops_per_s` from each run's raw JSON.
+run the nine `cyclelab compute --chains=...` commands directly, several
+times each, and compare `results.throughput_ops_per_s` across
+repetitions and chain counts by eye.
 
 **Cleanup:** none.
 

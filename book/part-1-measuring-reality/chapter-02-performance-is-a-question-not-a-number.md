@@ -183,26 +183,30 @@ repetitions per cell) showed exactly that pattern:
 
 ```text
 iterations   op       median_ops_s   min_ops_s      max_ops_s
-5000         int      526,315,813    283,687,891    547,945,402
-5000         mixed    533,333,411    449,438,307    540,540,676
-5000000      int      730,967,437    711,819,768    732,493,406
-5000000      mixed    680,526,727    646,987,464    686,565,627
-100000000    int      722,133,761    656,314,401    729,445,148
-100000000    mixed    670,456,422    658,248,220    673,291,292
+5000         int      601,503,918    396,039,555    620,154,794
+5000         mixed    601,503,918    579,710,132    615,384,889
+5000000      int      728,080,235    720,701,242    730,066,893
+5000000      mixed    670,634,588    668,080,771    677,357,628
+100000000    int      723,215,161    715,005,188    727,784,161
+100000000    mixed    659,950,025    495,738,201    663,792,996
 ```
 
-At 5,000 iterations, `int`'s own min-max spread (283.7M-548.0M, a range
-of roughly 264M) is far *wider* than the 7M gap between `int`'s and
-`mixed`'s medians — the two configurations' medians are, for practical
-purposes, tied, and any single one of these nine runs could have shown
-either one "ahead." At 5,000,000 and 100,000,000 iterations, the
-medians separate to a stable ~50M-ops/s gap (`int` consistently ahead,
-by roughly 7-8%) at both lengths, and the two configurations' min-max
-ranges barely overlap — a genuinely reproducible ranking, not noise. Do
-not expect these exact numbers, or the exact iteration counts where
-noise stops dominating, on a different machine — the qualitative point
-is that *how much a single run's ranking can be trusted* depends on
-measurement length, not that the ranking itself must flip.
+At 5,000 iterations, `int`'s own min-max spread (396.0M-620.2M, a range
+of roughly 224M) is far *wider* than the gap between `int`'s and
+`mixed`'s medians — which in this run are, by coincidence, exactly
+tied. Any single one of these nine runs could have shown either one
+"ahead" by a wide margin. At 5,000,000 and 100,000,000 iterations, the
+medians separate to a stable ~60M-ops/s gap (`int` consistently ahead,
+by roughly 8%) at both lengths, and the two configurations' min-max
+ranges do not overlap at all — a genuinely reproducible ranking, not
+noise (this despite `mixed` at 100,000,000 iterations having one low
+outlier run of its own, 495.7M — even that outlier's presence doesn't
+change the ranking, since it's `mixed`'s own *low* outlier, pulling
+further away from `int`, not toward it). Do not expect these exact
+numbers, or the exact iteration counts where noise stops dominating, on
+a different machine — the qualitative point is that *how much a single
+run's ranking can be trusted* depends on measurement length, not that
+the ranking itself must flip.
 
 **Interpretation:** the fixed, one-time costs paid once per run — thread
 start/join, branch-predictor and cache warm-up, frequency-scaling

@@ -56,10 +56,17 @@ node, fall back if it's full. **Automatic NUMA balancing** is the
 kernel's own background effort to notice a page being accessed
 predominantly from a remote node and consider **page migration** —
 physically moving it closer — weighing that against the real cost of
-the move itself. **NUMA hit/miss statistics** report how often memory
-accesses were satisfied locally versus remotely, the direct, aggregate
-evidence for whether a workload's placement is actually working as
-intended.
+the move itself. **NUMA hit/miss statistics** report *page-allocation*
+outcomes — whether a page was actually allocated on the node its policy
+preferred (`numa_hit`) or had to fall back to a different node
+(`numa_miss`), accumulated since the process started — not a live tally
+of individual memory accesses. They are the right evidence for "did
+placement happen the way this policy intended," a necessary precondition
+for good locality; they are not themselves a measurement of how many
+memory *accesses* ended up local versus remote, which no counter at this
+layer reports directly — that evidence has to come from timing (Chapter
+24's local-versus-remote latency gap) or hardware counters (Chapter 20),
+not from allocation statistics.
 
 ## Technical Explanation
 

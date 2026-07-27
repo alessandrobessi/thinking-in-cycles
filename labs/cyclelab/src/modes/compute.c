@@ -28,7 +28,22 @@
 #endif
 
 #define CYCLELAB_VERSION "0.1.0"
-#define OPS_PER_ITERATION 8
+/* Must be at least CYCLELAB_MAX_CHAINS: `u % N` inside
+ * CYCLELAB_DEFINE_COMPUTE_WORKER only reaches every chain index 0..N-1 if u
+ * itself ranges far enough (0..OPS_PER_ITERATION-1) to cover 0..N-1 at least
+ * once. An earlier version of this file set this to 8, which meant every
+ * --chains value above 8 silently updated only chains 0-7 in the timed loop
+ * -- the remaining chains were seeded once before the loop and never
+ * touched again, so --chains=12 and --chains=16 measured the same eight
+ * active dependency chains as --chains=8, not twelve or sixteen. Setting
+ * this equal to CYCLELAB_MAX_CHAINS is the smallest value that guarantees
+ * every configured chain is reachable for every supported --chains. */
+#define OPS_PER_ITERATION CYCLELAB_MAX_CHAINS
+
+_Static_assert(OPS_PER_ITERATION >= CYCLELAB_MAX_CHAINS,
+               "OPS_PER_ITERATION must be >= CYCLELAB_MAX_CHAINS so every "
+               "configured chain 0..chains-1 is reachable via u % chains "
+               "for u in [0, OPS_PER_ITERATION)");
 
 typedef struct {
     int index;
@@ -39,7 +54,7 @@ typedef struct {
     /* results, filled in by the worker */
     long iterations_done;
     double elapsed_s;
-    long long int_checksum;
+    uint64_t int_checksum;
     double float_checksum;
     cyclelab_affinity_result_t affinity_result;
     const char *affinity_reason;
@@ -75,14 +90,23 @@ static const char *op_name(cyclelab_op_t op) {
  * depends on any other chain, which is exactly the independent-work
  * Chapter 8's lab needs to demonstrate. Dead-code elimination is
  * prevented by the same mechanism as before: the folded checksum below
- * is this program's actual printed output (BLUEPRINT.md Section 8). */
+ * is this program's actual printed output (BLUEPRINT.md Section 8).
+ *
+ * Integer accumulators are uint64_t, not a signed type: the recurrence
+ * below overflows within a handful of iterations by design (it's what
+ * keeps the value bounded and unpredictable-looking), and signed integer
+ * overflow is undefined behavior in C -- a compiler would be entitled to
+ * assume it never happens and optimize accordingly. Unsigned overflow
+ * (wraparound) is well-defined, so the exact same recurrence is legal,
+ * portable, and reproducible across compilers and optimization levels
+ * when the type is unsigned. */
 #define CYCLELAB_DEFINE_COMPUTE_WORKER(N)                                          \
 static void compute_worker_chains_##N(compute_worker_ctx_t *ctx, unsigned long seed) { \
-    long long int_acc[N];                                                         \
+    uint64_t int_acc[N];                                                          \
     double float_acc[N];                                                          \
     for (int c = 0; c < N; c++) {                                                 \
         unsigned long chain_seed = seed + (unsigned long)c * 0x9E3779B97F4A7C15UL; \
-        int_acc[c] = (long long)(chain_seed | 1UL);                               \
+        int_acc[c] = (uint64_t)(chain_seed | 1UL);                                \
         float_acc[c] = 1.0 + (double)(chain_seed % 1000) / 7.0;                   \
     }                                                                             \
                                                                                     \
@@ -94,7 +118,7 @@ static void compute_worker_chains_##N(compute_worker_ctx_t *ctx, unsigned long s
             int c = u % N;                                                        \
             switch (ctx->opts->op) {                                             \
                 case CYCLELAB_OP_INT:                                             \
-                    int_acc[c] = int_acc[c] * 2654435761LL + (long long)u + 1;    \
+                    int_acc[c] = int_acc[c] * 2654435761ULL + (uint64_t)u + 1;    \
                     int_acc[c] ^= (int_acc[c] >> 13);                             \
                     break;                                                        \
                 case CYCLELAB_OP_FLOAT:                                          \
@@ -105,7 +129,7 @@ static void compute_worker_chains_##N(compute_worker_ctx_t *ctx, unsigned long s
                     break;                                                        \
                 case CYCLELAB_OP_MIXED:                                          \
                 default:                                                          \
-                    int_acc[c] = int_acc[c] * 2654435761LL + (long long)u + 1;    \
+                    int_acc[c] = int_acc[c] * 2654435761ULL + (uint64_t)u + 1;    \
                     int_acc[c] ^= (int_acc[c] >> 13);                             \
                     float_acc[c] = float_acc[c] * 1.0000001 + (double)(int_acc[c] & 0xff) * 1e-7; \
                     if (float_acc[c] > 1e6 || float_acc[c] < -1e6) {              \
@@ -126,7 +150,7 @@ static void compute_worker_chains_##N(compute_worker_ctx_t *ctx, unsigned long s
     ctx->elapsed_s = timing_now_seconds() - start;                                \
     ctx->iterations_done = iters;                                                 \
                                                                                     \
-    long long int_fold = 0;                                                       \
+    uint64_t int_fold = 0;                                                        \
     double float_fold = 0.0;                                                      \
     for (int c = 0; c < N; c++) {                                                 \
         int_fold ^= int_acc[c];                                                   \

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #
 # Chapter 7 guided lab (portable fallback): the same instruction mix
-# (--op=int, 8 unrolled operations per iteration either way), run once
+# (--op=int, 16 unrolled operations per iteration either way), run once
 # with a single dependency chain and once with eight independent chains,
 # as an indirect but real demonstration of what differing IPC looks like
 # from the outside -- without requiring perf's hardware counters, which
@@ -30,7 +30,7 @@ echo "-- chains=8 (eight independent chains: no op waits on a different chain) -
 "$CYCLELAB" compute --duration="$DURATION" --threads=1 --op=int --chains=8 --format=text --quiet
 
 echo
-echo "Interpretation: both runs execute the exact same 8 arithmetic operations"
+echo "Interpretation: both runs execute the exact same 16 arithmetic operations"
 echo "per iteration -- the instruction mix per unit of work is identical."
 echo "A large difference in throughput between the two is the same effect a"
 echo "hardware counter would report as a large IPC difference: the CPU"

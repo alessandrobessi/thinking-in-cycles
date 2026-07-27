@@ -139,11 +139,11 @@ profiles' total sample counts should come out close to *equal* despite
 real run on the reference machine for this book showed:
 
 ```text
-baseline total samples (main-thread path):  1579
-after    total samples (main-thread path):  1579
+baseline total samples (main-thread path):  1748
+after    total samples (main-thread path):  1744
 ```
 
-Identical — even though "after" completed roughly three times the
+Nearly identical (within 0.2%) — even though "after" completed roughly three times the
 iterations in that same 3-second capture, confirmed separately by the
 interleaved throughput benchmark in step 1. The differential flame graph
 showed mostly grey (unchanged shape) with a few small red frames from

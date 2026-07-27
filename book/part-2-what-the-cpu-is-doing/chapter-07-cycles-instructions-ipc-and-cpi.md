@@ -155,7 +155,7 @@ to see IPC numbers directly.
 ./labs/scripts/ch7_ipc_intuition.sh
 ```
 
-This runs the exact same per-iteration instruction mix (`--op=int`, 8
+This runs the exact same per-iteration instruction mix (`--op=int`, 16
 unrolled arithmetic operations per iteration either way) once as a single
 dependency chain (`--chains=1`) and once as eight independent chains
 (`--chains=8`), so any throughput difference between the two comes from
@@ -168,11 +168,11 @@ instruction sequence per iteration. One example run on the reference
 machine for this book (Apple M4, macOS, arm64) showed:
 
 ```text
-chains=1: throughput_ops_per_s ≈ 726,000,000
-chains=8: throughput_ops_per_s ≈ 2,339,000,000
+chains=1: throughput_ops_per_s ≈ 724,000,000
+chains=8: throughput_ops_per_s ≈ 2,227,000,000
 ```
 
-Roughly a 3.2x difference, from an instruction-mix change of exactly
+Roughly a 3.1x difference, from an instruction-mix change of exactly
 zero.
 
 **Interpretation:** this is what a large IPC difference looks like from

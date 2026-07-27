@@ -125,21 +125,26 @@ timing overhead negligible) unless `--iterations` is given, which runs
 each thread for exactly that many iterations instead.
 
 `--chains=N` (default 1) splits each thread's work across N independent
-accumulator chains instead of one: with `--chains=1`, unroll slot *u*
-always updates the same accumulator, so slot *u+1* must wait for slot
-*u*'s result; with `--chains=8`, the 8 unrolled slots each update their
-*own* chain, so none of them depend on each other within an iteration.
-Internally, each supported chain count (1-16) is its own specialized,
-compile-time-unrolled function with ordinary local scalar accumulators,
-not one runtime-parameterized function indexing into a shared array --
-with N fixed at compile time, `u % N` folds away entirely and the
-accumulators can live in registers, so a chain-count comparison measures
-independent-work scheduling itself, not the cost of runtime indexing on
-top of it. This is what Chapter 8 uses to make the CPU's available
-instruction-level parallelism visible as a throughput difference rather
-than an abstract claim -- on the reference machine for this book,
-`--chains=8` measured roughly 3.2x the throughput of `--chains=1` for
-`--op=int`.
+accumulator chains instead of one: each iteration unrolls 16 slots (the
+smallest value that guarantees every configured chain 0..N-1 gets
+updated for every supported N, 1 through `CYCLELAB_MAX_CHAINS`); with
+`--chains=1`, slot *u+1* always depends on slot *u*'s result; with
+`--chains=8`, slot *u*'s chain is `u % 8`, so the 16 slots cycle twice
+through 8 mutually independent chains, none of them depending on each
+other within an iteration. Internally, each supported chain count (1-16)
+is its own specialized, compile-time-unrolled function with ordinary
+local scalar accumulators, not one runtime-parameterized function
+indexing into a shared array -- with N fixed at compile time, `u % N`
+folds away entirely and the accumulators can live in registers, so a
+chain-count comparison measures independent-work scheduling itself, not
+the cost of runtime indexing on top of it. (An earlier version of this
+unroll used only 8 slots total, which silently capped every chain count
+above 8 at 8 active chains -- fixed by unrolling 16 slots, the actual
+maximum chain count this mode supports.) This is what Chapter 8 uses to
+make the CPU's available instruction-level parallelism visible as a
+throughput difference rather than an abstract claim -- on the reference
+machine for this book, `--chains=8` measured roughly 3.1x the throughput
+of `--chains=1` for `--op=int`.
 
 ## `branch` mode
 
@@ -183,12 +188,22 @@ one.
 ## `bandwidth` mode
 
 Each of `--threads` worker threads streams sequentially through its own
-`--working-set-size` buffer of doubles, summing every element in a
-plain, non-dependent loop the compiler can vectorize and the CPU can
-prefetch aggressively -- the opposite access shape from
+`--working-set-size` buffer of doubles, summing every element into eight
+independent partial sums (not one running total) in a plain,
+non-dependent loop -- the opposite access shape from
 sequential-memory/random-memory's deliberately dependent pointer chase,
 because bandwidth measurement needs the hardware's latency-hiding
-tricks turned on, not defeated. Each worker allocates and first-touches
+tricks turned on, not defeated. Eight independent accumulators, not one,
+matters concretely here: this project builds with plain `-O2`, no
+`-ffast-math`/`-fassociative-math`, so the compiler must preserve strict
+IEEE-754 addition order and cannot reassociate a single running-total
+accumulator into a vectorized reduction on its own. Confirmed via this
+exact build's generated assembly: the single-accumulator version compiles
+to one scalar `fadd` chain with zero vectorization, while the
+eight-accumulator version compiles to four independent 2-wide NEON
+`fadd.2d` accumulators loading 8 doubles per iteration -- a real,
+verified difference in generated code, not an assumption. Each worker
+allocates and first-touches
 its own buffer itself, after affinity is applied, then waits at a
 barrier until every worker has done the same -- so on a NUMA system,
 each thread's memory lands on its own node rather than all of it landing

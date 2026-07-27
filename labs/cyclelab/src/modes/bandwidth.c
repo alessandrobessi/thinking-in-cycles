@@ -166,14 +166,39 @@ static void *bw_worker(void *arg) {
     double start = ctx->gate->start_time;
 
     for (;;) {
-        /* A plain, independent-iteration reduction: nothing here forces
-         * one iteration to wait on another, so the compiler is free to
-         * vectorize it and the CPU is free to prefetch aggressively --
-         * exactly what a bandwidth measurement needs, unlike the
-         * deliberately dependent pointer chase in sequential-memory/
-         * random-memory mode. */
-        double local = 0.0;
-        for (long i = 0; i < n; i++) {
+        /* Eight independent partial sums, not one running total: a
+         * single `local += buf[i]` accumulator is one serial
+         * floating-point dependency chain (every add waits on the
+         * previous add's result), and without -ffast-math/-fassociative-
+         * math -- which this project does not build with, since it would
+         * silently change every other mode's arithmetic too -- the
+         * compiler is not free to reassociate that chain into a
+         * vectorized reduction; strict IEEE-754 semantics require the
+         * additions to happen in exactly the written order. Eight
+         * mutually-independent accumulators break that single chain into
+         * eight, each only depending on its own previous value. Confirmed
+         * in this exact build's generated assembly (labs/cyclelab/README.md's
+         * bandwidth section): the compiler vectorizes this loop into four
+         * independent 2-wide NEON accumulators (`fadd.2d`) loading 8
+         * doubles per iteration, versus zero vectorization and one
+         * scalar `fadd` chain for the single-accumulator version this
+         * replaced. The final reduction of the eight partial sums
+         * happens once per pass, negligible next to the loop itself. */
+        double s0 = 0.0, s1 = 0.0, s2 = 0.0, s3 = 0.0;
+        double s4 = 0.0, s5 = 0.0, s6 = 0.0, s7 = 0.0;
+        long i = 0;
+        for (; i + 7 < n; i += 8) {
+            s0 += buf[i];
+            s1 += buf[i + 1];
+            s2 += buf[i + 2];
+            s3 += buf[i + 3];
+            s4 += buf[i + 4];
+            s5 += buf[i + 5];
+            s6 += buf[i + 6];
+            s7 += buf[i + 7];
+        }
+        double local = ((s0 + s1) + (s2 + s3)) + ((s4 + s5) + (s6 + s7));
+        for (; i < n; i++) {
             local += buf[i];
         }
         sum += local;
