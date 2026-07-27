@@ -20,7 +20,7 @@ make lab-cyclelab   # from the repo root
 | `ch5_investigate_slow_config.sh` | 5 | Runs a deliberately over-threaded `cyclelab compute` config alongside `ps`/`vmstat` guidance, for working through the investigation loop. |
 | `ch6_build_and_disassemble.sh` | 6 | Builds `cyclelab` at `-O0` and `-O2` and disassembles the same function from both, comparing static instruction count. |
 | `ch7_ipc_intuition.sh` | 7 | Runs `cyclelab compute --chains=1` vs `--chains=8` (same instruction mix) as a portable, indirect view of an IPC difference. |
-| `ch8_dependency_chains.sh` | 8 | Sweeps `cyclelab compute --chains` over 1, 2, 4, 8, 16 -- values chosen to divide evenly into the 16-slot unroll, avoiding a schedule-fairness confound (median of several reps each) -- showing throughput rise sharply then stay uneven as independent work saturates the pipeline. |
+| `ch8_dependency_chains.sh` | 8 | Sweeps `cyclelab compute --chains` over 1, 2, 4, 8, 16 -- values chosen to divide evenly into the 16-slot unroll, avoiding a schedule-fairness confound -- with repetitions interleaved round-robin across chain counts (not run in blocks) to avoid a run-order confound, showing throughput rise sharply then stay uneven as independent work saturates the pipeline. |
 | `ch9_branch_prediction.sh` | 9 | Runs `cyclelab branch --pattern=sorted` vs `--pattern=random`, same conditional, to show a misprediction-driven throughput gap. |
 
 Chapter 10 has no dedicated script: its lab is a direct `perf stat`

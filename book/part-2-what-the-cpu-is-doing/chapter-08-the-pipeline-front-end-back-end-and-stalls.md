@@ -171,7 +171,7 @@ untangle.
 ```
 
 This sweeps `--chains` over 1, 2, 4, 8, and 16 for the same `--op=int`
-instruction mix, tabulating throughput at each value. Those five values
+source-level update workload, tabulating throughput at each value. Those five values
 are deliberately not "1 through 16" — each one unrolls into exactly 16
 slots per iteration (Chapter 7), and only chain counts that divide 16
 evenly (1, 2, 4, 8, 16) give every chain the identical number of updates
@@ -183,28 +183,38 @@ this lab avoids by construction rather than needing to explain away.
 
 **Expected qualitative result:** throughput should rise sharply from 1
 toward 4 chains, then — rather than settling into a clean, flat plateau
-— stay uneven even across this fairness-controlled set. One example run
-(9 repetitions per chain count; medians shown, all individually
-reproducible to within about 1-2%) on the reference machine for this
-book (Apple M4, macOS, arm64) showed:
+— stay uneven even across this fairness-controlled set. This script
+interleaves repetitions round-robin across all five chain counts (1
+rep of chains=1, then 2, then 4, then 8, then 16, then back to 1, and so
+on) rather than running all nine repetitions of one chain count before
+moving to the next — the same reason Chapter 4/15 interleave "before"
+and "after" runs, applied here to a five-way sweep: a blocked run order
+would confound chain count with whatever changes over the sweep's
+wall-clock duration (thermal state, frequency scaling, background
+load), so a chain count that happened to run later could look faster
+for reasons having nothing to do with chain count itself. One example
+run (9 interleaved repetitions per chain count; medians shown, all
+individually reproducible to within about 1-2%) on the reference
+machine for this book (Apple M4, macOS, arm64) showed:
 
 ```text
 chains   throughput_ops_s
-1        714,175,619
-2        1,299,695,931
-4        2,329,234,086
-8        2,198,089,815
-16       2,559,071,260
+1        694,447,492
+2        1,295,486,232
+4        2,318,177,737
+8        2,210,464,787
+16       2,538,432,653
 ```
 
 Throughput roughly tripled from 1 to 4 chains, as expected. It does not
 then plateau cleanly: 8 chains measures a little *below* 4, and 16 —
 the highest chain count tested — is the fastest result in the table.
-This specific ranking is reproducible on this machine (repeating the
-sweep lands within a percent or two every time), so it isn't run-to-run
-noise, and it isn't the schedule-fairness artifact either, since 4, 8,
-and 16 all divide 16 evenly. It's a real, second pattern on top of the
-first one.
+This specific ranking is reproducible on this machine across repeated
+full sweeps (lands within a percent or two every time, run order and
+all), so it isn't run-to-run noise and it isn't a run-order artifact
+either — the interleaving above is exactly what rules that out. It also
+isn't the earlier schedule-fairness artifact, since 4, 8, and 16 all
+divide 16 evenly. It's a real, second pattern on top of the first one.
 
 **Interpretation:** the initial rise (1 to 4 chains) is this chapter's
 core lesson working exactly as expected: more independent work, more of
@@ -244,10 +254,13 @@ hardware fault — a CPU with zero stalls ever would only be possible for
 a workload with unlimited independent work, which essentially never
 occurs in practice.
 
-**Correct intuition:** The same CPU, running the exact same instruction
-mix, shows dramatically different stall behavior depending purely on how
-independent the work is (this chapter's lab) — nothing about the
-hardware changed between `--chains=1` and `--chains=16`.
+**Correct intuition:** The same CPU, running the same source-level
+update workload (Chapter 7's own caveat: `--chains=1` and `--chains=16`
+are separately compiled specializations, so "exact same instruction
+mix" is a machine-code-level claim this book doesn't verify), shows
+dramatically different stall behavior depending purely on how
+independent the requested work is (this chapter's lab) — nothing about
+the hardware changed between the two runs.
 
 **Analogy:** A single cashier isn't "broken" when a line forms — the
 line is a normal consequence of customers arriving faster than one

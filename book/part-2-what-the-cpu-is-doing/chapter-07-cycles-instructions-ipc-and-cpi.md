@@ -123,17 +123,25 @@ here in a very literal, mechanical way.
   get IPC directly:
 
   ```bash
-  perf stat -e task-clock,cycles,instructions -- \
-    ./labs/cyclelab/bin/cyclelab compute --duration=2 --threads=1 --op=int --chains=1
-  perf stat -e task-clock,cycles,instructions -- \
-    ./labs/cyclelab/bin/cyclelab compute --duration=2 --threads=1 --op=int --chains=8
+  perf stat -r 10 -e task-clock,cycles,instructions -- \
+    ./labs/cyclelab/bin/cyclelab compute --iterations=50000000 --threads=1 --op=int --chains=1 --quiet
+  perf stat -r 10 -e task-clock,cycles,instructions -- \
+    ./labs/cyclelab/bin/cyclelab compute --iterations=50000000 --threads=1 --op=int --chains=8 --quiet
   ```
 
   **These two commands are documented, not tested** — the reference
   machine for this book is macOS, where `perf` does not exist. Their
   syntax follows `perf`'s stable, documented event names; if you have
   Linux with counter access, run them and compare the reported `insn per
-  cycle` line between the two.
+  cycle` line between the two. Note `--iterations=N` here, deliberately
+  *not* `--duration=N`: both runs must complete the identical number of
+  iterations for the `instructions` counter comparison below to mean
+  anything. Two runs measured for the same *duration* would retire
+  proportionally more instructions in whichever run is faster (roughly
+  3x more for `--chains=8`, matching this chapter's own throughput
+  ratio) — a real difference, but the wrong one to read as "did the
+  compiled code diverge," which is what fixing the iteration count
+  instead is for.
 - Common failure mode: comparing IPC between two runs of genuinely
   different workloads (different input sizes, different operations) and
   treating the difference as if it were caused by a code change rather
@@ -195,12 +203,19 @@ count that is identical between the two.
 the outside, without reading the counter directly — the same requested
 arithmetic operations retiring much faster, on average, once the CPU
 has independent work to interleave. A reader with `perf stat` access on
-Linux can confirm this properly: run the two Tool View commands above
-and compare the reported `instructions` counts between the two runs
-first (they should be close, confirming the compiled code didn't
-diverge in a way that matters) before comparing `cycles` and `insn per
-cycle` — checking `instructions` first is what turns this from an
-assumption into a measurement.
+Linux can confirm this properly, in two steps and in this order: first,
+with both runs fixed to the identical `--iterations` count (the Tool
+View commands above), check that `instructions` comes out close between
+the two — that specific check is what confirms the compiled code didn't
+diverge in a way that matters, *because* the work requested was held
+equal. Only after that check passes does comparing `cycles` and `insn
+per cycle` mean what this chapter claims it means. Skipping the
+equal-work step and instead comparing two runs measured for the same
+*duration* (not the same iteration count) would retire roughly 3x more
+instructions in the faster run, matching this chapter's own throughput
+ratio — a real number, but one that confirms nothing about whether the
+compiled code diverged, since it never held the requested work equal in
+the first place.
 
 **Fallback path:** already this chapter's primary path — the portable
 `cyclelab`-only comparison stands on its own without `perf`, as evidence

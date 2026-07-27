@@ -71,20 +71,35 @@ recomputing the mean difference each time, 95% interval): the real
 effect gives a difference of [602.8M, 616.1M] ops/s (`chains=2` minus
 `chains=1`) and a ratio of [1.87x, 1.91x] — entirely positive, entirely
 above 1x, real evidence the two configurations differ, consistent with
-the separate-interval comparison below but more direct. The same
-procedure applied to the two `chains=1` *sessions* — genuinely the same
-configuration, run twice — gives a difference of [0.5M, 4.8M] ops/s and
-a ratio of [1.0007x, 1.0067x]: barely, but genuinely, distinguishable
-from zero. That's not a contradiction of "no real effect" — it's the
-more sensitive test correctly detecting that "no real effect" was never
-quite true of two *specific* sessions on a real, imperfectly quiet
-machine; the honest reading is "a real but vanishingly small difference
-that the Effect Size section below shows doesn't matter," not "zero
-difference." Comparing the two configurations' separate marginal
-intervals ([708.4M, 712.3M] and [712.3M, 713.9M], meeting almost exactly
-at their shared edge) would have looked like clean "no difference" and
-missed this — a real illustration of why the direct-difference method
-is the one to trust when the two disagree.
+the separate-interval comparison below but more direct.
+
+The same procedure applied to the two `chains=1` *sessions* — the same
+configuration, run in two separate back-to-back sessions — gives a
+difference of [0.5M, 4.8M] ops/s and a ratio of [1.0007x, 1.0067x]:
+barely, but detectably, distinguishable from zero *for these two
+specific sessions*. That last qualifier matters: this is one session
+compared against one other session, twelve repetitions each, not many
+independently-collected session pairs — the bootstrap resamples
+individual runs as though they were independent draws from each
+session's own distribution, which they reasonably are *within* a
+session, but it says nothing about whether this particular gap would
+show up again between a fresh pair of sessions, since there is only one
+pair here to begin with. The honest reading is narrower than "the two
+sessions really differ, reproducibly": it's "these two specific
+sessions were detectably different from each other, by something —
+thermal state, frequency scaling, background load, or genuine
+run-to-run drift are all plausible, and nothing in this data
+distinguishes between them." That is itself the useful lesson: even a
+"same configuration, run twice" comparison isn't immune to whatever
+changed between the two sessions, which is exactly why Chapter 4 and
+Chapter 8's own guided lab interleave configurations *within* one
+session rather than trusting two separate blocks run back to back.
+Comparing the two configurations' separate marginal intervals ([708.4M,
+712.3M] and [712.3M, 713.9M], meeting almost exactly at their shared
+edge) would have looked like clean "no difference" and missed this
+smaller gap entirely — a real illustration of why the direct-difference
+method is more sensitive, whatever the correct explanation for what it
+found here turns out to be.
 
 ## Bootstrap intuition
 
@@ -102,7 +117,9 @@ assumes normality.
 
 ## Effect size
 
-A **p-value** or a confidence interval's non-overlap answers "is there
+A **p-value**, or — as the Confidence Intervals section above worked
+through directly — a confidence interval for the *difference* that
+excludes zero (or for the *ratio* that excludes 1x), answers "is there
 probably a real difference"; **effect size** answers the separate
 question "how big is it, in a unit that doesn't depend on sample size."
 Cohen's *d* (the difference between two means, divided by their pooled
@@ -160,20 +177,27 @@ whichever point in the sweep looked most interesting.
 ## Practical versus statistical significance
 
 The distinction this whole appendix builds toward: a difference can be
-statistically well-established (a difference confidence interval that
-excludes zero, a real, reproducible effect) and still not matter for
-any decision that depends on it. This appendix's own "no real effect"
-pair is the concrete example: the direct-difference bootstrap above
-found the two `chains=1` sessions genuinely, detectably differ by
-roughly 0.07-0.67% — "significant" in the statistical sense, a real
-difference that repeating the comparison would reproduce — but rarely
-worth the engineering cost of chasing unless the specific context makes
-well under 1% valuable at scale, and certainly not the "chains=2 is
-faster" finding this appendix set out to establish. The reverse also
-holds: a difference too small
-to distinguish from noise in ten runs might still be real and
-meaningful, just under-measured — more repetitions, not a different
-conclusion, is the correct response to that specific situation.
+statistically well-established within the data at hand (a difference
+confidence interval that excludes zero) and still not matter for any
+decision that depends on it — and, separately, "well-established in
+this data" is not automatically "would show up again." This appendix's
+own "no real effect" pair makes both points at once: the two `chains=1`
+sessions differ detectably, by roughly 0.07-0.67%, within these two
+specific sessions — genuinely "significant" by the direct-difference
+test, and small enough that it wouldn't be worth chasing even if it
+were a real, per-run effect. But with only one session on each side,
+this appendix's own data cannot say whether that gap would recur
+between a fresh pair of sessions, or whether it was specific to
+whatever changed between these two particular ones. Both readings point
+the same direction in practice — don't chase it — but for different
+reasons, and only the weaker one ("too small to matter, even if real")
+is something this specific comparison actually established; the
+stronger one ("a real, reproducible per-run effect") would need
+multiple independent session pairs, not the twelve-repetitions-times-two
+this appendix has. The reverse also holds: a difference too small to
+distinguish from noise in ten runs might still be real and meaningful,
+just under-measured — more repetitions, not a different conclusion, is
+the correct response to that specific situation.
 Chapter 4's own discipline (state what the data supports and what it
 doesn't, separate observation from recommendation) is this appendix's
 statistical vocabulary applied to two sentences instead of a formula.
