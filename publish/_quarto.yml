@@ -65,7 +65,7 @@ book:
 format:
   html:
     theme: cosmo
-    toc: true
+    toc: false
     number-sections: false
     code-copy: true
   typst:
