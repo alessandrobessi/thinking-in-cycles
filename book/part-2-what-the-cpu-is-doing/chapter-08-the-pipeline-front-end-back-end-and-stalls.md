@@ -108,8 +108,8 @@ updates unevenly across chains whenever the chain count doesn't divide
 for reasons that have nothing to do with the hardware. That's exactly
 why this lab restricts itself to chain counts that *do* divide 16 evenly
 (1, 2, 4, 8, 16) — the one honest way to compare chain counts fairly
-with a fixed-size unrolled loop is to only test values where every chain
-gets the identical number of updates. The remaining unevenness among 4,
+with a fixed-size (16 update slots per iteration) schedule is to only
+test values where every chain gets the identical number of updates. The remaining unevenness among 4,
 8, and 16 is real and reproducible even with that confound removed, but
 this chapter's portable lab has no way to attribute it to a specific
 cause (register allocation, code layout, and several other
@@ -193,9 +193,15 @@ round, not a fixed rotation and not run in blocks — a *fixed* rotating
 order would still confound chain count with whichever position always
 runs first, last, and so on within each round, in addition to the
 sweep-wide drift a blocked order confounds it with. Randomizing the
-order fresh each round is what actually rules both out — the same logic
-as a randomized block design generally, applied here to a five-way
-sweep instead of Chapter 4/15's two-way before/after. One example run
+order fresh each round is what substantially reduces the risk of both,
+the same logic as a randomized block design generally, applied here to
+a five-way sweep instead of Chapter 4/15's two-way before/after. Fresh
+randomization is not a guarantee, though: with only nine rounds and
+five positions, perfect positional balance isn't achievable, and by
+chance one chain count could still land in a favorable position more
+often than another across a specific set of rounds — the honest claim
+is "collection order is very unlikely to explain the ranking below,"
+not "collection order is proven not to." One example run
 (9 randomized-order repetitions per chain count; medians shown, all
 individually reproducible to within about 1-2%) on the reference
 machine for this book (Apple M4, macOS, arm64) showed:
@@ -212,12 +218,16 @@ chains   throughput_ops_s
 Throughput roughly tripled from 1 to 4 chains, as expected. On this
 particular machine and compiler, it does not then plateau cleanly: 8
 chains measures a little *below* 4, and 16 — the highest chain count
-tested — is the fastest result in the table. This specific ranking is
-reproducible here across repeated full sweeps, each with its own fresh
-random ordering, so it isn't run-to-run noise, and it isn't explained by
-any chain count consistently landing in a favorable position within a
-round or across the sweep, since the order itself changes every time.
-It also isn't the earlier schedule-fairness artifact, since 4, 8, and 16
+tested — is the fastest result in the table. This specific ranking
+repeats here across multiple full sweeps, each with its own fresh
+random ordering, so it isn't run-to-run noise, and a fixed collection
+order is very unlikely to be the explanation, since the order itself is
+different every time it reappears. That's evidence against a
+collection-order artifact, not a proof against one — a residual,
+by-chance positional imbalance across a specific set of nine rounds
+remains possible in principle, which is exactly why the Interpretation
+below stops short of attributing the pattern to any specific cause. It
+also isn't the earlier schedule-fairness artifact, since 4, 8, and 16
 all divide 16 evenly. It's a real, second pattern on top of the first
 one — specific to this machine and compiler, not a general property of
 out-of-order CPUs.

@@ -87,24 +87,37 @@ having to assume it away.
 Applied to this appendix's data (2,000 resamples of the twelve blocks,
 95% interval): the real effect gives a block-level difference of
 [599.1M, 621.4M] ops/s and a ratio of [1.83x, 1.88x] — entirely
-positive, entirely above 1x, real evidence the two configurations
-differ. The same procedure applied to the "no real effect" pair — the
-same configuration, twice per block, order randomized within each block
-— gives a block-level difference of [-1.6M, 3.5M] ops/s and a ratio of
+positive, entirely above 1x, strong evidence the two configurations
+differ *within this specific paired-block experiment*. A 95% interval
+is itself a probabilistic statement about the procedure, not a
+guarantee about this one result — under repeated experiments following
+this same method, about 95% of the resulting intervals should cover the
+true difference, which means an individual interval, however wide it
+falls from zero, is evidence for this experiment, not automatic proof
+that a fresh, independently-collected confirmation run would agree.
+That confirmation run is a genuinely separate step this appendix
+doesn't take.
+
+The same procedure applied to the "no real effect" pair — the same
+configuration, twice per block, order randomized within each block —
+gives a block-level difference of [-1.6M, 3.5M] ops/s and a ratio of
 [0.998x, 1.005x]: an interval that **includes zero** (equivalently,
-includes 1x for the ratio) — correctly failing to distinguish this pair
-from "no difference," exactly what a genuinely null comparison should
-produce once the data is collected in a way that controls for
-block-to-block variation. That correct null result is itself the point:
-resampling *individual* runs from two separately-collected, un-paired
-sessions instead (as an earlier draft of this appendix did) can produce
-an interval that barely excludes zero even when nothing about the
-underlying configurations differs — not because the direct-difference
-method is wrong, but because treating two un-paired sessions' runs as
-freely interchangeable throws away the information that would have
-correctly attributed a session-to-session shift to the sessions, not to
-the configuration. Pairing by block, and resampling at the block level,
-is what makes the null result actually look null.
+includes 1x for the ratio), so this experiment does not distinguish the
+two nominally identical runs — the outcome a correctly-controlled null
+comparison ought to produce, and notably different from what an
+*un*paired comparison produced earlier in this appendix's own drafting.
+Resampling *individual* runs from two separately-collected, un-paired
+sessions instead (as an earlier draft of this appendix did) produced an
+interval that barely excluded zero, despite nothing about the underlying
+configurations differing — not because the direct-difference method is
+wrong, but because treating two un-paired sessions' runs as freely
+interchangeable throws away the information that would have correctly
+attributed a session-to-session shift to the sessions, not to the
+configuration. Pairing by block, and resampling at the block level, is
+what let this particular experiment's null result come out looking
+null; a different null comparison, paired or not, could still land
+differently by chance, which is exactly why a single interval —
+including this one — is evidence, not proof.
 
 ## Bootstrap intuition
 
@@ -127,19 +140,32 @@ through directly — a confidence interval for the *difference* that
 excludes zero (or for the *ratio* that excludes 1x), answers "is there
 probably a real difference"; **effect size** answers the separate
 question "how big is it, in a unit that doesn't depend on sample size."
-Cohen's *d* (the difference between two means, divided by their pooled
-standard deviation) applied to this appendix's real-effect comparison
-gives *d* ≈ 42 — an extreme effect by any conventional threshold
-(0.2 small, 0.5 medium, 0.8 large), and *d* this large is exactly what
-low run-to-run variance plus a genuinely large mean shift produces: the
-pooled standard deviation here (about 14.4M) is tiny relative to the
-609.3M-unit gap between the means, so the same gap that shows up as
-`--chains=2` running roughly 1.85x the throughput of `--chains=1` also
-shows up as a *d* far outside the range effect-size guidance is usually
-written for — a reminder that Cohen's thresholds were calibrated on
-noisier measurements than a tight, low-variance benchmark repetition
-typically produces. The reason effect size matters separately from "is
-it real":
+
+Because this appendix's data is paired by block, the effect size worth
+computing is the *paired* Cohen's *dz* — the mean of the twelve
+block-level differences, divided by the standard deviation of those
+same twelve differences — not the unpaired *d* (the difference between
+two marginal means, divided by their pooled marginal standard
+deviation), which throws away the pairing the rest of this appendix's
+analysis deliberately keeps. Applied to this appendix's real-effect
+comparison: the twelve block differences have mean 609.3M ops/s and
+standard deviation 20.0M ops/s, giving *dz* ≈ 30 — an extreme effect by
+any conventional threshold (0.2 small, 0.5 medium, 0.8 large), and *dz*
+this large is exactly what low block-to-block variance in the
+*difference itself* plus a genuinely large mean shift produces: the
+609.3M-unit average gap is over thirty times the spread of that gap
+across blocks, so the same effect that shows up as `--chains=2` running
+roughly 1.85x the throughput of `--chains=1` also shows up as a *dz* far
+outside the range effect-size guidance is usually written for — a
+reminder that Cohen's thresholds were calibrated on noisier measurements
+than a tight, low-variance, paired benchmark comparison typically
+produces. For performance work specifically, the throughput ratio
+(1.85x, with its own paired-block confidence interval already computed
+above) is usually the more directly useful number to report alongside
+*dz* — it answers "how much faster," which is what most engineering
+decisions actually need, where *dz* only answers "how cleanly separated
+are the two distributions." The reason effect size matters separately
+from "is it real":
 a large enough sample can make a genuinely tiny, practically
 meaningless difference statistically significant (Chapter 4's own
 territory: more repetitions narrow a confidence interval around
@@ -160,9 +186,15 @@ anything else." Both of those chapters' own real, repeatedly-confirmed
 results are *not* monotonic (Chapter 17's stride-vs-latency curve dips
 and rises across the stride range; Chapter 8's chains-vs-throughput
 curve favors specific chain counts and dips at others), and both are
-genuine hardware behavior, not noise — a monotonicity filter would have
-thrown out real findings in exactly the two chapters that most needed
-a multiple-comparisons discipline. Repeating each configuration (not
+repeatedly-observed properties of the specific generated binary on the
+reference machine and compiler, not noise — Chapter 8 itself is
+explicit that it cannot attribute its own pattern to hardware,
+compiler code generation, or some combination without reading the
+generated assembly, and neither claim needs to be resolved for the
+point here: a monotonicity filter would have thrown out real, reproducible
+findings in exactly the two chapters that most needed a
+multiple-comparisons discipline, whatever their ultimate cause turns
+out to be. Repeating each configuration (not
 just each pairwise comparison) enough times to know its own spread is
 necessary — a result that isn't stable across repeats was never
 trustworthy regardless of how many configurations were tested — but
@@ -182,16 +214,16 @@ whichever point in the sweep looked most interesting.
 ## Practical versus statistical significance
 
 The distinction this whole appendix builds toward: a difference can be
-statistically well-established (a block-level difference confidence
-interval that excludes zero, a real, reproducible effect under this
-appendix's own paired-block collection) and still not matter for any
-decision that depends on it — a real, repeatable 0.3% throughput
-difference is "significant" in the statistical sense demonstrated
-above, but rarely worth the engineering cost of chasing unless the
-specific context makes 0.3% valuable at scale. This appendix's actual
-real-effect comparison is nowhere near that marginal — `chains=2`'s
-1.83x-1.88x block-level speedup is both statistically well-established
-*and* large enough to matter for essentially any purpose — but the
+statistically well-established within a single well-controlled
+experiment (a block-level difference confidence interval that excludes
+zero) and still not matter for any decision that depends on it — a
+real, repeatable 0.3% throughput difference would be "significant" in
+the statistical sense demonstrated above, but rarely worth the
+engineering cost of chasing unless the specific context makes 0.3%
+valuable at scale. This appendix's actual real-effect comparison is
+nowhere near that marginal — `chains=2`'s 1.83x-1.88x block-level
+speedup is both statistically well-established *and* large enough to
+matter for essentially any purpose — but the
 distinction still applies in general, and shows up concretely in the
 "no real effect" pair: once properly paired and interleaved, its
 block-level difference interval includes zero, correctly signaling

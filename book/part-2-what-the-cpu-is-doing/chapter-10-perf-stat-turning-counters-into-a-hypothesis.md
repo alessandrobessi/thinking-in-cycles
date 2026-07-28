@@ -44,19 +44,28 @@ before answering.
 
 A **PMU** (Performance Monitoring Unit) is dedicated hardware inside the
 CPU that counts specific architectural events — instructions retired,
-cycles elapsed, cache misses, branch mispredictions — without slowing
-down the code being measured to do so. A **hardware event** is something
-the PMU itself counts directly (cycles, instructions, cache references);
-a **software event** is something the kernel counts on the CPU's behalf
-(context switches, page faults) using a different mechanism entirely,
-even though `perf stat` presents both through the same interface. An
-**event group** is a set of events `perf stat` is asked to count
-together, guaranteed to be measured over the exact same interval — which
-matters because the PMU has a limited number of physical counter
-registers, and asking for more events than there are registers forces
-**multiplexing**: the kernel time-slices the requested events across the
-available registers and **scaling** extrapolates full-run estimates from
-the fraction of time each event was actually being counted. `perf stat`
+cycles elapsed, cache misses, branch mispredictions — without
+instrumenting every occurrence of the event in software the way a
+manually-inserted counter would; the counting itself happens in
+hardware, at a cost that's normally small relative to the workload but
+not literally zero (setup, the sampling/read path, and context-switch
+handling all have some cost, Chapter 4's hygiene checklist applies here
+too). A **hardware event** is something the PMU itself counts directly
+(cycles, instructions, cache references); a **software event** is
+something the kernel counts on the CPU's behalf (context switches, page
+faults) using a different mechanism entirely, even though `perf stat`
+presents both through the same interface. Asking `perf stat` for several
+events at once (`-e ev1,ev2,ev3`, the form every command in this chapter
+uses) tries to count all of them over the same interval, which matters
+because the PMU has a limited number of physical counter registers:
+asking for more events than there are registers forces **multiplexing**
+— the kernel time-slices the requested events across the available
+registers — and **scaling** extrapolates full-run estimates from the
+fraction of time each event was actually being counted. (`perf`
+separately supports an explicit, braced **event group** syntax —
+`{ev1,ev2,ev3}` — with a stricter co-scheduling guarantee than a plain
+comma list; this chapter's commands don't use it, so multiplexing is the
+behavior to expect here specifically, not the stricter group semantics.) `perf stat`
 can measure a single process/thread or run **system-wide** (`-a`,
 across every CPU) — a different, much broader question than "how did
 this one program run."
@@ -208,14 +217,24 @@ arithmetic work, per Chapter 7's own caveat about what that does and
 doesn't prove about the compiled code). The `--chains=8` run should
 report a materially higher `insn per cycle` figure than `--chains=1` —
 the direct counter confirmation of Chapter 7 and 8's throughput-based
-evidence for the same effect.
+*aggregate IPC difference*.
 
 **Interpretation:** if your `perf stat` numbers show `--chains=8` with
 meaningfully higher IPC than `--chains=1`, you've directly measured what
 Chapters 7 and 8 only measured indirectly through throughput — the same
-underlying phenomenon (independent work letting the pipeline stay busier
-per cycle), now with the actual hardware counters confirming the
-mechanism rather than just its external effect.
+underlying aggregate effect (higher instructions-per-cycle for the same
+requested work), now confirmed by the actual hardware counters rather
+than inferred from throughput alone. That confirms the IPC difference
+itself, not automatically its cause: independent chains letting the
+pipeline stay busier per cycle is the leading, controlled-by-source-code
+hypothesis (Chapters 7-8 changed only the dependency structure, nothing
+else, at the source level), but IPC alone doesn't distinguish that from
+other contributors a compiled, separately-specialized binary could in
+principle introduce — the same caveat Chapter 7 already raises about
+what an instruction-count match does and doesn't prove. Assembly
+inspection, or the more targeted counters Chapter 8's own Tool View
+gestures at, are what would attribute the IPC difference specifically to
+dependency depth rather than just observe that it exists.
 
 **Fallback path:** if `perf` isn't available (macOS, a container without
 counter access, a `perf_event_paranoid` setting you can't change), this
@@ -278,8 +297,9 @@ explains why two controlled runs differ.**
 
 ## What to Remember
 
-- The PMU counts hardware events without slowing down the measured code;
-  `perf stat` is the standard interface to it on Linux.
+- The PMU counts hardware events in dedicated silicon rather than by
+  instrumenting the code in software, at overhead that's normally small
+  but not zero; `perf stat` is the standard interface to it on Linux.
 - Hardware events (PMU-counted) and software events (kernel-counted) are
   mechanically different but reported through the same `perf stat`
   interface.

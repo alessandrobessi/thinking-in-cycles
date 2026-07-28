@@ -164,8 +164,10 @@ to see IPC numbers directly.
 ```
 
 This runs the same per-iteration *arithmetic operation sequence* at the
-C source level (`--op=int`, 16 unrolled slots, each doing the identical
-multiply/add/xor either way) once as a single dependency chain
+C source level (`--op=int`, 16 fixed update slots — an ordinary,
+fixed-trip loop in the source, written to be fully unrollable by the
+optimizer, not manually unrolled statement by statement — each doing the
+identical multiply/add/xor either way) once as a single dependency chain
 (`--chains=1`) and once as eight independent chains (`--chains=8`), so
 any throughput difference between the two is a candidate for "how
 efficiently the CPU could pack those operations into time," not a

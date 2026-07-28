@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
 #
 # Chapter 7 guided lab (portable fallback): the same source-level update
-# workload (--op=int, 16 unrolled updates per iteration either way), run
-# once with a single dependency chain and once with eight independent
+# workload (--op=int, 16 fixed update slots per iteration either way --
+# an ordinary fixed-trip loop, written to be fully unrollable by the
+# optimizer, not manually unrolled in the source), run once with a
+# single dependency chain and once with eight independent
 # chains, as an indirect but real demonstration of what differing IPC
 # looks like from the outside -- without requiring perf's hardware
 # counters, which this lab does not assume are available. Note this is
