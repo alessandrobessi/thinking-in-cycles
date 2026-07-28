@@ -235,8 +235,12 @@ out-of-order CPUs.
 **Interpretation:** the initial rise (1 to 4 chains) is this chapter's
 core lesson working exactly as expected: more independent work, more of
 the pipeline kept busy. The remaining unevenness among 4, 8, and 16 is
-genuine and not an artifact of this lab's schedule or collection order,
-but this portable, black-box throughput sweep has no way to say *why*
+not explained by this lab's earlier schedule-fairness bug (all three
+divide 16 evenly) and is very unlikely to be a collection-order
+artifact (Guided Lab, above) — but "very unlikely to be an artifact of
+measurement" is not the same claim as "proven to be caused by the
+hardware or the compiler," and this portable, black-box throughput
+sweep has no way to say *why*
 — register allocation, code layout, and other compiler-specific choices
 are all plausible candidates, and a specific answer would need to come from
 reading the generated assembly for these three specializations directly
@@ -274,11 +278,13 @@ occurs in practice.
 update workload (Chapter 7's own caveat: `--chains=1` and `--chains=16`
 are separately compiled specializations, so "exact same instruction
 mix" is a machine-code-level claim this book doesn't verify), shows a
-dramatically different *throughput* depending purely on how independent
-the requested work is (this chapter's lab) — a result *consistent with*
-dramatically different stall behavior, though this portable lab
-measures throughput, not stalls directly; nothing about the hardware
-changed between the two runs.
+dramatically different *throughput* when the only *source-level* change
+is how independent the requested work is (this chapter's lab) — a
+result *consistent with* dramatically different stall behavior, though
+this portable lab measures throughput, not stalls directly, and cannot
+by itself rule out the compiled code contributing to the difference
+alongside dependency structure; nothing about the hardware changed
+between the two runs.
 
 **Analogy:** A single cashier isn't "broken" when a line forms — the
 line is a normal consequence of customers arriving faster than one
@@ -336,8 +342,11 @@ moving; a dependency stall is what happens when it can't find any.**
 - Adding independent work increases throughput only up to the CPU's
   actual issue width and execution-unit capacity — past that, more
   independent work stops helping.
-- The same instruction count and mix can perform very differently purely
-  based on how dependent or independent the operations are.
+- The same source-level operation sequence can perform very differently
+  depending on how dependent or independent the operations are — the
+  machine-code-level instruction mix isn't verified to be identical
+  (Chapter 7), so this is what the controlled source change shows, not
+  a claim about the compiled binaries.
 - A stall is not a hardware fault; it's an expected consequence of a
   workload's dependency structure.
 - Detailed, counter-based attribution of stalls to specific pipeline

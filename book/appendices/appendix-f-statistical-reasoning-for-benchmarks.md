@@ -163,9 +163,14 @@ produces. For performance work specifically, the throughput ratio
 (1.85x, with its own paired-block confidence interval already computed
 above) is usually the more directly useful number to report alongside
 *dz* — it answers "how much faster," which is what most engineering
-decisions actually need, where *dz* only answers "how cleanly separated
-are the two distributions." The reason effect size matters separately
-from "is it real":
+decisions actually need. *dz* answers a narrower, different question:
+"how large and consistent is the per-block gap, relative to how much
+that gap itself varies from block to block" — a statement about the
+*paired differences*, not about how far apart the two configurations'
+raw throughput distributions sit from each other (that's what the
+unpaired *d* would describe, and exactly why this appendix uses the
+paired version instead, per its own paired collection design). The
+reason effect size matters separately from "is it real":
 a large enough sample can make a genuinely tiny, practically
 meaningless difference statistically significant (Chapter 4's own
 territory: more repetitions narrow a confidence interval around
@@ -182,19 +187,22 @@ even with zero real effects present anywhere. Chapter 17's stride sweep
 and Chapter 8's chain-count sweep are exactly this situation in
 miniature — many configurations measured in one investigation — but the
 protection isn't "look for a smooth, monotonic trend and distrust
-anything else." Both of those chapters' own real, repeatedly-confirmed
-results are *not* monotonic (Chapter 17's stride-vs-latency curve dips
-and rises across the stride range; Chapter 8's chains-vs-throughput
-curve favors specific chain counts and dips at others), and both are
-repeatedly-observed properties of the specific generated binary on the
-reference machine and compiler, not noise — Chapter 8 itself is
-explicit that it cannot attribute its own pattern to hardware,
-compiler code generation, or some combination without reading the
-generated assembly, and neither claim needs to be resolved for the
-point here: a monotonicity filter would have thrown out real, reproducible
-findings in exactly the two chapters that most needed a
-multiple-comparisons discipline, whatever their ultimate cause turns
-out to be. Repeating each configuration (not
+anything else." Both of those chapters' own results, repeatedly
+observed within their respective exploratory sweeps, are *not*
+monotonic (Chapter 17's stride-vs-latency curve dips and rises across
+the stride range; Chapter 8's chains-vs-throughput curve favors
+specific chain counts and dips at others) — Chapter 8 itself is
+explicit that it cannot attribute its own pattern to hardware, compiler
+code generation, or some combination without reading the generated
+assembly, and neither chapter's own sweep is presented as an
+independently-confirmed finding in the stronger sense this appendix's
+own "Repeated comparisons" discipline calls for below; both are
+observations a monotonicity filter would have thrown out regardless,
+which is the only point that matters here: whatever their ultimate
+cause, and whatever further confirmation either pattern would still
+need, discarding a non-monotonic result on shape alone would have lost
+real signal in exactly the two chapters that most needed a
+multiple-comparisons discipline. Repeating each configuration (not
 just each pairwise comparison) enough times to know its own spread is
 necessary — a result that isn't stable across repeats was never
 trustworthy regardless of how many configurations were tested — but

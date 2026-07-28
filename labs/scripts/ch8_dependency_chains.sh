@@ -20,9 +20,12 @@
 # first could differ from the others because of a real, repeatable
 # per-position effect (frequency ramp-up, cache state at the start of a
 # round), not because of chain count itself. Randomizing which chain
-# count lands in which position, fresh every round, is what actually
-# rules that out -- the same logic as randomized block design generally,
-# applied here to a five-way sweep instead of a two-way before/after.
+# count lands in which position, fresh every round, substantially
+# reduces that risk -- the same logic as randomized block design
+# generally, applied here to a five-way sweep instead of a two-way
+# before/after -- but with only a handful of rounds, it doesn't prove a
+# residual by-chance imbalance away; see the chapter text for what that
+# does and doesn't establish about the result below.
 set -uo pipefail
 # (Not set -e: this project's lab scripts consistently avoid it --
 # set -e's behavior inside command substitutions and conditional
